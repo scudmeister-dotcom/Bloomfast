@@ -1,0 +1,18 @@
+{
+  "name": "amadors-fasting-app",
+  "version": "1.0.0",
+  "description": "Amador's Fasting App — grow plants with every fast",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^6.0.0"
+  },
+  "dependencies": {
+    "chart.js": "^4.0.0",
+    "phaser": "^3.90.0"
+  }
+}

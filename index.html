@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bloomfast — Grow Your Way to Wellness</title>
+  <meta name="description" content="Transform your fasting journey into a living garden. Track fasts, grow plants, and build your zen oasis." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <div id="app">
+    <!-- Sidebar Navigation -->
+    <nav id="sidebar" class="sidebar">
+      <div class="sidebar-logo">
+        <span class="logo-icon">🌸</span>
+        <span class="logo-text">Bloomfast</span>
+      </div>
+      <ul class="nav-list">
+        <li>
+          <button class="nav-btn active" data-tab="timer" id="nav-timer">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <span>Timer</span>
+          </button>
+        </li>
+        <li>
+          <button class="nav-btn" data-tab="garden" id="nav-garden">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22c4-4 8-7.5 8-12a8 8 0 10-16 0c0 4.5 4 8 8 12z"/><circle cx="12" cy="10" r="3"/></svg>
+            <span>Garden</span>
+          </button>
+        </li>
+        <li>
+          <button class="nav-btn" data-tab="analytics" id="nav-analytics">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+            <span>Analytics</span>
+          </button>
+        </li>
+        <li>
+          <button class="nav-btn" data-tab="habits" id="nav-habits">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+            <span>Habits</span>
+          </button>
+        </li>
+        <li>
+          <button class="nav-btn" data-tab="wellness" id="nav-wellness">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+            <span>Wellness</span>
+          </button>
+        </li>
+
+      </ul>
+      <div class="sidebar-footer">
+        <button class="nav-btn" id="nav-settings" data-tab="settings">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+          <span>Settings</span>
+        </button>
+      </div>
+    </nav>
+
+    <!-- Mobile Header -->
+    <header id="mobile-header" class="mobile-header">
+      <button id="mobile-menu-btn" class="mobile-menu-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <div class="mobile-logo">
+        <span class="logo-icon">🌸</span>
+        <span>Bloomfast</span>
+      </div>
+      <div class="mobile-water-btn-wrap">
+        <button id="mobile-water-btn" class="water-btn-small" title="Log Water">💧</button>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main id="main-content" class="main-content">
+
+      <!-- ============ TIMER TAB ============ -->
+      <section id="tab-timer" class="tab-panel active">
+        <div class="timer-page">
+          <!-- Plant Canvas Area -->
+          <div class="plant-area">
+            <canvas id="plant-canvas" width="500" height="500"></canvas>
+            <div id="plant-species-label" class="plant-species-label"></div>
+            <div id="growth-stage-label" class="growth-stage-label">Plant a seed to begin</div>
+          </div>
+
+          <!-- Timer Controls -->
+          <div class="timer-controls-area">
+            <div class="timer-display-card glass-card">
+              <div id="timer-display" class="timer-display">00:00:00</div>
+              <div id="timer-subtitle" class="timer-subtitle">Select a fasting plan to start</div>
+              <div id="timer-progress-bar" class="timer-progress-bar">
+                <div id="timer-progress-fill" class="timer-progress-fill" style="width:0%"></div>
+              </div>
+            </div>
+
+            <!-- Fasting Plan Selector -->
+            <div id="plan-selector" class="plan-selector">
+              <h3 class="section-title">Choose Your Fast</h3>
+              <div class="plan-grid">
+                <button class="plan-btn" data-plan="16:8">
+                  <span class="plan-hours">16</span>
+                  <span class="plan-label">hours</span>
+                  <span class="plan-name">16:8</span>
+                </button>
+                <button class="plan-btn" data-plan="18:6">
+                  <span class="plan-hours">18</span>
+                  <span class="plan-label">hours</span>
+                  <span class="plan-name">18:6</span>
+                </button>
+                <button class="plan-btn" data-plan="20:4">
+                  <span class="plan-hours">20</span>
+                  <span class="plan-label">hours</span>
+                  <span class="plan-name">20:4</span>
+                </button>
+                <button class="plan-btn" data-plan="OMAD">
+                  <span class="plan-hours">23</span>
+                  <span class="plan-label">hours</span>
+                  <span class="plan-name">OMAD</span>
+                </button>
+                <button class="plan-btn" data-plan="ADF">
+                  <span class="plan-hours">36</span>
+                  <span class="plan-label">hours</span>
+                  <span class="plan-name">ADF</span>
+                </button>
+                <button class="plan-btn" data-plan="custom">
+                  <span class="plan-hours">?</span>
+                  <span class="plan-label">hours</span>
+                  <span class="plan-name">Custom</span>
+                </button>
+              </div>
+              <!-- Custom Hours Input (hidden by default) -->
+              <div id="custom-input-area" class="custom-input-area hidden">
+                <label for="custom-hours">Enter fasting hours:</label>
+                <input type="number" id="custom-hours" min="1" max="168" value="12" class="custom-hours-input" />
+              </div>
+            </div>
+
+            <!-- Start / Stop Buttons -->
+            <div class="timer-actions">
+              <button id="btn-start-fast" class="btn btn-primary btn-glow">
+                <span>🌱</span> Plant a Seed
+              </button>
+              <button id="btn-stop-fast" class="btn btn-danger hidden">
+                <span>✂️</span> End Fast Early
+              </button>
+            </div>
+
+            <!-- Body Status Timeline -->
+            <div id="body-status-timeline" class="body-status-timeline hidden">
+              <h3 class="section-title">Body Status</h3>
+              <div class="milestones">
+                <div class="milestone" data-hour="0">
+                  <div class="milestone-dot"></div>
+                  <div class="milestone-info">
+                    <span class="milestone-time">0h</span>
+                    <span class="milestone-desc">Fast begins — digestion starts winding down</span>
+                  </div>
+                </div>
+                <div class="milestone" data-hour="4">
+                  <div class="milestone-dot"></div>
+                  <div class="milestone-info">
+                    <span class="milestone-time">4h</span>
+                    <span class="milestone-desc">Blood sugar stabilizing</span>
+                  </div>
+                </div>
+                <div class="milestone" data-hour="8">
+                  <div class="milestone-dot"></div>
+                  <div class="milestone-info">
+                    <span class="milestone-time">8h</span>
+                    <span class="milestone-desc">Body begins using stored glucose</span>
+                  </div>
+                </div>
+                <div class="milestone" data-hour="12">
+                  <div class="milestone-dot"></div>
+                  <div class="milestone-info">
+                    <span class="milestone-time">12h</span>
+                    <span class="milestone-desc">Entering early ketosis — fat burning begins</span>
+                  </div>
+                </div>
+                <div class="milestone" data-hour="16">
+                  <div class="milestone-dot"></div>
+                  <div class="milestone-info">
+                    <span class="milestone-time">16h</span>
+                    <span class="milestone-desc">Autophagy activating — cellular cleanup</span>
+                  </div>
+                </div>
+                <div class="milestone" data-hour="20">
+                  <div class="milestone-dot"></div>
+                  <div class="milestone-info">
+                    <span class="milestone-time">20h</span>
+                    <span class="milestone-desc">Growth hormone surge — deep repair mode</span>
+                  </div>
+                </div>
+                <div class="milestone" data-hour="24">
+                  <div class="milestone-dot"></div>
+                  <div class="milestone-info">
+                    <span class="milestone-time">24h</span>
+                    <span class="milestone-desc">Full autophagy — maximum cellular renewal</span>
+                  </div>
+                </div>
+                <div class="milestone" data-hour="36">
+                  <div class="milestone-dot"></div>
+                  <div class="milestone-info">
+                    <span class="milestone-time">36h</span>
+                    <span class="milestone-desc">Deep autophagy — immune system regeneration</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Water Tracker -->
+            <div class="water-tracker glass-card">
+              <h3 class="section-title">💧 Hydration</h3>
+              <div class="water-display">
+                <div class="water-glasses" id="water-glasses"></div>
+                <div class="water-count">
+                  <span id="water-count-num">0</span> / 8 glasses
+                  <span class="water-oz">(<span id="water-oz-num">0</span> fl oz)</span>
+                </div>
+              </div>
+              <button id="btn-log-water" class="btn btn-water">
+                <span>💧</span> Log Water (8 fl oz)
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ GARDEN TAB ============ -->
+      <section id="tab-garden" class="tab-panel">
+        <div class="garden-page">
+          <div class="content-header" style="margin-bottom: 20px;">
+            <div>
+              <h2 style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 24px;">🏛️</span> Botanical Collection
+              </h2>
+              <p style="color: var(--text-secondary);">Your personal archive of fasting achievements.</p>
+            </div>
+            <div class="collection-stats" style="text-align: right;">
+              <div id="collection-progress-text" style="font-size: 0.85rem; font-weight: 700; color: var(--accent); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">0/112 Discovered</div>
+              <div class="progress-bar-container" style="width: 150px; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.3); float: right;">
+                <div id="collection-progress-bar" style="width: 0%; height: 100%; background: var(--gradient-primary); transition: width 0.5s ease; box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="collection-controls">
+            <div class="filter-tabs" id="category-filters">
+              <button class="filter-btn active" data-category="all">All</button>
+              <button class="filter-btn" data-category="Flowers">Flowers</button>
+              <button class="filter-btn" data-category="Trees">Trees</button>
+              <button class="filter-btn" data-category="Succulents">Succulents</button>
+              <button class="filter-btn" data-category="Herbs">Herbs</button>
+              <button class="filter-btn" data-category="Exotic">Exotic</button>
+            </div>
+            <select id="rarity-filter" class="form-select" style="max-width: 180px; background-color: var(--bg-tertiary); border-color: var(--border-subtle); color: var(--text-primary); border-radius: 8px; padding: 6px 12px; font-family: var(--font-body);">
+              <option value="all">All Rarities</option>
+              <option value="common">Common</option>
+              <option value="uncommon">Uncommon</option>
+              <option value="rare">Rare</option>
+              <option value="legendary">Legendary</option>
+            </select>
+          </div>
+
+          <div class="collection-grid" id="botanical-grid">
+            <!-- Generated by JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ ANALYTICS TAB ============ -->
+      <section id="tab-analytics" class="tab-panel">
+        <div class="analytics-page">
+          <div class="analytics-header">
+            <h2 class="page-title">📊 Analytics</h2>
+            <div class="analytics-actions">
+              <select id="analytics-range" class="select-input">
+                <option value="7">Last 7 days</option>
+                <option value="30" selected>Last 30 days</option>
+                <option value="90">Last 90 days</option>
+                <option value="365">Last year</option>
+              </select>
+              <button id="btn-reset-stats" class="btn btn-outline btn-danger-hover" title="Reset all statistics">🔄 Reset Stats</button>
+              <button id="btn-export-data" class="btn btn-outline">📥 Export Data</button>
+            </div>
+          </div>
+
+          <!-- Stats Row -->
+          <div class="stats-row">
+            <div class="stat-card glass-card">
+              <div class="stat-value" id="stat-total-fasts">0</div>
+              <div class="stat-label">Total Fasts</div>
+            </div>
+            <div class="stat-card glass-card">
+              <div class="stat-value" id="stat-avg-hours">0h</div>
+              <div class="stat-label">Avg Duration</div>
+            </div>
+            <div class="stat-card glass-card">
+              <div class="stat-value" id="stat-completion">0%</div>
+              <div class="stat-label">Completion Rate</div>
+            </div>
+          </div>
+          <!-- Today's Focus (New) -->
+          <div class="focus-card glass-card" style="display:flex; justify-content: space-around; padding: 20px; margin-bottom: var(--space-md); text-align: center;">
+            <div class="focus-item">
+              <span style="font-size:0.75rem; color:var(--text-secondary); text-transform:uppercase; letter-spacing:1.5px; display:block; margin-bottom:5px;">Hours Fasted Today</span>
+              <div id="analytics-today-hours" style="font-size:2rem; font-weight:800; color:var(--accent);">0h</div>
+            </div>
+            <div style="width:1px; background:rgba(255,255,255,0.1); align-self:stretch;"></div>
+            <div class="focus-item">
+              <span style="font-size:0.75rem; color:var(--text-secondary); text-transform:uppercase; letter-spacing:1.5px; display:block; margin-bottom:5px;">Water Intake Today</span>
+              <div id="analytics-today-water" style="font-size:2rem; font-weight:800; color:#4fc3f7;">0 glasses</div>
+            </div>
+          </div>
+          <!-- Weekly Streak Tracker -->
+          <div class="chart-card glass-card weekly-streak-card">
+            <h3>🔥 Weekly Streak</h3>
+            <p class="section-desc">Complete fasts each day this week to fill the streak. Resets every Monday!</p>
+            <div id="weekly-streak-bar" class="weekly-streak-bar"></div>
+          </div>
+
+          <!-- Charts Grid -->
+          <div class="charts-grid">
+            <div class="chart-card glass-card">
+              <h3>Fasting History</h3>
+              <canvas id="chart-streaks"></canvas>
+            </div>
+            <div class="chart-card glass-card">
+              <h3>Weight Trend</h3>
+              <div class="weight-log-area">
+                <div class="weight-input-row">
+                  <input type="number" id="weight-input" class="weight-input" placeholder="Enter weight (lbs)" step="0.1" />
+                  <button id="btn-log-weight" class="btn btn-primary btn-sm">Log</button>
+                </div>
+                <canvas id="chart-weight"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ HABITS TAB ============ -->
+      <section id="tab-habits" class="tab-panel">
+        <div class="habits-page">
+          <h2 class="page-title">✅ Habits</h2>
+
+          <!-- Active Habit Toggles -->
+          <div class="habits-section glass-card">
+            <h3>Vice/Habit Toggles</h3>
+            <p class="section-desc">Attach secondary goals to your fasting timer</p>
+            <div class="habit-toggles" id="habit-toggles">
+              <div class="habit-toggle-row" data-habit-id="no-junk-food">
+                <label class="habit-toggle">
+                  <input type="checkbox" data-habit="no-junk-food" />
+                  <span class="toggle-switch"></span>
+                  <span class="habit-label">🍔 No Junk Food</span>
+                </label>
+                <button class="habit-remove-btn" data-remove="no-junk-food" title="Remove habit">✕</button>
+              </div>
+              <div class="habit-toggle-row" data-habit-id="no-scrolling">
+                <label class="habit-toggle">
+                  <input type="checkbox" data-habit="no-scrolling" />
+                  <span class="toggle-switch"></span>
+                  <span class="habit-label">📱 No Heavy Scrolling</span>
+                </label>
+                <button class="habit-remove-btn" data-remove="no-scrolling" title="Remove habit">✕</button>
+              </div>
+              <div class="habit-toggle-row" data-habit-id="no-sugar">
+                <label class="habit-toggle">
+                  <input type="checkbox" data-habit="no-sugar" />
+                  <span class="toggle-switch"></span>
+                  <span class="habit-label">🍬 No Sugar</span>
+                </label>
+                <button class="habit-remove-btn" data-remove="no-sugar" title="Remove habit">✕</button>
+              </div>
+              <div class="habit-toggle-row" data-habit-id="no-caffeine">
+                <label class="habit-toggle">
+                  <input type="checkbox" data-habit="no-caffeine" />
+                  <span class="toggle-switch"></span>
+                  <span class="habit-label">☕ No Caffeine</span>
+                </label>
+                <button class="habit-remove-btn" data-remove="no-caffeine" title="Remove habit">✕</button>
+              </div>
+              <div class="habit-toggle-row" data-habit-id="meditation">
+                <label class="habit-toggle">
+                  <input type="checkbox" data-habit="meditation" />
+                  <span class="toggle-switch"></span>
+                  <span class="habit-label">🧘 Meditate</span>
+                </label>
+                <button class="habit-remove-btn" data-remove="meditation" title="Remove habit">✕</button>
+              </div>
+              <div class="habit-toggle-row" data-habit-id="exercise">
+                <label class="habit-toggle">
+                  <input type="checkbox" data-habit="exercise" />
+                  <span class="toggle-switch"></span>
+                  <span class="habit-label">🏃 Exercise</span>
+                </label>
+                <button class="habit-remove-btn" data-remove="exercise" title="Remove habit">✕</button>
+              </div>
+            </div>
+            <!-- Custom Habit -->
+            <div class="add-habit-row">
+              <input type="text" id="custom-habit-input" class="text-input" placeholder="Add a custom habit..." />
+              <button id="btn-add-habit" class="btn btn-primary btn-sm">Add</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ WELLNESS TAB (new) ============ -->
+      <section id="tab-wellness" class="tab-panel">
+        <div class="wellness-page">
+          <h2 class="page-title">💚 Wellness</h2>
+
+          <!-- Metric Logging -->
+          <div class="metric-log-card glass-card">
+            <h3>📊 Today's Metrics</h3>
+            <div class="metric-sliders">
+              <div class="metric-row">
+                <label>😊 Mood</label>
+                <input type="range" id="metric-mood" min="1" max="10" value="5" class="metric-slider" />
+                <span class="metric-val" id="metric-mood-val">5</span>
+              </div>
+              <div class="metric-row">
+                <label>😴 Sleep</label>
+                <input type="range" id="metric-sleep" min="1" max="10" value="5" class="metric-slider" />
+                <span class="metric-val" id="metric-sleep-val">5</span>
+              </div>
+              <div class="metric-row">
+                <label>⚡ Energy</label>
+                <input type="range" id="metric-energy" min="1" max="10" value="5" class="metric-slider" />
+                <span class="metric-val" id="metric-energy-val">5</span>
+              </div>
+            </div>
+            <div id="metrics-saved-overlay" class="metrics-overlay hidden">
+              <p>🌱 Today's metrics are saved.</p>
+              <button id="btn-edit-metrics" class="btn btn-sm btn-outline">✏️ Edit Metrics</button>
+            </div>
+            <button id="btn-log-metrics" class="btn btn-primary">Save Today's Metrics</button>
+          </div>
+
+          <!-- Well-being Chart -->
+          <div class="chart-card glass-card" style="margin-bottom: var(--space-lg);">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <h3>📈 Well-being Trends</h3>
+              <div id="wellbeing-avg-badge" class="avg-badge" style="background: var(--accent); color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem;">Avg: --</div>
+            </div>
+            <canvas id="chart-wellbeing"></canvas>
+          </div>
+
+          <!-- Past Metrics -->
+          <div class="metrics-history glass-card">
+            <h3>📜 Metrics History</h3>
+            <div id="metrics-history-list" class="metrics-history-list">
+              <p class="empty-msg">No metrics logged yet.</p>
+            </div>
+          </div>
+
+          <!-- Mindfulness Journal -->
+          <div class="journal-section glass-card" style="position: relative;">
+            <h3>🧠 Mindfulness Journal</h3>
+            <p class="section-desc">Write down cravings, victories, or thoughts for today</p>
+            <textarea id="journal-entry" class="journal-textarea" placeholder="How are you feeling today? Any cravings? Victories?"></textarea>
+            <div class="journal-actions">
+              <button id="btn-save-journal" class="btn btn-primary">Save Entry</button>
+              <span id="journal-saved-msg" class="saved-msg hidden">✓ Saved</span>
+            </div>
+            <div id="journal-saved-overlay" class="metrics-overlay hidden">
+              <p>📖 Today's journal entry is saved.</p>
+              <button id="btn-edit-journal" class="btn btn-sm btn-outline">✏️ Edit Journal</button>
+            </div>
+          </div>
+
+          <!-- Past Entries -->
+          <div class="past-entries glass-card">
+            <h3>📖 Journal</h3>
+            <div id="past-entries-list" class="past-entries-list">
+              <p class="empty-msg">No journal entries yet. Start writing!</p>
+            </div>
+          </div>
+
+          <!-- AI Coach -->
+          <div class="ai-coach glass-card">
+            <h3>🤖 Bloom Coach</h3>
+            <p class="section-desc">AI-powered insights from your journal entries and metrics</p>
+            <div id="ai-coach-output" class="ai-coach-output">
+              <p class="empty-msg">Write a few journal entries and log metrics — Bloom Coach will analyze your patterns and offer personalized advice.</p>
+            </div>
+            <button id="btn-get-coaching" class="btn btn-primary">
+              <span>✨</span> Get Coaching Insights
+            </button>
+          </div>
+        </div>
+      </section>
+
+
+
+      <!-- ============ SETTINGS TAB ============ -->
+      <section id="tab-settings" class="tab-panel">
+        <div class="settings-page">
+          <h2 class="page-title">⚙️ Settings</h2>
+          <div class="settings-section glass-card">
+            <h3>Notifications</h3>
+            <label class="habit-toggle">
+              <input type="checkbox" id="setting-notif-hydrate" checked />
+              <span class="toggle-switch"></span>
+              <span class="habit-label">Hydration reminders</span>
+            </label>
+            <div class="setting-row" style="margin-top: var(--space-md);">
+              <label style="color: var(--text-secondary); font-size: 0.85rem;">Reminder Frequency</label>
+              <select id="setting-hydrate-freq" class="plan-select" style="margin-top: 5px;">
+                <option value="1">Every 1 hour</option>
+                <option value="2" selected>Every 2 hours</option>
+                <option value="3">Every 3 hours</option>
+                <option value="4">Every 4 hours</option>
+              </select>
+            </div>
+            <button id="btn-enable-notif" class="btn btn-outline" style="margin-top: var(--space-md); width: 100%;">Enable Browser Notifications</button>
+          </div>
+          <div class="settings-section glass-card">
+            <h3>Data Management</h3>
+            <button id="btn-export-json" class="btn btn-outline">Export as JSON</button>
+            <button id="btn-export-csv" class="btn btn-outline">Export as CSV</button>
+            <button id="btn-clear-data" class="btn btn-danger">Clear All Data</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast hidden"></div>
+
+  <!-- Modal Overlay -->
+  <div id="modal-overlay" class="modal-overlay hidden">
+    <div class="modal glass-card" id="modal">
+      <button id="modal-close" class="modal-close">&times;</button>
+      <div id="modal-content"></div>
+    </div>
+  </div>
+
+  <!-- Confirm Modal -->
+  <div id="confirm-modal" class="modal-overlay hidden">
+    <div class="glass-card modal-content" style="max-width: 400px; text-align: center;">
+      <h3 id="confirm-title">Confirm Action</h3>
+      <p id="confirm-msg" style="margin: var(--space-md) 0; color: var(--text-secondary);"></p>
+      <div style="display: flex; gap: 10px; justify-content: center; margin-top: var(--space-md);">
+        <button id="btn-confirm-cancel" class="btn btn-outline">Cancel</button>
+        <button id="btn-confirm-proceed" class="btn btn-primary" style="background: #ff5252; border-color: #ff5252;">Proceed</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/main.js"></script>
+</body>
+</html>
