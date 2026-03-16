@@ -27,7 +27,7 @@
         </li>
         <li>
           <button class="nav-btn" data-tab="garden" id="nav-garden">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22c4-4 8-7.5 8-12a8 8 0 10-16 0c0 4.5 4 8 8 12z"/><circle cx="12" cy="10" r="3"/></svg>
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 10a6 6 0 0 0 -6 -6h-3v2a6 6 0 0 0 6 6h3" /><path d="M12 14a6 6 0 0 1 6 -6h3v1a6 6 0 0 1 -6 6h-3" /><path d="M12 20l0 -10" /></svg>
             <span>Garden</span>
           </button>
         </li>
@@ -143,9 +143,19 @@
               <button id="btn-start-fast" class="btn btn-primary btn-glow">
                 <span>🌱</span> Plant a Seed
               </button>
-              <button id="btn-stop-fast" class="btn btn-danger hidden">
-                <span>✂️</span> End Fast Early
+              <button id="btn-stop-fast" class="btn btn-primary hidden">
+                <span>🏁</span> Complete Fast
               </button>
+            </div>
+
+            <!-- Debug Timer Controls -->
+            <div id="debug-timer-controls" class="debug-controls glass-card" style="margin-top: 20px; border: 1px dashed var(--accent);">
+              <h4 style="font-size: 0.8rem; color: var(--accent); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px;">🛠️ Debug Controls</h4>
+              <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button id="btn-debug-add-1h" class="btn btn-sm btn-outline">＋1 Hour</button>
+                <button id="btn-debug-sub-1h" class="btn btn-sm btn-outline">－1 Hour</button>
+                <button id="btn-debug-fast-forward" class="btn btn-sm btn-outline" style="border-color: #ff9800; color: #ff9800;">⏩ Fast Forward (99%)</button>
+              </div>
             </div>
 
             <!-- Body Status Timeline -->
@@ -256,13 +266,20 @@
               <button class="filter-btn" data-category="Herbs">Herbs</button>
               <button class="filter-btn" data-category="Exotic">Exotic</button>
             </div>
-            <select id="rarity-filter" class="form-select" style="max-width: 180px; background-color: var(--bg-tertiary); border-color: var(--border-subtle); color: var(--text-primary); border-radius: 8px; padding: 6px 12px; font-family: var(--font-body);">
+            <select id="rarity-filter" class="form-select" style="max-width: 140px; background-color: var(--bg-tertiary); border-color: var(--border-subtle); color: var(--text-primary); border-radius: 8px; padding: 6px 12px; font-family: var(--font-body);">
               <option value="all">All Rarities</option>
               <option value="common">Common</option>
               <option value="uncommon">Uncommon</option>
               <option value="rare">Rare</option>
               <option value="legendary">Legendary</option>
             </select>
+            <div class="earned-only-wrap" style="display: flex; align-items: center; gap: 8px; margin-left: 10px;">
+              <span style="font-size: 0.8rem; color: var(--text-secondary); white-space: nowrap;">Acquired Only</span>
+              <label class="habit-toggle" style="padding: 0; margin: 0; transform: scale(0.85);">
+                <input type="checkbox" id="earned-only-filter" />
+                <span class="toggle-switch"></span>
+              </label>
+            </div>
           </div>
 
           <div class="collection-grid" id="botanical-grid">
@@ -283,6 +300,7 @@
                 <option value="90">Last 90 days</option>
                 <option value="365">Last year</option>
               </select>
+              <button id="btn-debug-mock-data" class="btn btn-outline" style="border-color: var(--accent); color: var(--accent);" title="Inject 30 days of sample data">🧪 Mock Data</button>
               <button id="btn-reset-stats" class="btn btn-outline btn-danger-hover" title="Reset all statistics">🔄 Reset Stats</button>
               <button id="btn-export-data" class="btn btn-outline">📥 Export Data</button>
             </div>
@@ -331,8 +349,9 @@
             <div class="chart-card glass-card">
               <h3>Weight Trend</h3>
               <div class="weight-log-area">
-                <div class="weight-input-row">
-                  <input type="number" id="weight-input" class="weight-input" placeholder="Enter weight (lbs)" step="0.1" />
+                <div class="weight-input-row" style="flex-wrap: wrap; gap: 8px;">
+                  <input type="date" id="weight-date" class="select-input" style="flex: 1; min-width: 120px;" />
+                  <input type="number" id="weight-input" class="weight-input" placeholder="Weight (lbs)" step="0.1" style="flex: 1; min-width: 100px;" />
                   <button id="btn-log-weight" class="btn btn-primary btn-sm">Log</button>
                 </div>
                 <canvas id="chart-weight"></canvas>
@@ -413,11 +432,31 @@
       <!-- ============ WELLNESS TAB (new) ============ -->
       <section id="tab-wellness" class="tab-panel">
         <div class="wellness-page">
-          <h2 class="page-title">💚 Wellness</h2>
+          <div class="content-header" style="margin-bottom: 20px;">
+            <div>
+              <h2 style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 24px;">💚</span> Daily Wellness Ritual
+              </h2>
+              <p style="color: var(--text-secondary);">Reflect on your body and mind today. Reset every morning!</p>
+            </div>
+            <div id="checkin-overall-progress" style="text-align: right;">
+               <div style="font-size: 0.8rem; font-weight: 700; color: var(--accent); margin-bottom: 4px; text-transform: uppercase;">Ritual Progress</div>
+               <div class="progress-bar-container" style="width: 120px; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; float: right;">
+                 <div id="ritual-progress-fill" style="width: 0%; height: 100%; background: var(--gradient-primary); transition: width 0.5s ease;"></div>
+               </div>
+            </div>
+          </div>
 
           <!-- Metric Logging -->
-          <div class="metric-log-card glass-card">
-            <h3>📊 Today's Metrics</h3>
+          <div id="wellness-metrics-section" class="metric-log-card glass-card daily-checkin-card">
+            <div class="daily-checkin-header">
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <div class="checkin-step-indicator">1</div>
+                <h3>Body Metrics</h3>
+              </div>
+              <button id="btn-edit-metrics" class="btn btn-outline btn-edit-checkin hidden">✏️ Edit</button>
+            </div>
+            <p class="section-desc">How is your physical body feeling right now?</p>
             <div class="metric-sliders">
               <div class="metric-row">
                 <label>😊 Mood</label>
@@ -435,11 +474,7 @@
                 <span class="metric-val" id="metric-energy-val">5</span>
               </div>
             </div>
-            <div id="metrics-saved-overlay" class="metrics-overlay hidden">
-              <p>🌱 Today's metrics are saved.</p>
-              <button id="btn-edit-metrics" class="btn btn-sm btn-outline">✏️ Edit Metrics</button>
-            </div>
-            <button id="btn-log-metrics" class="btn btn-primary">Save Today's Metrics</button>
+            <button id="btn-log-metrics" class="btn btn-primary" style="width: 100%;">Save Body Metrics</button>
           </div>
 
           <!-- Well-being Chart -->
@@ -460,18 +495,20 @@
           </div>
 
           <!-- Mindfulness Journal -->
-          <div class="journal-section glass-card" style="position: relative;">
-            <h3>🧠 Mindfulness Journal</h3>
-            <p class="section-desc">Write down cravings, victories, or thoughts for today</p>
+          <div id="wellness-journal-section" class="journal-section glass-card daily-checkin-card">
+            <div class="daily-checkin-header">
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <div class="checkin-step-indicator">2</div>
+                <h3>Mindfulness Journal</h3>
+              </div>
+              <button id="btn-edit-journal" class="btn btn-outline btn-edit-checkin hidden">✏️ Edit</button>
+            </div>
+            <p class="section-desc">Capture your thoughts, cravings, or victories for today.</p>
             <textarea id="journal-entry" class="journal-textarea" placeholder="How are you feeling today? Any cravings? Victories?"></textarea>
             <div class="journal-actions">
-              <button id="btn-save-journal" class="btn btn-primary">Save Entry</button>
-              <span id="journal-saved-msg" class="saved-msg hidden">✓ Saved</span>
+              <button id="btn-save-journal" class="btn btn-primary" style="width: 100%;">Complete Daily Journal</button>
             </div>
-            <div id="journal-saved-overlay" class="metrics-overlay hidden">
-              <p>📖 Today's journal entry is saved.</p>
-              <button id="btn-edit-journal" class="btn btn-sm btn-outline">✏️ Edit Journal</button>
-            </div>
+            <span id="journal-saved-msg" class="saved-msg hidden" style="position: absolute; bottom: 20px; right: 20px;">✓ Saved</span>
           </div>
 
           <!-- Past Entries -->

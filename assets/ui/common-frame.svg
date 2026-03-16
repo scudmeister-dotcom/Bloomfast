@@ -1,0 +1,16 @@
+<svg width="240" height="340" viewBox="0 0 240 340" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Main Frame Border -->
+  <rect x="5" y="5" width="230" height="330" rx="14" stroke="#a0bfad" stroke-width="1" stroke-opacity="0.6"/>
+  
+  <!-- Corner Ornaments (Top Left) -->
+  <path d="M5 10V10C5 7.23858 7.23858 5 10 5" stroke="#a0bfad" stroke-width="1.5" stroke-linecap="round"/>
+  
+  <!-- Corner Ornaments (Top Right) -->
+  <path d="M230 5H230C232.761 5 235 7.23858 235 10" stroke="#a0bfad" stroke-width="1.5" stroke-linecap="round"/>
+  
+  <!-- Corner Ornaments (Bottom Left) -->
+  <path d="M5 330V330C5 332.761 7.23858 335 10 335" stroke="#a0bfad" stroke-width="1.5" stroke-linecap="round"/>
+  
+  <!-- Corner Ornaments (Bottom Right) -->
+  <path d="M230 335H230C232.761 335 235 332.761 235 330" stroke="#a0bfad" stroke-width="1.5" stroke-linecap="round"/>
+</svg>

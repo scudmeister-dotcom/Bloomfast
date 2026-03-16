@@ -194,19 +194,25 @@ class Store {
     fast.actualMs = fast.endTime - fast.startTime;
     this.state.fasts.push(fast);
 
-    const plant = {
-      id: Date.now().toString(36),
-      type: fast.plantType,
-      x: 100 + Math.random() * 600,
-      y: 100 + Math.random() * 400,
-      completedAt: fast.endTime,
-      rarity: fast.plantType.rarity || 'common'
-    };
-    this.state.garden.plants.push(plant);
-    this.updateStreak();
+    const success = fast.actualMs >= fast.goalMs;
+    let plant = null;
+
+    if (success) {
+      plant = {
+        id: Date.now().toString(36),
+        type: fast.plantType,
+        x: 100 + Math.random() * 600,
+        y: 100 + Math.random() * 400,
+        completedAt: fast.endTime,
+        rarity: fast.plantType.rarity || 'common'
+      };
+      this.state.garden.plants.push(plant);
+      this.updateStreak();
+    }
+    
     this.state.activeFast = null;
     this.save();
-    return plant;
+    return { success, plant, fast };
   }
 
   cancelFast() {
@@ -326,6 +332,84 @@ class Store {
   // --- Other ---
   logWater() {
     this.state.water.today++;
+    this.save();
+  }
+
+  logWeight(value, timestamp = Date.now()) {
+    const entry = { timestamp, value };
+    // Check if we already have a weight for this date to avoid duplicates in the chart
+    const dateStr = new Date(timestamp).toDateString();
+    this.state.weight = this.state.weight.filter(w => new Date(w.timestamp).toDateString() !== dateStr);
+    this.state.weight.push(entry);
+    this.state.weight.sort((a, b) => a.timestamp - b.timestamp);
+    this.save();
+  }
+
+  adjustActiveFast(hours) {
+    if (!this.state.activeFast) return;
+    // Moving startTime BACKWARDS in time increases elapsed time
+    this.state.activeFast.startTime -= (hours * 60 * 60 * 1000);
+    this.save();
+  }
+
+  injectMockData() {
+    const now = Date.now();
+    const dayMs = 24 * 60 * 60 * 1000;
+    
+    // 1. Add some past fasts (pick unique plants)
+    const usedIds = new Set();
+    this.state.garden.plants.forEach(p => { if (p.type?.id) usedIds.add(p.type.id); });
+    this.state.fasts.filter(f => f.completed && f.plantType?.id).forEach(f => usedIds.add(f.plantType.id));
+
+    for (let i = 1; i <= 10; i++) {
+      const endTime = now - (i * dayMs);
+      const startTime = endTime - (16 * 60 * 60 * 1000); // 16h fast
+      const planName = '16:8';
+      const available = PLANT_SPECIES.filter(p => !usedIds.has(p.id));
+      if (available.length === 0) break;
+      const plantType = available[Math.floor(Math.random() * available.length)];
+      usedIds.add(plantType.id);
+      
+      this.state.fasts.push({
+        startTime,
+        endTime,
+        actualMs: endTime - startTime,
+        goalMs: 16 * 60 * 60 * 1000,
+        planName,
+        plantType,
+        completed: true
+      });
+
+      this.state.garden.plants.push({
+        id: 'mock_' + i,
+        type: plantType,
+        x: 100 + Math.random() * 600,
+        y: 100 + Math.random() * 400,
+        completedAt: endTime,
+        rarity: plantType.rarity || 'common'
+      });
+    }
+
+    // 2. Add some weight trend
+    let startWeight = 185;
+    for (let i = 30; i >= 0; i--) {
+      this.state.weight.push({
+        timestamp: now - (i * dayMs),
+        value: startWeight - (30 - i) * 0.2 + (Math.random() * 0.5)
+      });
+    }
+
+    // 3. Add some metrics
+    for (let i = 7; i >= 0; i--) {
+      this.state.metrics.push({
+        timestamp: now - (i * dayMs),
+        mood: 6 + Math.floor(Math.random() * 4),
+        sleep: 5 + Math.floor(Math.random() * 5),
+        energy: 4 + Math.floor(Math.random() * 6)
+      });
+    }
+
+    this.updateStreak();
     this.save();
   }
 }

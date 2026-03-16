@@ -88,13 +88,6 @@ export class FastingTimer {
     this.stopTicking();
     this.tickInterval = setInterval(() => {
       if (this.onTick) this.onTick(this);
-
-      // Check completion
-      if (this.progress >= 1 && this.activeFast && !this.activeFast.completed) {
-        const plant = this.store.completeFast();
-        this.stopTicking();
-        if (this.onComplete) this.onComplete(plant);
-      }
     }, 1000);
   }
 

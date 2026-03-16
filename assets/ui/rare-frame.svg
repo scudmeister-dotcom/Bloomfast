@@ -1,0 +1,29 @@
+<svg width="240" height="340" viewBox="0 0 240 340" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Main Frame Border -->
+  <rect x="5" y="5" width="230" height="330" rx="14" stroke="url(#rare_purple_grad)" stroke-width="1.5"/>
+  <rect x="10" y="10" width="220" height="320" rx="10" stroke="url(#rare_purple_grad)" stroke-width="0.5" stroke-opacity="0.4"/>
+  
+  <!-- Corner Ornaments (Top Left) -->
+  <path d="M5 20V15C5 9.47715 9.47715 5 15 5H20" stroke="url(#rare_purple_grad)" stroke-width="2" stroke-linecap="round"/>
+  <path d="M10 10L16 16" stroke="url(#rare_purple_grad)" stroke-width="1.5" stroke-linecap="round"/>
+  
+  <!-- Corner Ornaments (Top Right) -->
+  <path d="M220 5H225C230.523 5 235 9.47715 235 15V20" stroke="url(#rare_purple_grad)" stroke-width="2" stroke-linecap="round"/>
+  <path d="M230 10L224 16" stroke="url(#rare_purple_grad)" stroke-width="1.5" stroke-linecap="round"/>
+  
+  <!-- Corner Ornaments (Bottom Left) -->
+  <path d="M5 320V325C5 330.523 9.47715 335 15 335H20" stroke="url(#rare_purple_grad)" stroke-width="2" stroke-linecap="round"/>
+  <path d="M10 330L16 324" stroke="url(#rare_purple_grad)" stroke-width="1.5" stroke-linecap="round"/>
+  
+  <!-- Corner Ornaments (Bottom Right) -->
+  <path d="M220 335H225C230.523 335 235 330.523 235 325V320" stroke="url(#rare_purple_grad)" stroke-width="2" stroke-linecap="round"/>
+  <path d="M230 330L224 324" stroke="url(#rare_purple_grad)" stroke-width="1.5" stroke-linecap="round"/>
+
+  <defs>
+    <linearGradient id="rare_purple_grad" x1="0" y1="0" x2="240" y2="340" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#ba68c8"/>
+      <stop offset="50%" stop-color="#e1bee7"/>
+      <stop offset="100%" stop-color="#9c27b0"/>
+    </linearGradient>
+  </defs>
+</svg>

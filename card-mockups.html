@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Card Redesign Options — Bloomfast</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0a0f0d;
+      color: #e8f5e9;
+      font-family: 'Inter', sans-serif;
+      padding: 40px 60px;
+      min-height: 100vh;
+    }
+    h1 { text-align: center; font-family: 'Outfit'; color: #66ffaa; margin-bottom: 6px; font-size: 2rem; }
+    .subtitle { text-align: center; color: #5e8068; margin-bottom: 50px; font-size: 0.9rem; }
+
+    .mockup-section {
+      margin-bottom: 70px;
+      padding: 35px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.015);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+    }
+    .section-header { display: flex; align-items: baseline; gap: 12px; margin-bottom: 6px; }
+    .section-title { font-family: 'Outfit'; font-size: 22px; font-weight: 700; color: #fff; }
+    .section-badge { font-size: 0.7rem; background: rgba(102,255,170,0.1); color: #66ffaa; padding: 3px 10px; border-radius: 20px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+    .section-desc { color: #5e8068; margin-bottom: 30px; font-size: 0.85rem; line-height: 1.5; }
+    .cards-row { display: flex; gap: 24px; justify-content: center; flex-wrap: wrap; }
+    .card-slot { width: 200px; height: 290px; }
+
+    /* ============================================================
+       OPTION A — Dark Botanical (matches app dark theme)
+       ============================================================ */
+    .design-a .card {
+      width: 100%; height: 100%;
+      background: linear-gradient(165deg, rgba(22, 40, 32, 0.8), rgba(10, 18, 14, 0.95));
+      border: 1px solid rgba(76, 175, 80, 0.12);
+      border-radius: 14px;
+      display: flex; flex-direction: column;
+      overflow: hidden;
+      transition: all 0.35s ease;
+      position: relative;
+    }
+    .design-a .card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 12px 35px rgba(0,0,0,0.5), 0 0 20px rgba(76,175,80,0.1);
+      border-color: rgba(76, 175, 80, 0.3);
+    }
+    .design-a .img-area {
+      flex: 1;
+      display: flex; justify-content: center; align-items: center;
+      padding: 20px;
+      position: relative;
+      background: radial-gradient(ellipse at 50% 70%, rgba(76,175,80,0.06), transparent);
+    }
+    .design-a img {
+      width: 130px; height: 130px; object-fit: contain;
+      filter: drop-shadow(0 8px 16px rgba(0,0,0,0.5));
+      transition: transform 0.3s ease;
+    }
+    .design-a .card:hover img { transform: scale(1.08); }
+    .design-a .card-footer {
+      padding: 14px 16px;
+      border-top: 1px solid rgba(76,175,80,0.1);
+      background: rgba(0,0,0,0.2);
+    }
+    .design-a .name { font-family: 'Outfit'; font-size: 0.95rem; font-weight: 600; color: #e8f5e9; margin-bottom: 3px; }
+    .design-a .rarity { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; }
+    .design-a .rarity-common { color: #5e8068; }
+    .design-a .rarity-rare { color: #ba68c8; }
+    .design-a .rarity-legendary { color: #f1c40f; }
+    /* rarity glow line */
+    .design-a .rarity-line { position: absolute; bottom: 0; left: 0; right: 0; height: 2px; }
+    .design-a .rarity-line.common { background: #5e8068; }
+    .design-a .rarity-line.rare { background: #ba68c8; box-shadow: 0 0 8px rgba(186,104,200,0.4); }
+    .design-a .rarity-line.legendary { background: #f1c40f; box-shadow: 0 0 12px rgba(241,196,15,0.5); }
+
+    /* ============================================================
+       OPTION B — Frosted Glass / Translucent
+       ============================================================ */
+    .design-b .card {
+      width: 100%; height: 100%;
+      background: rgba(255,255,255,0.04);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 18px;
+      display: flex; flex-direction: column;
+      overflow: hidden;
+      transition: all 0.35s ease;
+      position: relative;
+    }
+    .design-b .card:hover {
+      transform: translateY(-6px) scale(1.01);
+      background: rgba(255,255,255,0.06);
+      border-color: rgba(255,255,255,0.15);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    }
+    .design-b .img-area {
+      flex: 1;
+      display: flex; justify-content: center; align-items: center;
+      padding: 24px;
+    }
+    .design-b img {
+      width: 120px; height: 120px; object-fit: contain;
+      filter: drop-shadow(0 6px 12px rgba(0,0,0,0.3));
+      transition: transform 0.3s ease;
+    }
+    .design-b .card:hover img { transform: scale(1.06) rotate(3deg); }
+    .design-b .card-footer {
+      padding: 14px 18px;
+      text-align: center;
+    }
+    .design-b .name { font-family: 'Outfit'; font-size: 0.9rem; font-weight: 600; color: #fff; margin-bottom: 4px; }
+    .design-b .rarity { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 2px; }
+    .design-b .rarity-common { color: rgba(255,255,255,0.4); }
+    .design-b .rarity-rare { color: #ce93d8; }
+    .design-b .rarity-legendary { color: #ffd54f; }
+    /* top accent line */
+    .design-b .accent-top { position: absolute; top: 0; left: 20%; right: 20%; height: 2px; border-radius: 0 0 2px 2px; }
+    .design-b .accent-top.common { background: rgba(255,255,255,0.15); }
+    .design-b .accent-top.rare { background: linear-gradient(90deg, transparent, #ce93d8, transparent); }
+    .design-b .accent-top.legendary { background: linear-gradient(90deg, transparent, #ffd54f, transparent); box-shadow: 0 0 10px rgba(255,213,79,0.4); }
+
+    /* ============================================================
+       OPTION C — Elegant Stamp / Specimen Card
+       ============================================================ */
+    .design-c .card {
+      width: 100%; height: 100%;
+      background: #faf8f4;
+      border: 1px solid #e0dcd4;
+      border-radius: 3px;
+      display: flex; flex-direction: column;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      position: relative;
+      color: #3e2723;
+    }
+    .design-c .card:hover {
+      transform: rotate(1deg) scale(1.03);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.35);
+    }
+    .design-c .specimen-header {
+      text-align: center;
+      padding: 8px;
+      font-size: 0.55rem;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      color: #8d6e63;
+      border-bottom: 1px solid #e0dcd4;
+      font-weight: 600;
+    }
+    .design-c .img-area {
+      flex: 1;
+      display: flex; justify-content: center; align-items: center;
+      padding: 16px;
+      background: #f5f2ec;
+    }
+    .design-c img {
+      width: 115px; height: 115px; object-fit: contain;
+      mix-blend-mode: multiply;
+      filter: contrast(1.15) saturate(0.85);
+    }
+    .design-c .card-footer {
+      padding: 10px 14px;
+      text-align: center;
+      border-top: 1px solid #e0dcd4;
+    }
+    .design-c .name {
+      font-family: 'Playfair Display', serif;
+      font-size: 0.95rem; font-weight: 600; color: #3e2723;
+      margin-bottom: 2px;
+      font-style: italic;
+    }
+    .design-c .rarity { font-family: 'Inter'; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 2px; font-weight: 500; }
+    .design-c .rarity-common { color: #8d6e63; }
+    .design-c .rarity-rare { color: #7b1fa2; }
+    .design-c .rarity-legendary { color: #e65100; }
+    /* stamp number */
+    .design-c .stamp-num { position: absolute; top: 6px; right: 10px; font-family: 'Playfair Display'; font-size: 0.7rem; color: #bcaaa4; font-style: italic; }
+
+    /* ============================================================
+       OPTION D — Neon Trading Card / Game Card
+       ============================================================ */
+    .design-d .card {
+      width: 100%; height: 100%;
+      background: linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      border: 2px solid rgba(100, 200, 255, 0.15);
+      border-radius: 12px;
+      display: flex; flex-direction: column;
+      overflow: hidden;
+      transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative;
+    }
+    .design-d .card::before {
+      content: '';
+      position: absolute;
+      top: -50%; left: -50%; width: 200%; height: 200%;
+      background: conic-gradient(from 0deg, transparent, rgba(100,200,255,0.05), transparent, rgba(200,100,255,0.05), transparent);
+      animation: cardSpin 6s linear infinite;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .design-d .card:hover::before { opacity: 1; }
+    @keyframes cardSpin { 100% { transform: rotate(360deg); } }
+    .design-d .card:hover {
+      transform: translateY(-8px);
+      border-color: rgba(100, 200, 255, 0.4);
+      box-shadow: 0 0 25px rgba(100, 200, 255, 0.15), 0 15px 35px rgba(0,0,0,0.5);
+    }
+    .design-d .img-area {
+      flex: 1;
+      display: flex; justify-content: center; align-items: center;
+      padding: 20px;
+      position: relative;
+      z-index: 1;
+    }
+    .design-d img {
+      width: 120px; height: 120px; object-fit: contain;
+      filter: drop-shadow(0 0 12px rgba(100,200,255,0.2)) drop-shadow(0 8px 16px rgba(0,0,0,0.5));
+      transition: transform 0.3s;
+    }
+    .design-d .card:hover img { transform: scale(1.1); }
+    .design-d .card-footer {
+      padding: 12px 16px;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+      background: rgba(0,0,0,0.3);
+      border-top: 1px solid rgba(100,200,255,0.1);
+    }
+    .design-d .name { font-family: 'Outfit'; font-size: 0.9rem; font-weight: 700; color: #fff; margin-bottom: 4px; letter-spacing: 0.5px; }
+    .design-d .rarity { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 2px; font-weight: 600; }
+    .design-d .rarity-common { color: rgba(150,200,255,0.6); }
+    .design-d .rarity-rare { color: #ce93d8; text-shadow: 0 0 8px rgba(206,147,216,0.3); }
+    .design-d .rarity-legendary { color: #ffd740; text-shadow: 0 0 10px rgba(255,215,64,0.4); }
+    /* power stripe */
+    .design-d .power-stripe { position: absolute; bottom: 0; left: 0; right: 0; height: 3px; }
+    .design-d .power-stripe.common { background: linear-gradient(90deg, transparent, rgba(100,200,255,0.3), transparent); }
+    .design-d .power-stripe.rare { background: linear-gradient(90deg, transparent, #ce93d8, transparent); box-shadow: 0 0 8px rgba(206,147,216,0.3); }
+    .design-d .power-stripe.legendary { background: linear-gradient(90deg, #e65100, #ffd740, #e65100); box-shadow: 0 0 12px rgba(255,215,64,0.4); animation: legendPulse 2s ease-in-out infinite; }
+    @keyframes legendPulse {
+      0%, 100% { opacity: 0.7; }
+      50% { opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🌿 Card Redesign Options</h1>
+  <p class="subtitle">Four distinct directions — same plant assets, same data, different feel. Hover to preview interactions.</p>
+
+  <!-- OPTION A -->
+  <div class="mockup-section design-a">
+    <div class="section-header">
+      <h2 class="section-title">Option A: Dark Botanical</h2>
+      <span class="section-badge">Native Theme</span>
+    </div>
+    <p class="section-desc">Cards that feel native to the app's dark botanical theme. Subtle green accents, deep shadows, and a footer bar that grounds the info. Rarity glows along the bottom edge.</p>
+    <div class="cards-row">
+      <div class="card-slot"><div class="card">
+        <div class="img-area"><img src="/assets/plants/cherry_blossom.png" alt="Cherry Blossom"></div>
+        <div class="card-footer">
+          <div class="name">Cherry Blossom</div>
+          <div class="rarity rarity-common">Common Specimen</div>
+        </div>
+        <div class="rarity-line common"></div>
+      </div></div>
+      <div class="card-slot"><div class="card">
+        <div class="img-area"><img src="/assets/plants/bonsai.png" alt="Bonsai"></div>
+        <div class="card-footer">
+          <div class="name">Zen Bonsai</div>
+          <div class="rarity rarity-rare">Rare Specimen</div>
+        </div>
+        <div class="rarity-line rare"></div>
+      </div></div>
+      <div class="card-slot"><div class="card">
+        <div class="img-area"><img src="/assets/plants/lotus.png" alt="Lotus"></div>
+        <div class="card-footer">
+          <div class="name">Golden Lotus</div>
+          <div class="rarity rarity-legendary">Legendary Specimen</div>
+        </div>
+        <div class="rarity-line legendary"></div>
+      </div></div>
+    </div>
+  </div>
+
+  <!-- OPTION B -->
+  <div class="mockup-section design-b">
+    <div class="section-header">
+      <h2 class="section-title">Option B: Frosted Glass</h2>
+      <span class="section-badge">Minimal & Modern</span>
+    </div>
+    <p class="section-desc">Ultra-clean translucent panels with soft blur. Plants float on glass. Rarity shown as a delicate gradient line at the top. Feels like a high-end wellness app.</p>
+    <div class="cards-row">
+      <div class="card-slot"><div class="card">
+        <div class="accent-top common"></div>
+        <div class="img-area"><img src="/assets/plants/cherry_blossom.png" alt="Cherry Blossom"></div>
+        <div class="card-footer">
+          <div class="name">Cherry Blossom</div>
+          <div class="rarity rarity-common">Common</div>
+        </div>
+      </div></div>
+      <div class="card-slot"><div class="card">
+        <div class="accent-top rare"></div>
+        <div class="img-area"><img src="/assets/plants/bonsai.png" alt="Bonsai"></div>
+        <div class="card-footer">
+          <div class="name">Zen Bonsai</div>
+          <div class="rarity rarity-rare">Rare</div>
+        </div>
+      </div></div>
+      <div class="card-slot"><div class="card">
+        <div class="accent-top legendary"></div>
+        <div class="img-area"><img src="/assets/plants/lotus.png" alt="Lotus"></div>
+        <div class="card-footer">
+          <div class="name">Golden Lotus</div>
+          <div class="rarity rarity-legendary">Legendary</div>
+        </div>
+      </div></div>
+    </div>
+  </div>
+
+  <!-- OPTION C -->
+  <div class="mockup-section design-c">
+    <div class="section-header">
+      <h2 class="section-title">Option C: Specimen Stamp</h2>
+      <span class="section-badge">Museum & Vintage</span>
+    </div>
+    <p class="section-desc">Feels like a real herbarium specimen card. Warm paper texture, serif fonts, vintage print treatment on images. Elegant, physical, and collectible.</p>
+    <div class="cards-row">
+      <div class="card-slot"><div class="card">
+        <div class="stamp-num">No. 01</div>
+        <div class="specimen-header">Specimen Card</div>
+        <div class="img-area"><img src="/assets/plants/cherry_blossom.png" alt="Cherry Blossom"></div>
+        <div class="card-footer">
+          <div class="name">Cherry Blossom</div>
+          <div class="rarity rarity-common">Common</div>
+        </div>
+      </div></div>
+      <div class="card-slot"><div class="card">
+        <div class="stamp-num">No. 04</div>
+        <div class="specimen-header">Specimen Card</div>
+        <div class="img-area"><img src="/assets/plants/bonsai.png" alt="Bonsai"></div>
+        <div class="card-footer">
+          <div class="name">Zen Bonsai</div>
+          <div class="rarity rarity-rare">Rare</div>
+        </div>
+      </div></div>
+      <div class="card-slot"><div class="card">
+        <div class="stamp-num">No. 12</div>
+        <div class="specimen-header">Specimen Card</div>
+        <div class="img-area"><img src="/assets/plants/lotus.png" alt="Lotus"></div>
+        <div class="card-footer">
+          <div class="name">Golden Lotus</div>
+          <div class="rarity rarity-legendary">Legendary</div>
+        </div>
+      </div></div>
+    </div>
+  </div>
+
+  <!-- OPTION D -->
+  <div class="mockup-section design-d">
+    <div class="section-header">
+      <h2 class="section-title">Option D: Neon Trading Card</h2>
+      <span class="section-badge">Gamified & Bold</span>
+    </div>
+    <p class="section-desc">Inspired by trading card games. Deep navy-to-indigo gradient, animated holographic shimmer on hover, and vivid neon rarity stripes. Makes collecting feel epic.</p>
+    <div class="cards-row">
+      <div class="card-slot"><div class="card">
+        <div class="img-area"><img src="/assets/plants/cherry_blossom.png" alt="Cherry Blossom"></div>
+        <div class="card-footer">
+          <div class="name">Cherry Blossom</div>
+          <div class="rarity rarity-common">Common</div>
+        </div>
+        <div class="power-stripe common"></div>
+      </div></div>
+      <div class="card-slot"><div class="card">
+        <div class="img-area"><img src="/assets/plants/bonsai.png" alt="Bonsai"></div>
+        <div class="card-footer">
+          <div class="name">Zen Bonsai</div>
+          <div class="rarity rarity-rare">Rare</div>
+        </div>
+        <div class="power-stripe rare"></div>
+      </div></div>
+      <div class="card-slot"><div class="card">
+        <div class="img-area"><img src="/assets/plants/lotus.png" alt="Lotus"></div>
+        <div class="card-footer">
+          <div class="name">Golden Lotus</div>
+          <div class="rarity rarity-legendary">Legendary</div>
+        </div>
+        <div class="power-stripe legendary"></div>
+      </div></div>
+    </div>
+  </div>
+
+</body>
+</html>

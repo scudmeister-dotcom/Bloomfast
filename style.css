@@ -345,6 +345,91 @@ body::before {
   box-shadow: var(--shadow-lg), var(--shadow-glow);
 }
 
+/* ---------- Gilded Edge Border Style (High Fidelity) ---------- */
+.gilded-edge {
+  position: relative;
+  background-clip: padding-box !important;
+  border: 4px solid transparent !important;
+  border-radius: var(--radius-lg);
+  z-index: 1;
+}
+
+.gilded-edge .card-face {
+  background: rgba(15, 25, 20, 0.4) !important; /* High transparency */
+  backdrop-filter: blur(16px) saturate(1.4) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(1.4) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+/* Ensure Gilded Edge overrides theme-specific solid backgrounds */
+.card-bg-parchment .botanical-card.gilded-edge .card-face {
+  background: rgba(244, 236, 216, 0.3) !important;
+  color: #3e2723 !important;
+}
+
+.gilded-edge::before {
+  content: '';
+  position: absolute;
+  inset: -5px; /* Precision alignment for crispness */
+  z-index: -1;
+  border-radius: var(--radius-lg);
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  pointer-events: none;
+  opacity: 0.8;
+  transition: opacity var(--transition-normal), filter var(--transition-normal);
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+}
+
+.botanical-card-container:hover .gilded-edge::before,
+.glass-card:hover.gilded-edge::before,
+.gilded-edge:hover::before {
+  opacity: 1;
+  filter: brightness(1.2) drop-shadow(0 0 10px rgba(241, 196, 15, 0.3));
+}
+
+/* Rarity-based SVG Frames */
+.rarity-common .gilded-edge::before,
+.rarity-common.gilded-edge::before {
+  background-image: url('/assets/ui/common-frame.svg');
+}
+
+.rarity-uncommon .gilded-edge::before,
+.rarity-uncommon.gilded-edge::before {
+  background-image: url('/assets/ui/uncommon-frame.svg');
+  filter: drop-shadow(0 0 5px rgba(76, 175, 80, 0.3));
+}
+
+.rarity-rare .gilded-edge::before,
+.rarity-rare.gilded-edge::before {
+  background-image: url('/assets/ui/rare-frame.svg');
+  filter: drop-shadow(0 0 8px rgba(186, 104, 200, 0.4));
+}
+
+.rarity-legendary .gilded-edge::before,
+.rarity-legendary.gilded-edge::before {
+  background-image: url('/assets/ui/legendary-frame.svg');
+  filter: drop-shadow(0 0 12px rgba(241, 196, 15, 0.5));
+  animation: frameGlimmer 6s infinite ease-in-out;
+}
+
+@keyframes frameGlimmer {
+  0%, 100% { filter: brightness(1) drop-shadow(0 0 10px rgba(241, 196, 15, 0.4)); }
+  50% { filter: brightness(1.25) drop-shadow(0 0 18px rgba(241, 196, 15, 0.6)); }
+}
+
+/* Fix for flipped cards to keep frame consistent */
+.botanical-card.flipped .gilded-edge::before {
+  transform: rotateY(180deg);
+}
+
+/* Apply Gilded Edge to main dashboard cards by default */
+.glass-card:not(.gilded-edge) {
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
 /* ---------- Typography ---------- */
 .page-title {
   font-family: var(--font-display);
@@ -1458,17 +1543,71 @@ body::before {
   gap: var(--space-lg);
 }
 
-.settings-section {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-md);
+/* Wellness Tab Daily Check-in */
+.daily-checkin-card {
+  transition: all var(--transition-normal);
 }
 
-.settings-section h3 {
-  font-family: var(--font-display);
-  font-size: var(--fs-lg);
-  font-weight: 600;
-  margin-bottom: var(--space-sm);
+.daily-checkin-locked {
+  opacity: 0.6;
+  filter: grayscale(0.8);
+  pointer-events: none;
+  position: relative;
+}
+
+.daily-checkin-locked::after {
+  content: '✓ Complete';
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: var(--accent-green);
+  color: white;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  filter: none;
+}
+
+.daily-checkin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-md);
+}
+
+.daily-checkin-header h3 {
+  margin-bottom: 0;
+}
+
+.btn-edit-checkin {
+  font-size: 0.75rem;
+  padding: 4px 10px;
+  height: auto;
+  opacity: 0.8;
+}
+
+.btn-edit-checkin:hover {
+  opacity: 1;
+}
+
+.checkin-step-indicator {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--bg-tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border: 1px solid var(--border-subtle);
+}
+
+.daily-checkin-locked .checkin-step-indicator {
+  background: var(--accent-green);
+  border-color: var(--accent-green);
+  color: white;
 }
 
 /* ============================================================
@@ -1962,7 +2101,10 @@ body::before {
   height: 320px;
 }
 
-.botanical-card {
+/* ===== Collector's Edition Card Design (TCG-Inspired) ===== */
+
+/* --- Base Card Structure --- */
+.botanical-card.style-specimen {
   width: 100%;
   height: 100%;
   position: relative;
@@ -1971,183 +2113,515 @@ body::before {
   cursor: pointer;
 }
 
-.botanical-card-container:hover .botanical-card:not(.card-undiscovered) {
-  transform: translateY(-5px);
-}
-.botanical-card-container:hover .botanical-card.flipped {
-  transform: translateY(-5px) rotateY(180deg);
-}
-
-.botanical-card.flipped {
+.botanical-card.style-specimen.flipped {
   transform: rotateY(180deg);
 }
 
-.card-face {
+.botanical-card.style-specimen .card-face {
   position: absolute;
   width: 100%;
   height: 100%;
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
-  border-radius: var(--radius-lg);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
-  background: rgba(20, 30, 24, 0.6);
-  border: 1px solid var(--border-subtle);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  display: flex;
-  flex-direction: column;
 }
 
-.card-front {
-  padding: var(--space-md);
-  align-items: center;
-  justify-content: center;
-}
-
-.card-back {
-  transform: rotateY(180deg);
-  padding: var(--space-md);
-  background: rgba(15, 25, 20, 0.95);
-  display: flex;
-  flex-direction: column;
-}
-
-/* Watercolor background illusion */
-.watercolor-blob {
+/* --- Specimen Number --- */
+.specimen-stamp-no {
   position: absolute;
-  top: 15%;
-  left: 15%;
-  right: 15%;
-  bottom: 30%;
-  border-radius: 40% 60% 70% 30% / 40% 50% 50% 60%;
-  filter: blur(25px);
-  opacity: 0.25;
-  z-index: 0;
-  transition: all 4s ease-in-out;
-  animation: blobFloat 8s infinite alternate ease-in-out;
+  top: 8px;
+  right: 10px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  z-index: 6;
 }
 
-@keyframes blobFloat {
-  0% { border-radius: 40% 60% 70% 30% / 40% 50% 50% 60%; transform: rotate(0deg) scale(1); }
-  100% { border-radius: 60% 40% 30% 70% / 60% 50% 50% 40%; transform: rotate(8deg) scale(1.1); }
-}
-
-.card-emoji {
-  font-size: 85px;
-  position: relative;
-  z-index: 1;
-  margin: var(--space-sm) 0 var(--space-md);
-  filter: drop-shadow(0 15px 25px rgba(0,0,0,0.5));
-  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.botanical-card-container:hover .card-emoji {
-  transform: scale(1.15) rotate(5deg);
-}
-
-.card-name {
-  font-family: var(--font-display);
-  font-size: 1.25rem;
-  font-weight: 700;
+/* --- Specimen Header Bar --- */
+.specimen-header {
   text-align: center;
-  position: relative;
-  z-index: 1;
-  color: var(--text-primary);
-  margin-bottom: 8px;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-}
-
-.card-rarity {
-  font-size: 0.70rem;
+  padding: 6px 8px;
+  font-size: 0.5rem;
   text-transform: uppercase;
-  letter-spacing: 1.5px;
-  font-weight: 800;
-  padding: 4px 10px;
-  border-radius: 12px;
+  letter-spacing: 3px;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
   position: relative;
+  z-index: 2;
+}
+
+/* --- Image Area --- */
+.botanical-card.style-specimen .img-wrap {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+  position: relative;
+  z-index: 2;
+}
+
+.botanical-card.style-specimen img.card-art {
+  width: 85%;
+  height: 85%;
+  object-fit: contain;
+  transition: transform 0.35s ease, filter 0.35s ease;
+}
+
+/* --- Card Info Footer --- */
+.botanical-card.style-specimen .info {
+  text-align: center;
+  padding: 10px 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  position: relative;
+  z-index: 2;
+}
+
+.botanical-card.style-specimen .name {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 600;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.botanical-card.style-specimen .rarity {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.55rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-weight: 500;
+}
+
+/* ===================================================================
+   COMMON — Clean, flat, dark. No effects.
+   =================================================================== */
+.botanical-card.style-specimen.rarity-common .card-front {
+  background: linear-gradient(180deg, #1e2d24, #141e18);
+  border: 1.5px solid rgba(160, 191, 173, 0.2);
+  color: #e8f5e9;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+.botanical-card-container:hover .botanical-card.style-specimen.rarity-common:not(.card-undiscovered):not(.flipped) {
+  transform: translateY(-5px);
+}
+.botanical-card-container:hover .botanical-card.style-specimen.rarity-common .card-front {
+  box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+  border-color: rgba(160, 191, 173, 0.35);
+}
+.botanical-card-container:hover .botanical-card.style-specimen.rarity-common.flipped {
+  transform: translateY(-5px) rotateY(180deg);
+}
+.botanical-card.style-specimen.rarity-common .specimen-header {
+  color: rgba(160, 191, 173, 0.5);
+  border-bottom: 1px solid rgba(160, 191, 173, 0.1);
+}
+.botanical-card.style-specimen.rarity-common .specimen-stamp-no {
+  color: rgba(160, 191, 173, 0.35);
+}
+.botanical-card.style-specimen.rarity-common img.card-art {
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
+}
+.botanical-card-container:hover .botanical-card.style-specimen.rarity-common img.card-art {
+  transform: scale(1.05);
+}
+.botanical-card.style-specimen.rarity-common .info {
+  border-top: 1px solid rgba(160, 191, 173, 0.1);
+  background: rgba(0,0,0,0.15);
+}
+.botanical-card.style-specimen.rarity-common .name {
+  color: #e8f5e9;
+}
+.botanical-card.style-specimen.rarity-common .rarity {
+  color: rgba(160, 191, 173, 0.5);
+}
+
+/* ===================================================================
+   UNCOMMON — Diagonal line texture, green border, subtle glow
+   =================================================================== */
+.botanical-card.style-specimen.rarity-uncommon .card-front {
+  background: linear-gradient(180deg, #152215, #0f1a12);
+  border: 1.5px solid rgba(76,175,80,0.3);
+  color: #e8f5e9;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3), 0 0 8px rgba(76,175,80,0.05);
+}
+/* Diagonal line texture */
+.botanical-card.style-specimen.rarity-uncommon .card-front::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent, transparent 15px,
+    rgba(76,175,80,0.025) 15px, rgba(76,175,80,0.025) 16px
+  );
+  border-radius: 12px;
+  pointer-events: none;
   z-index: 1;
 }
-
-/* Rarity specific styles */
-.rarity-common .card-rarity { color: #a0bfad; background: rgba(160, 191, 173, 0.15); border: 1px solid rgba(160, 191, 173, 0.3); }
-.rarity-uncommon .card-rarity { color: #4caf50; background: rgba(76, 175, 80, 0.15); border: 1px solid rgba(76, 175, 80, 0.3); }
-.rarity-rare .card-rarity { color: #ba68c8; background: rgba(186, 104, 200, 0.15); border: 1px solid rgba(186, 104, 200, 0.3); }
-.rarity-legendary .card-rarity { color: #f1c40f; background: rgba(241, 196, 15, 0.15); border: 1px solid rgba(241, 196, 15, 0.5); box-shadow: 0 0 15px rgba(241, 196, 15, 0.3); }
-
-.rarity-common .card-face { border-top: 1px solid rgba(160, 191, 173, 0.3); border-left: 1px solid rgba(160, 191, 173, 0.1); }
-.rarity-uncommon .card-face { border-top: 1px solid rgba(76, 175, 80, 0.4); border-left: 1px solid rgba(76, 175, 80, 0.1); }
-.rarity-rare .card-face { border-top: 1px solid rgba(186, 104, 200, 0.5); border-left: 1px solid rgba(186, 104, 200, 0.1); }
-.rarity-legendary .card-face { border-top: 1px solid rgba(241, 196, 15, 0.6); border-left: 1px solid rgba(241, 196, 15, 0.2); box-shadow: 0 8px 32px rgba(241, 196, 15, 0.15); }
-
-/* Undiscovered State */
-.card-undiscovered .card-face { border-color: rgba(255,255,255,0.05); }
-.card-undiscovered .card-emoji { font-size: 60px; filter: brightness(0) opacity(0.3) drop-shadow(0 0 0 rgba(0,0,0,0)); }
-.card-undiscovered .card-name { color: var(--text-muted); text-shadow: none; font-style: italic; }
-/* Card Background Styles */
-.card-bg-parchment .card-face {
-  background: #f4ecd8 url('https://www.transparenttextures.com/patterns/natural-paper.png') !important;
-  color: #5d4037 !important;
-  border: 4px double #d7ccc8 !important;
+.botanical-card-container:hover .botanical-card.style-specimen.rarity-uncommon:not(.card-undiscovered):not(.flipped) {
+  transform: translateY(-5px);
 }
-.card-bg-parchment .card-name {
-  font-family: 'Outfit', serif;
-  color: #3e2723 !important;
+.botanical-card-container:hover .botanical-card.style-specimen.rarity-uncommon .card-front {
+  box-shadow: 0 12px 30px rgba(0,0,0,0.5), 0 0 12px rgba(76,175,80,0.1);
+  border-color: rgba(76,175,80,0.5);
 }
-
-.card-bg-frost .card-face {
-  background: rgba(255, 255, 255, 0.05) !important;
-  backdrop-filter: blur(20px) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37) !important;
+.botanical-card-container:hover .botanical-card.style-specimen.rarity-uncommon.flipped {
+  transform: translateY(-5px) rotateY(180deg);
 }
-
-.card-bg-moss .card-face {
-  background: linear-gradient(135deg, #1b3022 0%, #0c1a12 100%) !important;
-  border: 1px solid rgba(76, 175, 80, 0.2) !important;
+.botanical-card.style-specimen.rarity-uncommon .specimen-header {
+  color: rgba(76, 175, 80, 0.5);
+  border-bottom: 1px solid rgba(76, 175, 80, 0.1);
 }
-
-/* Back Face Layouts */
-
-/* 1. Scholar (Large text, info focused) */
-.layout-scholar .card-fact {
-  font-size: 0.95rem;
-  line-height: 1.5;
-  background: rgba(255, 255, 255, 0.03);
-  padding: 15px;
-  border-radius: 12px;
-  border-left: 4px solid var(--accent);
+.botanical-card.style-specimen.rarity-uncommon .specimen-stamp-no {
+  color: rgba(76, 175, 80, 0.35);
 }
-
-/* 2. Minimalist (Clean, icon-driven) */
-.layout-minimalist .card-fact {
-  display: none;
+.botanical-card.style-specimen.rarity-uncommon img.card-art {
+  filter: drop-shadow(0 4px 10px rgba(0,0,0,0.4)) drop-shadow(0 0 6px rgba(76,175,80,0.08));
 }
-.layout-minimalist .card-stats {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-  width: 100%;
+.botanical-card-container:hover .botanical-card.style-specimen.rarity-uncommon img.card-art {
+  transform: scale(1.06);
 }
-.layout-minimalist .stat-box {
+.botanical-card.style-specimen.rarity-uncommon .info {
+  border-top: 1px solid rgba(76, 175, 80, 0.1);
   background: rgba(0,0,0,0.2);
-  padding: 8px;
-  border-radius: 8px;
+}
+.botanical-card.style-specimen.rarity-uncommon .name {
+  color: #e8f5e9;
+}
+.botanical-card.style-specimen.rarity-uncommon .rarity {
+  color: #66bb6a;
+  font-weight: 600;
+}
+
+/* ===================================================================
+   RARE — Holographic glow, purple border, crystal symbol, corner gems
+   =================================================================== */
+.botanical-card.style-specimen.rarity-rare .card-front {
+  background: linear-gradient(180deg, #1a0a2e, #120825);
+  border: 2px solid rgba(186,104,200,0.4);
+  color: #e8d5f5;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+/* Holographic ambient glow */
+.botanical-card.style-specimen.rarity-rare .card-front::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(186,104,200,0.08), transparent 50%),
+    radial-gradient(ellipse at 70% 80%, rgba(63,81,181,0.08), transparent 50%),
+    radial-gradient(ellipse at 50% 50%, rgba(0,188,212,0.05), transparent 60%);
+  animation: rareHoloShift 8s ease-in-out infinite;
+  border-radius: 12px;
+  pointer-events: none;
+  z-index: 1;
+}
+@keyframes rareHoloShift {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+/* Crystal symbol */
+.botanical-card.style-specimen.rarity-rare .card-front::after {
+  content: '✦';
+  position: absolute; top: 10px; left: 12px;
+  font-size: 12px; color: rgba(186,104,200,0.45);
+  z-index: 6;
+}
+.botanical-card-container:hover .botanical-card.style-specimen.rarity-rare:not(.card-undiscovered):not(.flipped) {
+  transform: translateY(-6px) scale(1.01);
+}
+.botanical-card-container:hover .botanical-card.style-specimen.rarity-rare .card-front {
+  box-shadow: 0 15px 40px rgba(0,0,0,0.6), 0 0 25px rgba(186,104,200,0.15);
+  border-color: rgba(186,104,200,0.6);
+}
+.botanical-card-container:hover .botanical-card.style-specimen.rarity-rare.flipped {
+  transform: translateY(-6px) rotateY(180deg);
+}
+.botanical-card.style-specimen.rarity-rare .specimen-header {
+  color: rgba(186, 104, 200, 0.5);
+  border-bottom: 1px solid rgba(186, 104, 200, 0.15);
+}
+.botanical-card.style-specimen.rarity-rare .specimen-stamp-no {
+  color: rgba(186, 104, 200, 0.35);
+}
+.botanical-card.style-specimen.rarity-rare img.card-art {
+  filter: drop-shadow(0 0 12px rgba(186,104,200,0.2)) drop-shadow(0 6px 12px rgba(0,0,0,0.5));
+}
+.botanical-card-container:hover .botanical-card.style-specimen.rarity-rare img.card-art {
+  transform: scale(1.08);
+  filter: drop-shadow(0 0 18px rgba(186,104,200,0.35)) drop-shadow(0 8px 16px rgba(0,0,0,0.5));
+}
+.botanical-card.style-specimen.rarity-rare .info {
+  border-top: 1px solid rgba(186, 104, 200, 0.15);
+  background: rgba(0,0,0,0.25);
+}
+.botanical-card.style-specimen.rarity-rare .name {
+  color: #e1bee7;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+.botanical-card.style-specimen.rarity-rare .rarity {
+  color: #ce93d8;
+  font-weight: 600;
+  text-shadow: 0 0 6px rgba(186,104,200,0.2);
+  letter-spacing: 2.5px;
+}
+
+/* ===================================================================
+   LEGENDARY — RGB animated border, gold foil sweep, sparkle particles
+   =================================================================== */
+
+/* The Legendary card gets wrapped in a border container for the RGB effect */
+.legendary-border-wrap {
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  padding: 2.5px;
+  background: conic-gradient(from 0deg, #f1c40f, #ff6b35, #e74c3c, #9b59b6, #3498db, #1abc9c, #f1c40f);
+  animation: legendRgbBorder 3s linear infinite;
+  z-index: 0;
+}
+@keyframes legendRgbBorder {
+  0% { filter: hue-rotate(0deg); }
+  100% { filter: hue-rotate(360deg); }
+}
+.legendary-border-wrap .border-inner {
+  width: 100%; height: 100%;
+  background: linear-gradient(160deg, #1a1205, #0d0a04);
+  border-radius: 12px;
+}
+
+.botanical-card.style-specimen.rarity-legendary .card-front {
+  background: linear-gradient(160deg, #1a1205, #0d0a04);
+  border: none;
+  color: #fff8e1;
+  box-shadow: none;
+  z-index: 1;
+}
+/* Golden foil sweep */
+.botanical-card.style-specimen.rarity-legendary .card-front::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(110deg, transparent 25%, rgba(255,215,0,0.06) 45%, rgba(255,255,255,0.08) 50%, rgba(255,215,0,0.06) 55%, transparent 75%);
+  background-size: 250% 250%;
+  animation: legendFoilSweep 4s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 3;
+  border-radius: 12px;
+}
+@keyframes legendFoilSweep {
+  0% { background-position: 200% 0; }
+  100% { background-position: -100% 0; }
+}
+/* Pulsing star emblem */
+.botanical-card.style-specimen.rarity-legendary .card-front::after {
+  content: '★';
+  position: absolute; top: 10px; right: 12px;
+  font-size: 14px; color: #f1c40f;
+  z-index: 6;
+  text-shadow: 0 0 8px rgba(241,196,15,0.5);
+  animation: legendStarPulse 2s ease-in-out infinite;
+}
+@keyframes legendStarPulse {
+  0%, 100% { opacity: 0.7; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
+.botanical-card-container:hover .botanical-card.style-specimen.rarity-legendary:not(.card-undiscovered):not(.flipped) {
+  transform: translateY(-8px) scale(1.02);
+}
+.botanical-card-container:hover .botanical-card.style-specimen.rarity-legendary .card-front {
+  box-shadow: 0 20px 50px rgba(0,0,0,0.6), 0 0 40px rgba(241,196,15,0.15);
+}
+.botanical-card-container:hover .botanical-card.style-specimen.rarity-legendary.flipped {
+  transform: translateY(-8px) rotateY(180deg);
+}
+.botanical-card.style-specimen.rarity-legendary .specimen-header {
+  color: rgba(241, 196, 15, 0.5);
+  border-bottom: 1px solid rgba(241, 196, 15, 0.15);
+}
+.botanical-card.style-specimen.rarity-legendary .specimen-stamp-no {
+  color: rgba(241, 196, 15, 0.4);
+}
+.botanical-card.style-specimen.rarity-legendary img.card-art {
+  filter: drop-shadow(0 0 18px rgba(241,196,15,0.25)) drop-shadow(0 8px 16px rgba(0,0,0,0.5));
+}
+.botanical-card-container:hover .botanical-card.style-specimen.rarity-legendary img.card-art {
+  transform: scale(1.1);
+  filter: drop-shadow(0 0 25px rgba(241,196,15,0.4)) drop-shadow(0 10px 20px rgba(0,0,0,0.5));
+}
+.botanical-card.style-specimen.rarity-legendary .info {
+  border-top: 1px solid rgba(241, 196, 15, 0.15);
+  background: linear-gradient(180deg, rgba(0,0,0,0.2), rgba(26,18,5,0.5));
+}
+.botanical-card.style-specimen.rarity-legendary .name {
+  font-weight: 800;
+  letter-spacing: 1px;
+  background: linear-gradient(90deg, #f1c40f, #fff8e1, #ffb347, #f1c40f);
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: legendGoldText 4s ease-in-out infinite;
+}
+@keyframes legendGoldText {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+.botanical-card.style-specimen.rarity-legendary .rarity {
+  color: #f1c40f;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-shadow: 0 0 10px rgba(241,196,15,0.4);
+}
+
+/* Legendary sparkle particles */
+.legend-sparkle-field {
+  position: absolute; inset: 0;
+  pointer-events: none; z-index: 5;
+  overflow: hidden; border-radius: 12px;
+}
+.legend-sparkle {
+  position: absolute;
+  width: 3px; height: 3px;
+  background: #ffd740;
+  border-radius: 50%;
+  animation: legendSparkleFloat 3s ease-in-out infinite;
+  box-shadow: 0 0 4px rgba(255, 215, 64, 0.6);
+}
+.legend-sparkle:nth-child(1) { left: 15%; top: 20%; animation-delay: 0s; }
+.legend-sparkle:nth-child(2) { left: 75%; top: 35%; animation-delay: 0.8s; }
+.legend-sparkle:nth-child(3) { left: 40%; top: 60%; animation-delay: 1.5s; }
+.legend-sparkle:nth-child(4) { left: 85%; top: 70%; animation-delay: 0.4s; }
+.legend-sparkle:nth-child(5) { left: 25%; top: 80%; animation-delay: 2s; }
+.legend-sparkle:nth-child(6) { left: 60%; top: 15%; animation-delay: 1.2s; }
+@keyframes legendSparkleFloat {
+  0%, 100% { opacity: 0; transform: translateY(0) scale(0); }
+  20% { opacity: 1; transform: translateY(-5px) scale(1); }
+  80% { opacity: 0.6; transform: translateY(-15px) scale(0.8); }
+}
+
+/* ===================================================================
+   CARD BACK — Shared across all rarities
+   =================================================================== */
+.botanical-card.style-specimen.rarity-common .card-back {
+  transform: rotateY(180deg);
+  background: linear-gradient(180deg, #1e2d24, #141e18);
+  border: 1.5px solid rgba(160, 191, 173, 0.2);
+  color: #e8f5e9;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 16px 14px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+.botanical-card.style-specimen.rarity-uncommon .card-back {
+  transform: rotateY(180deg);
+  background: linear-gradient(180deg, #152215, #0f1a12);
+  border: 1.5px solid rgba(76,175,80,0.3);
+  color: #e8f5e9;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 16px 14px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+.botanical-card.style-specimen.rarity-rare .card-back {
+  transform: rotateY(180deg);
+  background: linear-gradient(180deg, #1a0a2e, #120825);
+  border: 2px solid rgba(186,104,200,0.4);
+  color: #e8d5f5;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 16px 14px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+.botanical-card.style-specimen.rarity-legendary .card-back {
+  transform: rotateY(180deg);
+  background: linear-gradient(160deg, #1a1205, #0d0a04);
+  border: none;
+  color: #fff8e1;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 16px 14px;
   text-align: center;
 }
 
-/* 3. Artist (Visual focus) */
-.layout-artist .card-back-art {
-  position: absolute;
-  top: 0; left: 0; width: 100%; height: 100%;
-  opacity: 0.1;
-  pointer-events: none;
-  background-size: cover;
-  background-position: center;
+/* Card Back shared elements */
+.botanical-card.style-specimen .card-back .specimen-header {
+  width: 100%;
+  margin-bottom: 8px;
 }
-.layout-artist .card-back-content {
-  position: relative;
-  z-index: 1;
+.botanical-card.style-specimen .card-back .name {
+  margin: 6px 0 10px;
+  font-size: 1rem;
 }
+
+.specimen-stats {
+  width: 100%;
+  margin-bottom: 12px;
+  text-align: left;
+  padding: 0 4px;
+}
+
+.botanical-card.style-specimen .card-back .card-stat {
+  font-size: 0.7rem;
+  margin-bottom: 4px;
+  font-family: 'Inter', sans-serif;
+  opacity: 0.7;
+}
+.botanical-card.style-specimen .card-back .card-stat strong {
+  opacity: 1;
+  font-weight: 600;
+}
+
+.botanical-card.style-specimen .card-back .card-fact {
+  font-size: 0.7rem;
+  opacity: 0.6;
+  line-height: 1.5;
+  font-style: italic;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  margin-top: auto;
+  font-family: 'Inter', sans-serif;
+}
+
+/* ===================================================================
+   UNDISCOVERED STATE
+   =================================================================== */
+.botanical-card.style-specimen.card-undiscovered .card-front {
+  background: rgba(20, 30, 24, 0.6) !important;
+  border-color: rgba(160, 191, 173, 0.1) !important;
+}
+.botanical-card.style-specimen.card-undiscovered .card-front::before,
+.botanical-card.style-specimen.card-undiscovered .card-front::after {
+  display: none !important;
+}
+.botanical-card.style-specimen.card-undiscovered img.card-art {
+  filter: brightness(0) opacity(0.12) !important;
+}
+.botanical-card.style-specimen.card-undiscovered .name {
+  color: rgba(160, 191, 173, 0.35) !important;
+  -webkit-text-fill-color: rgba(160, 191, 173, 0.35) !important;
+}
+.botanical-card.style-specimen.card-undiscovered .rarity {
+  color: rgba(160, 191, 173, 0.2) !important;
+  text-shadow: none !important;
+}
+.botanical-card.style-specimen.card-undiscovered {
+  opacity: 0.55;
+  transition: opacity 0.3s ease;
+}
+.botanical-card-container:hover .botanical-card.style-specimen.card-undiscovered {
+  opacity: 0.75;
+}
+
 
 /* Wellness Improvements */
 .metrics-overlay {

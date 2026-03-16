@@ -4,7 +4,7 @@
 
 import { store } from './js/store.js';
 import { FastingTimer, PLANS } from './js/timer.js';
-import { PlantRenderer, getRandomPlant, PLANT_SPECIES } from './js/plant.js';
+import { PlantRenderer, getRandomPlant, getCategoryTemplate, PLANT_SPECIES } from './js/plant.js';
 import { CollectionGallery } from './js/collection-gallery.js';
 import { AnalyticsDashboard } from './js/analytics.js';
 import { HabitsManager } from './js/habits.js';
@@ -58,7 +58,9 @@ function init() {
   // Resume active fast if any
   if (timer.resume()) {
     showActiveFastUI();
-    plantRenderer.setPlant(store.state.activeFast.plantType);
+    // Show category template (not actual species) during growth
+    const growthTemplate = getCategoryTemplate(store.state.activeFast.plantType);
+    plantRenderer.setPlant(growthTemplate);
     plantRenderer.setProgress(timer.progress);
     plantRenderer.startAnimation();
   } else {
@@ -170,25 +172,71 @@ function bindTimerControls() {
   if (stopBtn) {
     stopBtn.onclick = (e) => {
       e.preventDefault();
-      customConfirm(
-        'End Fast Early?',
-        'Are you sure you want to end your fast early? The plant won\'t be added to your garden.',
-        () => {
-          timer.cancel();
+      const isGoalMet = timer.elapsedMs >= timer.activeFast.goalMs;
+      const title = isGoalMet ? 'Finish Fast?' : 'End Fast Early?';
+      const msg = isGoalMet 
+        ? 'Great job! Ready to harvest your plant and end the fast?' 
+        : 'Are you sure you want to end your fast early? The plant won\'t be added to your garden.';
+        
+      customConfirm(title, msg, () => {
+          const { success, plant } = store.completeFast();
+          timer.stopTicking();
           plantRenderer.setProgress(0);
           plantRenderer.setPlant(null);
 
-          // Reset hydration
-          store.state.water.today = 0;
-          store.save();
-          renderWaterGlasses();
-
-          showIdleTimerUI();
-          showToast('Fast ended early. Hydration reset. 🌸');
-        }
-      );
+          if (!success) {
+            // Reset hydration only if ended early? User request didn't specify, but existing code did.
+            // Actually, user said "only ends when the user actually ends the fast", 
+            // so let's keep hydration reset for now if that's the current behavior.
+            store.state.water.today = 0;
+            store.save();
+            renderWaterGlasses();
+            showIdleTimerUI();
+            showToast('Fast ended early. 🌸');
+          } else {
+            onFastComplete({ plant }); // Pass the earned plant
+          }
+      });
     };
   }
+
+  // Debug Timer Controls
+  document.getElementById('btn-debug-add-1h')?.addEventListener('click', () => {
+    if (!timer.isRunning) {
+      showToast('Start a fast first to adjust time!');
+      return;
+    }
+    store.adjustActiveFast(1);
+    showToast('⏩ Added 1 hour to active fast');
+    // Tick manually to update UI immediately
+    if (timer.tickInterval) onTimerTick(timer);
+  });
+
+  document.getElementById('btn-debug-sub-1h')?.addEventListener('click', () => {
+    if (!timer.isRunning) {
+      showToast('Start a fast first to adjust time!');
+      return;
+    }
+    store.adjustActiveFast(-1);
+    showToast('⏪ Subtracted 1 hour from active fast');
+    if (timer.tickInterval) onTimerTick(timer);
+  });
+
+  document.getElementById('btn-debug-fast-forward')?.addEventListener('click', () => {
+    if (!timer.isRunning) {
+      showToast('Start a fast first to adjust time!');
+      return;
+    }
+    // Calculate how many hours to reach 99%
+    const goalHours = timer.activeFast.goalMs / 3600000;
+    const currentElapsedHours = (Date.now() - timer.activeFast.startTime) / 3600000;
+    const targetHours = goalHours * 0.99;
+    const diff = targetHours - currentElapsedHours;
+    
+    store.adjustActiveFast(diff);
+    showToast('🚀 Fast forwarded to 99% completion!');
+    if (timer.tickInterval) onTimerTick(timer);
+  });
 }
 
 function startFast() {
@@ -205,12 +253,28 @@ function startFast() {
   }
 
   const goalMs = goalHours * 60 * 60 * 1000;
-  const plantType = getRandomPlant();
+
+  // Build set of already-earned plant IDs to avoid duplicates
+  const earnedIds = new Set();
+  store.state.garden.plants.forEach(p => {
+    if (p.type?.id) earnedIds.add(p.type.id);
+  });
+  store.state.fasts.filter(f => f.completed && f.plantType?.id).forEach(f => {
+    earnedIds.add(f.plantType.id);
+  });
+
+  const plantType = getRandomPlant(earnedIds);
+
+  if (!plantType) {
+    showToast('🎉 You\'ve collected every plant! You are a true Botanical Master! 🏆');
+    return;
+  }
 
   timer.start(selectedPlan, goalMs, plantType);
 
-  // Setup plant renderer — user sees the plant but NOT the species name
-  plantRenderer.setPlant(plantType);
+  // Show category growth template (not actual species) during the fast
+  const growthTemplate = getCategoryTemplate(plantType);
+  plantRenderer.setPlant(growthTemplate);
   plantRenderer.setProgress(0);
 
   // Update UI — hide species info, show mystery
@@ -254,8 +318,17 @@ let lastMilestoneHour = -1;
 function onTimerTick(t) {
   // Update timer display
   document.getElementById('timer-display').textContent = t.formatTimeElapsed();
-  document.getElementById('timer-subtitle').textContent = `${t.formatTimeRemaining()} remaining`;
-  document.getElementById('timer-progress-fill').style.width = `${t.progress * 100}%`;
+  
+  const isOvertime = t.elapsedMs >= t.activeFast.goalMs;
+  if (isOvertime) {
+    document.getElementById('timer-subtitle').textContent = `Goal reached! +${t.formatTime(t.elapsedMs - t.activeFast.goalMs)} overtime`;
+    document.getElementById('timer-subtitle').style.color = 'var(--accent-green)';
+  } else {
+    document.getElementById('timer-subtitle').textContent = `${t.formatTimeRemaining()} remaining`;
+    document.getElementById('timer-subtitle').style.color = '';
+  }
+  
+  document.getElementById('timer-progress-fill').style.width = `${Math.min(1, t.progress) * 100}%`;
 
   // Update growth stage (don't reveal species)
   document.getElementById('growth-stage-label').textContent = t.growthStageLabel;
@@ -440,16 +513,40 @@ function bindAnalyticsControls() {
 
   document.getElementById('btn-log-weight')?.addEventListener('click', () => {
     const input = document.getElementById('weight-input');
+    const dateInput = document.getElementById('weight-date');
     const value = parseFloat(input?.value);
+    
     if (!value || value <= 0) {
       showToast('Please enter a valid weight');
       return;
     }
-    store.logWeight(value);
+
+    let timestamp = Date.now();
+    if (dateInput && dateInput.value) {
+      // Use the selected date at noon to avoid timezone issues
+      const [year, month, day] = dateInput.value.split('-').map(Number);
+      const d = new Date(year, month - 1, day, 12, 0, 0);
+      timestamp = d.getTime();
+    }
+
+    store.logWeight(value, timestamp);
     if (input) input.value = '';
-    showToast(`⚖️ Weight logged: ${value} lbs`);
+    showToast(`⚖️ Weight logged for ${new Date(timestamp).toLocaleDateString()}: ${value} lbs`);
 
     if (analytics) analytics.refresh();
+  });
+
+  document.getElementById('btn-debug-mock-data')?.addEventListener('click', () => {
+    customConfirm(
+      'Generate Mock Data?',
+      'This will inject 30 days of sample fasts, weights, and metrics. It will NOT overwrite your existing data but will add to it.',
+      () => {
+        store.injectMockData();
+        showToast('🧪 Mock data injected! Refreshing dashboards...');
+        if (analytics) analytics.refresh();
+        if (collectionGallery) collectionGallery.render();
+      }
+    );
   });
 }
 
@@ -458,7 +555,15 @@ function bindAnalyticsControls() {
 function bindWellnessTab() {
   // Save journal
   document.getElementById('btn-save-journal')?.addEventListener('click', () => {
+    const textarea = document.getElementById('journal-entry');
+    const text = textarea?.value.trim();
+    if (!text) {
+      showToast('Please write something in your journal first! ✍️');
+      return;
+    }
     saveJournal();
+    showToast('📖 Journal entry saved! Ritual complete for today.');
+    updateWellnessUI();
   });
 
   // Log metrics
@@ -467,24 +572,30 @@ function bindWellnessTab() {
     const sleep = parseInt(document.getElementById('metric-sleep')?.value) || 5;
     const energy = parseInt(document.getElementById('metric-energy')?.value) || 5;
     store.saveMetrics(mood, sleep, energy);
-    showToast('📊 Metrics saved! (Avg: ' + ((mood + sleep + energy) / 3).toFixed(1) + ')');
+    showToast('📊 Metrics saved! Move to step 2: Mindfulness Journal.');
     updateWellnessUI();
   });
 
   // Edit metrics
   document.getElementById('btn-edit-metrics')?.addEventListener('click', () => {
-    document.getElementById('metrics-saved-overlay')?.classList.add('hidden');
+    document.getElementById('wellness-metrics-section')?.classList.remove('daily-checkin-locked');
+    document.getElementById('btn-edit-metrics')?.classList.add('hidden');
+    showToast('Editing metrics...');
   });
 
   // Edit journal
   document.getElementById('btn-edit-journal')?.addEventListener('click', () => {
-    document.getElementById('journal-saved-overlay')?.classList.add('hidden');
-    // Put text back in textarea
+    const section = document.getElementById('wellness-journal-section');
+    section?.classList.remove('daily-checkin-locked');
+    document.getElementById('btn-edit-journal')?.classList.add('hidden');
+    
+    // Put text back in textarea if empty
     const textarea = document.getElementById('journal-entry');
     const todayJournal = store.getTodayJournal();
-    if (textarea && todayJournal) {
+    if (textarea && todayJournal && !textarea.value) {
       textarea.value = todayJournal.text;
     }
+    showToast('Editing journal entry...');
   });
 
   // AI Coaching
@@ -500,25 +611,42 @@ function bindWellnessTab() {
 
 function updateWellnessUI() {
   const today = new Date().toDateString();
-  
-  // Metrics Overlay
-  const metricsOverlay = document.getElementById('metrics-saved-overlay');
-  if (metricsOverlay) {
-    if (store.state.lastMetricsSaveDate === today) {
-      metricsOverlay.classList.remove('hidden');
+  const metricsDone = store.state.lastMetricsSaveDate === today;
+  const journalDone = store.state.lastJournalSaveDate === today;
+
+  // Metrics Section
+  const metricsSection = document.getElementById('wellness-metrics-section');
+  const editMetricsBtn = document.getElementById('btn-edit-metrics');
+  if (metricsSection) {
+    if (metricsDone) {
+      metricsSection.classList.add('daily-checkin-locked');
+      editMetricsBtn?.classList.remove('hidden');
     } else {
-      metricsOverlay.classList.add('hidden');
+      metricsSection.classList.remove('daily-checkin-locked');
+      editMetricsBtn?.classList.add('hidden');
     }
   }
 
-  // Journal Overlay
-  const journalOverlay = document.getElementById('journal-saved-overlay');
-  if (journalOverlay) {
-    if (store.state.lastJournalSaveDate === today) {
-      journalOverlay.classList.remove('hidden');
+  // Journal Section
+  const journalSection = document.getElementById('wellness-journal-section');
+  const editJournalBtn = document.getElementById('btn-edit-journal');
+  if (journalSection) {
+    if (journalDone) {
+      journalSection.classList.add('daily-checkin-locked');
+      editJournalBtn?.classList.remove('hidden');
     } else {
-      journalOverlay.classList.add('hidden');
+      journalSection.classList.remove('daily-checkin-locked');
+      editJournalBtn?.classList.add('hidden');
     }
+  }
+
+  // Ritual Progress
+  const progressFill = document.getElementById('ritual-progress-fill');
+  if (progressFill) {
+    let progress = 0;
+    if (metricsDone) progress += 50;
+    if (journalDone) progress += 50;
+    progressFill.style.width = `${progress}%`;
   }
 
   // Update chart average

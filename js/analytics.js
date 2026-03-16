@@ -243,7 +243,7 @@ export class AnalyticsDashboard {
   }
 
   getWeightData() {
-    const weights = this.store.state.weight.slice(-30);
+    const weights = this.store.state.weight.slice(-7);
     return {
       labels: weights.map(w => {
         const d = new Date(w.timestamp || Date.now());
