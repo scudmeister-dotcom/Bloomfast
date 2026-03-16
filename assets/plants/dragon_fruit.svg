@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 220" width="160" height="220">
+  <!-- Dragon Fruit Cactus: flat segmented pads, large white flower, spiky pink fruit -->
+  <!-- Base soil suggestion -->
+  <ellipse cx="80" cy="205" rx="35" ry="10" fill="#3e2723" opacity="0.5"/>
+  <!-- Main stem pad (bottom) -->
+  <path d="M80 200 Q55 198 48 180 Q42 162 50 148 Q58 136 80 138 Q102 136 110 148 Q118 162 112 180 Q105 198 80 200 Z"
+        fill="#388e3c" stroke="#2e7d32" stroke-width="2"/>
+  <!-- Wavy edges on main pad -->
+  <g fill="#2e7d32" opacity="0.7">
+    <circle cx="48" cy="165" r="5"/><circle cx="46" cy="175" r="4.5"/><circle cx="50" cy="155" r="4"/>
+    <circle cx="112" cy="165" r="5"/><circle cx="114" cy="175" r="4.5"/><circle cx="110" cy="155" r="4"/>
+    <circle cx="65" cy="198" r="4"/><circle cx="80" cy="200" r="4"/><circle cx="95" cy="198" r="4"/>
+  </g>
+  <!-- Left pad -->
+  <path d="M60 148 Q38 150 28 135 Q18 120 24 106 Q30 93 50 90 Q68 88 74 104 Q80 120 72 138 Q66 146 60 148 Z"
+        fill="#43a047" stroke="#388e3c" stroke-width="1.5"/>
+  <g fill="#388e3c" opacity="0.7">
+    <circle cx="27" cy="118" r="4.5"/><circle cx="24" cy="108" r="4"/><circle cx="28" cy="128" r="4"/>
+    <circle cx="37" cy="150" r="3.5"/><circle cx="48" cy="88" r="3.5"/>
+  </g>
+  <!-- Right pad -->
+  <path d="M100 148 Q122 150 132 135 Q142 120 136 106 Q130 93 110 90 Q92 88 86 104 Q80 120 88 138 Q94 146 100 148 Z"
+        fill="#43a047" stroke="#388e3c" stroke-width="1.5"/>
+  <g fill="#388e3c" opacity="0.7">
+    <circle cx="133" cy="118" r="4.5"/><circle cx="136" cy="108" r="4"/><circle cx="132" cy="128" r="4"/>
+    <circle cx="123" cy="150" r="3.5"/><circle cx="112" cy="88" r="3.5"/>
+  </g>
+  <!-- Top small pad -->
+  <path d="M80 138 Q62 132 58 118 Q54 104 64 95 Q72 88 80 90 Q88 88 96 95 Q106 104 102 118 Q98 132 80 138 Z"
+        fill="#66bb6a" stroke="#43a047" stroke-width="1.2"/>
+  <g fill="#43a047" opacity="0.6">
+    <circle cx="58" cy="108" r="3.5"/><circle cx="102" cy="108" r="3.5"/>
+    <circle cx="70" cy="136" r="3"/><circle cx="90" cy="136" r="3"/>
+  </g>
+  <!-- Spines on pads -->
+  <g stroke="#fff9c4" stroke-width="1" opacity="0.8" fill="none">
+    <line x1="48" y1="155" x2="44" y2="150"/><line x1="48" y1="165" x2="43" y2="162"/>
+    <line x1="50" y1="175" x2="45" y2="174"/><line x1="112" y1="155" x2="116" y2="150"/>
+    <line x1="112" y1="165" x2="117" y2="162"/><line x1="114" y1="175" x2="119" y2="174"/>
+    <line x1="27" y1="110" x2="22" y2="107"/><line x1="26" y1="120" x2="21" y2="119"/>
+    <line x1="133" y1="110" x2="138" y2="107"/><line x1="134" y1="120" x2="139" y2="119"/>
+  </g>
+  <!-- Large white nocturnal flower at top -->
+  <!-- Outer petals (long, pointed) -->
+  <g fill="#fffde7" stroke="#f9a825" stroke-width="0.8">
+    <path d="M80 90 Q77 72 76 55 Q77 42 80 38 Q83 42 84 55 Q83 72 80 90 Z"/>
+    <path d="M80 90 Q65 80 54 72 Q45 63 43 58 Q49 57 60 64 Q71 73 80 90 Z"/>
+    <path d="M80 90 Q95 80 106 72 Q115 63 117 58 Q111 57 100 64 Q89 73 80 90 Z"/>
+    <path d="M80 90 Q68 95 58 92 Q47 86 45 80 Q51 77 62 81 Q73 88 80 90 Z"/>
+    <path d="M80 90 Q92 95 102 92 Q113 86 115 80 Q109 77 98 81 Q87 88 80 90 Z"/>
+    <path d="M80 90 Q72 76 68 62 Q65 50 68 45 Q73 47 76 60 Q79 74 80 90 Z"/>
+    <path d="M80 90 Q88 76 92 62 Q95 50 92 45 Q87 47 84 60 Q81 74 80 90 Z"/>
+  </g>
+  <!-- Stamens -->
+  <g stroke="#f9a825" stroke-width="0.8" fill="none">
+    <line x1="80" y1="88" x2="80" y2="72"/><line x1="80" y1="88" x2="74" y2="74"/>
+    <line x1="80" y1="88" x2="86" y2="74"/><line x1="80" y1="88" x2="70" y2="78"/>
+    <line x1="80" y1="88" x2="90" y2="78"/>
+  </g>
+  <g fill="#f9a825">
+    <circle cx="80" cy="72" r="2"/><circle cx="74" cy="74" r="1.5"/><circle cx="86" cy="74" r="1.5"/>
+    <circle cx="70" cy="78" r="1.5"/><circle cx="90" cy="78" r="1.5"/>
+  </g>
+  <!-- Flower center -->
+  <circle cx="80" cy="88" r="7" fill="#fff9c4" stroke="#f9a825" stroke-width="1"/>
+  <!-- Dragon fruit (pink spiky fruit) - small, to the right -->
+  <ellipse cx="118" cy="158" rx="14" ry="17" fill="#e91e63" stroke="#c2185b" stroke-width="1.5"/>
+  <!-- Fruit scales -->
+  <g fill="#ad1457" opacity="0.6">
+    <path d="M110 148 Q118 140 126 148"/><path d="M107 156 Q118 147 129 156"/>
+    <path d="M106 164 Q118 155 130 164"/><path d="M108 172 Q118 163 128 172"/>
+  </g>
+  <!-- Green scale tips -->
+  <g fill="#43a047">
+    <path d="M110 148 Q114 143 118 140 Q122 143 126 148 Q122 146 118 148 Q114 146 110 148"/>
+    <path d="M107 156 Q111 149 118 147 Q125 149 129 156 Q125 153 118 154 Q111 153 107 156"/>
+  </g>
+</svg>

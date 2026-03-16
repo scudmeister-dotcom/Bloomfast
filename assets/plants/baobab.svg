@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 220" width="160" height="220">
+  <!-- Baobab: iconic bottle-shaped trunk, wide base, sparse branches at top -->
+  <!-- Ground/roots suggestion -->
+  <ellipse cx="80" cy="210" rx="55" ry="12" fill="#5d4037" opacity="0.6"/>
+  <g fill="#4e342e" opacity="0.5">
+    <path d="M50 210 Q40 205 35 200 Q38 208 50 210"/>
+    <path d="M110 210 Q120 205 125 200 Q122 208 110 210"/>
+    <path d="M65 210 Q58 202 55 195 Q60 205 65 210"/>
+    <path d="M95 210 Q102 202 105 195 Q100 205 95 210"/>
+  </g>
+  <!-- Massive wide base trunk -->
+  <path d="M28 205 Q22 190 20 170 Q18 148 24 128 Q30 108 40 95 Q50 82 60 75 Q70 70 80 70 Q90 70 100 75 Q110 82 120 95 Q130 108 136 128 Q142 148 140 170 Q138 190 132 205 Z"
+        fill="#8d6e63" stroke="#6d4c41" stroke-width="2"/>
+  <!-- Trunk texture (vertical lines, wrinkles) -->
+  <g stroke="#6d4c41" stroke-width="1.2" opacity="0.4" fill="none">
+    <path d="M45 200 Q42 170 44 140 Q46 115 52 95"/>
+    <path d="M58 205 Q55 175 56 145 Q58 118 62 95"/>
+    <path d="M80 205 Q80 175 80 145 Q80 118 80 95"/>
+    <path d="M102 205 Q105 175 104 145 Q102 118 98 95"/>
+    <path d="M115 200 Q118 170 116 140 Q114 115 108 95"/>
+  </g>
+  <!-- Horizontal wrinkles -->
+  <g stroke="#6d4c41" stroke-width="1" opacity="0.25" fill="none">
+    <path d="M25 180 Q80 175 135 180"/><path d="M22 160 Q80 155 138 160"/>
+    <path d="M22 140 Q80 135 138 140"/><path d="M25 120 Q80 116 135 120"/>
+    <path d="M32 105 Q80 102 128 105"/>
+  </g>
+  <!-- Water storage texture (slight bulge highlight) -->
+  <ellipse cx="80" cy="155" rx="45" ry="35" fill="#a5927e" opacity="0.2"/>
+  <!-- Narrow upper trunk -->
+  <path d="M60 75 Q68 62 80 58 Q92 62 100 75 Q92 72 80 70 Q68 72 60 75 Z"
+        fill="#795548" stroke="#5d4037" stroke-width="1.5"/>
+  <!-- Main branches (sparse, gnarly) -->
+  <!-- Central branch -->
+  <path d="M80 58 Q78 45 75 32 Q73 22 72 15" stroke="#5d4037" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <!-- Left main branch -->
+  <path d="M78 58 Q65 48 52 42 Q42 38 35 35" stroke="#5d4037" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+  <!-- Right main branch -->
+  <path d="M82 58 Q95 48 108 42 Q118 38 125 35" stroke="#5d4037" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+  <!-- Sub-branches -->
+  <path d="M72 15 Q66 10 60 8" stroke="#6d4c41" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <path d="M72 15 Q75 9 80 6" stroke="#6d4c41" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <path d="M35 35 Q30 28 26 22" stroke="#6d4c41" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <path d="M35 35 Q32 30 30 24" stroke="#6d4c41" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <path d="M125 35 Q130 28 134 22" stroke="#6d4c41" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <path d="M125 35 Q128 30 130 24" stroke="#6d4c41" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <!-- Additional sub-branches -->
+  <path d="M52 42 Q48 36 44 30" stroke="#6d4c41" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <path d="M108 42 Q112 36 116 30" stroke="#6d4c41" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <path d="M75 32 Q68 26 64 20" stroke="#6d4c41" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <path d="M75 32 Q80 25 85 18" stroke="#6d4c41" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <!-- Small compound leaves at branch tips -->
+  <g fill="#a5d6a7" opacity="0.85">
+    <!-- Left branch leaves -->
+    <ellipse cx="27" cy="20" rx="5" ry="3" transform="rotate(-30 27 20)"/>
+    <ellipse cx="32" cy="23" rx="4" ry="2.5" transform="rotate(-20 32 23)"/>
+    <ellipse cx="36" cy="19" rx="4" ry="2.5" transform="rotate(-35 36 19)"/>
+    <ellipse cx="25" cy="26" rx="3.5" ry="2" transform="rotate(-40 25 26)"/>
+    <!-- Right branch leaves -->
+    <ellipse cx="133" cy="20" rx="5" ry="3" transform="rotate(30 133 20)"/>
+    <ellipse cx="128" cy="23" rx="4" ry="2.5" transform="rotate(20 128 23)"/>
+    <ellipse cx="124" cy="19" rx="4" ry="2.5" transform="rotate(35 124 19)"/>
+    <ellipse cx="135" cy="26" rx="3.5" ry="2" transform="rotate(40 135 26)"/>
+    <!-- Center branch leaves -->
+    <ellipse cx="72" cy="13" rx="4" ry="2.5" transform="rotate(-15 72 13)"/>
+    <ellipse cx="80" cy="5" rx="4" ry="2.5"/><ellipse cx="82" cy="11" rx="3.5" ry="2" transform="rotate(10 82 11)"/>
+    <!-- Sub-branch leaves -->
+    <ellipse cx="59" cy="7" rx="3.5" ry="2" transform="rotate(-25 59 7)"/>
+    <ellipse cx="45" cy="28" rx="3.5" ry="2" transform="rotate(-15 45 28)"/>
+    <ellipse cx="115" cy="28" rx="3.5" ry="2" transform="rotate(15 115 28)"/>
+    <ellipse cx="65" cy="18" rx="3.5" ry="2" transform="rotate(-20 65 18)"/>
+    <ellipse cx="85" cy="16" rx="3.5" ry="2" transform="rotate(15 85 16)"/>
+  </g>
+</svg>

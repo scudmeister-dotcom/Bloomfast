@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" width="160" height="200">
+  <!-- Sage: oval grey-green velvety leaves, purple flower spikes -->
+  <!-- Stems from base -->
+  <g stroke="#6d8a60" stroke-width="2.5" fill="none" stroke-linecap="round">
+    <path d="M80 185 Q75 150 70 110 Q65 80 68 55"/>
+    <path d="M80 185 Q85 155 90 115 Q95 85 92 55"/>
+    <path d="M80 185 Q72 160 60 130 Q50 110 48 90"/>
+    <path d="M80 185 Q88 160 100 130 Q110 110 112 90"/>
+  </g>
+  <!-- Sage leaves - grayish green, oval with slight wrinkle texture -->
+  <!-- Left stem leaves -->
+  <ellipse cx="58" cy="100" rx="18" ry="11" transform="rotate(-20 58 100)" fill="#78909c" stroke="#546e7a" stroke-width="1"/>
+  <ellipse cx="55" cy="120" rx="20" ry="12" transform="rotate(-15 55 120)" fill="#78909c" stroke="#546e7a" stroke-width="1"/>
+  <ellipse cx="50" cy="140" rx="19" ry="11" transform="rotate(-10 50 140)" fill="#6b8074" stroke="#546e7a" stroke-width="1"/>
+  <ellipse cx="54" cy="160" rx="18" ry="10" transform="rotate(-5 54 160)" fill="#6b8074" stroke="#546e7a" stroke-width="1"/>
+  <!-- Right stem leaves -->
+  <ellipse cx="102" cy="100" rx="18" ry="11" transform="rotate(20 102 100)" fill="#78909c" stroke="#546e7a" stroke-width="1"/>
+  <ellipse cx="105" cy="120" rx="20" ry="12" transform="rotate(15 105 120)" fill="#78909c" stroke="#546e7a" stroke-width="1"/>
+  <ellipse cx="110" cy="140" rx="19" ry="11" transform="rotate(10 110 140)" fill="#6b8074" stroke="#546e7a" stroke-width="1"/>
+  <ellipse cx="106" cy="160" rx="18" ry="10" transform="rotate(5 106 160)" fill="#6b8074" stroke="#546e7a" stroke-width="1"/>
+  <!-- Main stem leaves -->
+  <ellipse cx="66" cy="75" rx="16" ry="9" transform="rotate(-15 66 75)" fill="#8d9e88" stroke="#6d8a60" stroke-width="1"/>
+  <ellipse cx="94" cy="75" rx="16" ry="9" transform="rotate(15 94 75)" fill="#8d9e88" stroke="#6d8a60" stroke-width="1"/>
+  <!-- Leaf veins (subtle) -->
+  <g stroke="#546e7a" stroke-width="0.6" opacity="0.6" fill="none">
+    <line x1="48" y1="100" x2="68" y2="100"/>
+    <line x1="45" y1="121" x2="65" y2="119"/>
+    <line x1="92" y1="100" x2="112" y2="100"/>
+    <line x1="95" y1="121" x2="115" y2="119"/>
+  </g>
+  <!-- Velvety texture dots on leaves -->
+  <g fill="#a5b5a0" opacity="0.3">
+    <circle cx="55" cy="99" r="1.2"/><circle cx="60" cy="102" r="1"/><circle cx="52" cy="104" r="1"/>
+    <circle cx="103" cy="99" r="1.2"/><circle cx="108" cy="102" r="1"/><circle cx="100" cy="104" r="1"/>
+  </g>
+  <!-- Purple flower spikes at top -->
+  <!-- Left spike -->
+  <rect x="66" y="25" width="3" height="30" rx="1.5" fill="#7e57c2"/>
+  <g fill="#9575cd">
+    <ellipse cx="67.5" cy="28" rx="5" ry="3"/><ellipse cx="67.5" cy="36" rx="4.5" ry="2.8"/>
+    <ellipse cx="67.5" cy="44" rx="4" ry="2.5"/>
+  </g>
+  <g fill="#b39ddb" opacity="0.8">
+    <circle cx="63" cy="28" r="2"/><circle cx="72" cy="29" r="2"/>
+    <circle cx="63" cy="36" r="1.8"/><circle cx="72" cy="37" r="1.8"/>
+  </g>
+  <!-- Right spike -->
+  <rect x="91" y="25" width="3" height="30" rx="1.5" fill="#7e57c2"/>
+  <g fill="#9575cd">
+    <ellipse cx="92.5" cy="28" rx="5" ry="3"/><ellipse cx="92.5" cy="36" rx="4.5" ry="2.8"/>
+    <ellipse cx="92.5" cy="44" rx="4" ry="2.5"/>
+  </g>
+  <g fill="#b39ddb" opacity="0.8">
+    <circle cx="88" cy="28" r="2"/><circle cx="97" cy="29" r="2"/>
+    <circle cx="88" cy="36" r="1.8"/><circle cx="97" cy="37" r="1.8"/>
+  </g>
+</svg>

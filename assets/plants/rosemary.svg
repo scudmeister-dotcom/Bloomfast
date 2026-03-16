@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" width="160" height="200">
+  <!-- Rosemary: woody herb with needle-like leaves and purple flowers -->
+  <!-- Main stems -->
+  <g stroke="#5d4037" stroke-width="2.5" fill="none" stroke-linecap="round">
+    <line x1="80" y1="185" x2="80" y2="60"/>
+    <line x1="80" y1="130" x2="55" y2="80"/>
+    <line x1="80" y1="120" x2="108" y2="75"/>
+    <line x1="80" y1="160" x2="45" y2="110"/>
+    <line x1="80" y1="150" x2="115" y2="105"/>
+  </g>
+  <!-- Needle leaves on main stem -->
+  <g stroke="#2e6b3e" stroke-width="1.5" fill="none" stroke-linecap="round">
+    <!-- Left needles on main stem -->
+    <line x1="80" y1="175" x2="70" y2="170"/><line x1="80" y1="165" x2="68" y2="159"/>
+    <line x1="80" y1="155" x2="69" y2="148"/><line x1="80" y1="145" x2="68" y2="138"/>
+    <line x1="80" y1="135" x2="70" y2="128"/><line x1="80" y1="125" x2="69" y2="118"/>
+    <line x1="80" y1="115" x2="70" y2="108"/><line x1="80" y1="105" x2="69" y2="98"/>
+    <line x1="80" y1="95" x2="70" y2="88"/><line x1="80" y1="85" x2="69" y2="78"/>
+    <!-- Right needles on main stem -->
+    <line x1="80" y1="173" x2="90" y2="168"/><line x1="80" y1="163" x2="92" y2="157"/>
+    <line x1="80" y1="153" x2="91" y2="146"/><line x1="80" y1="143" x2="92" y2="136"/>
+    <line x1="80" y1="133" x2="90" y2="126"/><line x1="80" y1="123" x2="91" y2="116"/>
+    <line x1="80" y1="113" x2="90" y2="106"/><line x1="80" y1="103" x2="91" y2="96"/>
+    <line x1="80" y1="93" x2="90" y2="86"/>
+  </g>
+  <!-- Needles on left branch -->
+  <g stroke="#2e6b3e" stroke-width="1.2" fill="none" stroke-linecap="round">
+    <line x1="67" y1="112" x2="60" y2="108"/><line x1="63" y1="105" x2="56" y2="101"/>
+    <line x1="59" y1="98" x2="52" y2="95"/><line x1="55" y1="91" x2="49" y2="88"/>
+    <line x1="67" y1="113" x2="67" y2="107"/><line x1="63" y1="106" x2="63" y2="100"/>
+    <line x1="59" y1="99" x2="59" y2="93"/>
+  </g>
+  <!-- Needles on right branch -->
+  <g stroke="#2e6b3e" stroke-width="1.2" fill="none" stroke-linecap="round">
+    <line x1="93" y1="107" x2="100" y2="103"/><line x1="97" y1="100" x2="104" y2="96"/>
+    <line x1="101" y1="93" x2="108" y2="90"/><line x1="105" y1="86" x2="111" y2="83"/>
+    <line x1="93" y1="108" x2="93" y2="102"/><line x1="97" y1="101" x2="97" y2="95"/>
+    <line x1="101" y1="94" x2="101" y2="88"/>
+  </g>
+  <!-- Purple flowers at branch tips -->
+  <g fill="#7b5ea7">
+    <circle cx="80" cy="58" r="3.5"/><circle cx="76" cy="63" r="2.5"/><circle cx="84" cy="63" r="2.5"/>
+    <circle cx="72" cy="67" r="2"/><circle cx="88" cy="67" r="2"/>
+  </g>
+  <g fill="#7b5ea7">
+    <circle cx="45" cy="108" r="3"/><circle cx="41" cy="113" r="2.5"/><circle cx="49" cy="112" r="2"/>
+    <circle cx="38" cy="117" r="2"/>
+  </g>
+  <g fill="#7b5ea7">
+    <circle cx="115" cy="103" r="3"/><circle cx="111" cy="108" r="2.5"/><circle cx="119" cy="107" r="2"/>
+    <circle cx="108" cy="112" r="2"/>
+  </g>
+  <!-- Flower detail dots -->
+  <g fill="#fce4ec" opacity="0.8">
+    <circle cx="80" cy="58" r="1.2"/><circle cx="45" cy="108" r="1"/><circle cx="115" cy="103" r="1"/>
+  </g>
+</svg>

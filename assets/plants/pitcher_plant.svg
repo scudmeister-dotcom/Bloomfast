@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 220" width="160" height="220">
+  <!-- Pitcher Plant (Nepenthes): tubular pitchers hanging from tendrils -->
+  <!-- Main leaves from base -->
+  <g fill="#4caf50" stroke="#2e7d32" stroke-width="1">
+    <!-- Left base leaf -->
+    <ellipse cx="58" cy="175" rx="22" ry="10" transform="rotate(-25 58 175)"/>
+    <!-- Right base leaf -->
+    <ellipse cx="102" cy="175" rx="22" ry="10" transform="rotate(25 102 175)"/>
+    <!-- Center leaf -->
+    <ellipse cx="80" cy="170" rx="15" ry="8" transform="rotate(-5 80 170)"/>
+  </g>
+  <!-- Tendril from left leaf -->
+  <path d="M55 165 Q45 140 48 115 Q51 95 56 85" stroke="#4caf50" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <!-- Tendril from right leaf -->
+  <path d="M105 165 Q115 140 112 115 Q109 95 104 85" stroke="#4caf50" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <!-- Tendril from center -->
+  <path d="M80 162 Q80 140 80 115 Q80 100 80 85" stroke="#4caf50" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <!-- Left pitcher -->
+  <!-- Lid -->
+  <ellipse cx="56" cy="83" rx="14" ry="7" transform="rotate(-15 56 83)" fill="#81c784" stroke="#43a047" stroke-width="1"/>
+  <!-- Pitcher body -->
+  <path d="M44 90 Q38 100 36 118 Q34 135 38 148 Q42 160 56 162 Q70 160 72 148 Q76 135 74 118 Q72 100 68 90 Z"
+        fill="#a5d6a7" stroke="#4caf50" stroke-width="1.5"/>
+  <!-- Pitcher neck/peristome (ribs at top) -->
+  <path d="M44 90 Q56 86 68 90" fill="none" stroke="#e57373" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Red veins on pitcher -->
+  <g stroke="#c62828" stroke-width="0.8" opacity="0.5" fill="none">
+    <path d="M48 100 Q46 120 46 140"/><path d="M54 96 Q52 116 52 138"/>
+    <path d="M60 96 Q62 116 62 138"/><path d="M66 100 Q67 120 65 140"/>
+  </g>
+  <!-- Digestive fluid (blue-green tinted) inside pitcher -->
+  <ellipse cx="56" cy="150" rx="14" ry="5" fill="#1a8a8a" opacity="0.35"/>
+  <!-- Small insect silhouette (optional detail) -->
+  <ellipse cx="56" cy="148" rx="3" ry="1.5" fill="#333" opacity="0.3"/>
+  <!-- Center pitcher (smaller, higher up) -->
+  <!-- Lid -->
+  <ellipse cx="80" cy="83" rx="11" ry="5.5" fill="#a5d6a7" stroke="#4caf50" stroke-width="1"/>
+  <!-- Body -->
+  <path d="M71 88 Q67 96 65 110 Q63 122 65 132 Q67 142 80 144 Q93 142 95 132 Q97 122 95 110 Q93 96 89 88 Z"
+        fill="#c8e6c9" stroke="#81c784" stroke-width="1.2"/>
+  <path d="M71 88 Q80 84 89 88" fill="none" stroke="#ef9a9a" stroke-width="2" stroke-linecap="round"/>
+  <g stroke="#c62828" stroke-width="0.6" opacity="0.45" fill="none">
+    <path d="M73 96 Q72 110 72 126"/><path d="M80 92 Q80 106 80 124"/>
+    <path d="M87 96 Q88 110 88 126"/>
+  </g>
+  <ellipse cx="80" cy="136" rx="10" ry="4" fill="#1a8a8a" opacity="0.3"/>
+  <!-- Right pitcher -->
+  <ellipse cx="104" cy="83" rx="14" ry="7" transform="rotate(15 104 83)" fill="#81c784" stroke="#43a047" stroke-width="1"/>
+  <path d="M92 90 Q88 100 86 118 Q84 135 88 148 Q92 160 104 162 Q116 160 122 148 Q126 135 124 118 Q122 100 116 90 Z"
+        fill="#a5d6a7" stroke="#4caf50" stroke-width="1.5"/>
+  <path d="M92 90 Q104 86 116 90" fill="none" stroke="#e57373" stroke-width="2.5" stroke-linecap="round"/>
+  <g stroke="#c62828" stroke-width="0.8" opacity="0.5" fill="none">
+    <path d="M94 100 Q92 120 93 140"/><path d="M100 96 Q99 116 99 138"/>
+    <path d="M108 96 Q110 116 110 138"/><path d="M114 100 Q116 120 115 140"/>
+  </g>
+  <ellipse cx="104" cy="150" rx="14" ry="5" fill="#1a8a8a" opacity="0.35"/>
+</svg>

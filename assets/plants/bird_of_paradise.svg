@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 220" width="160" height="220">
+  <!-- Bird of Paradise (Strelitzia): orange/blue flower, large paddle leaves -->
+  <!-- Large paddle-shaped leaves -->
+  <!-- Back left leaf -->
+  <path d="M75 200 Q55 175 35 140 Q22 112 28 85 Q34 65 50 62 Q62 60 72 75 Q82 90 80 130 Q79 165 75 200"
+        fill="#2e7d32" stroke="#1b5e20" stroke-width="1.5"/>
+  <!-- Leaf midrib -->
+  <line x1="74" y1="200" x2="43" y2="75" stroke="#1b5e20" stroke-width="1.5" opacity="0.7"/>
+  <!-- Back right leaf -->
+  <path d="M85 200 Q105 175 125 140 Q138 112 132 85 Q126 65 110 62 Q98 60 88 75 Q78 90 80 130 Q81 165 85 200"
+        fill="#388e3c" stroke="#2e7d32" stroke-width="1.5"/>
+  <line x1="86" y1="200" x2="117" y2="75" stroke="#2e7d32" stroke-width="1.5" opacity="0.7"/>
+  <!-- Front center leaf (slightly different shade) -->
+  <path d="M80 210 Q65 185 58 155 Q52 128 58 105 Q64 82 76 75 Q82 72 86 78 Q92 88 90 118 Q88 150 80 210"
+        fill="#43a047" stroke="#388e3c" stroke-width="1.2"/>
+  <line x1="80" y1="210" x2="72" y2="82" stroke="#388e3c" stroke-width="1.2" opacity="0.6"/>
+  <!-- Stem for flower -->
+  <line x1="80" y1="170" x2="80" y2="75" stroke="#33691e" stroke-width="4" stroke-linecap="round"/>
+  <!-- Boat-shaped spathe (dark green) -->
+  <path d="M55 85 Q68 70 80 75 Q92 70 105 85 Q108 92 80 95 Q52 92 55 85 Z"
+        fill="#2e7d32" stroke="#1b5e20" stroke-width="1.5"/>
+  <!-- Orange sepals (upright spiky petals) -->
+  <!-- Main orange sepal -->
+  <path d="M75 82 Q73 60 76 40 Q78 28 80 22 Q82 28 84 40 Q87 60 85 82 Z"
+        fill="#ff6f00" stroke="#e65100" stroke-width="1"/>
+  <!-- Side orange sepals -->
+  <path d="M68 84 Q63 64 64 46 Q66 34 70 28 Q73 22 74 35 Q75 52 72 84 Z"
+        fill="#ff8f00" stroke="#e65100" stroke-width="0.8"/>
+  <path d="M92 84 Q97 64 96 46 Q94 34 90 28 Q87 22 86 35 Q85 52 88 84 Z"
+        fill="#ff8f00" stroke="#e65100" stroke-width="0.8"/>
+  <!-- Blue/purple tongue petals (emerging between orange) -->
+  <path d="M74 78 Q72 55 73 38 Q75 28 78 22 Q79 30 79 48 Q79 65 78 78 Z"
+        fill="#283593" stroke="#1a237e" stroke-width="0.8" opacity="0.9"/>
+  <path d="M86 78 Q88 55 87 38 Q85 28 82 22 Q81 30 81 48 Q81 65 82 78 Z"
+        fill="#283593" stroke="#1a237e" stroke-width="0.8" opacity="0.9"/>
+  <!-- Blue petal accent (wing) -->
+  <path d="M63 82 Q55 72 50 60 Q48 52 54 50 Q62 48 67 58 Q72 68 71 82 Z"
+        fill="#1565c0" stroke="#0d47a1" stroke-width="0.8"/>
+  <path d="M97 82 Q105 72 110 60 Q112 52 106 50 Q98 48 93 58 Q88 68 89 82 Z"
+        fill="#1565c0" stroke="#0d47a1" stroke-width="0.8"/>
+  <!-- Orange highlights -->
+  <g fill="#ffcc02" opacity="0.4">
+    <ellipse cx="80" cy="40" rx="2" ry="5"/><ellipse cx="74" cy="48" rx="1.5" ry="4"/>
+    <ellipse cx="86" cy="48" rx="1.5" ry="4"/>
+  </g>
+</svg>

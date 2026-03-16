@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" width="160" height="200">
+  <!-- Thyme: low-growing herb with tiny oval leaves and small pink/purple flowers -->
+  <!-- Woody creeping stems from base -->
+  <g stroke="#795548" stroke-width="2" fill="none" stroke-linecap="round">
+    <!-- Main stems spreading outward and up -->
+    <path d="M80 185 Q60 170 40 155 Q30 145 28 130"/>
+    <path d="M80 185 Q100 170 120 155 Q130 145 132 130"/>
+    <path d="M80 185 Q65 160 55 135 Q50 115 52 95"/>
+    <path d="M80 185 Q95 160 105 135 Q110 115 108 95"/>
+    <path d="M80 185 Q78 160 78 130 Q78 105 80 80"/>
+  </g>
+  <!-- Tiny oval leaves along stems - lots of them! -->
+  <g fill="#558b2f">
+    <!-- Left spreading stem leaves -->
+    <ellipse cx="35" cy="135" rx="5" ry="3" transform="rotate(-40 35 135)"/>
+    <ellipse cx="42" cy="143" rx="5" ry="3" transform="rotate(-35 42 143)"/>
+    <ellipse cx="50" cy="150" rx="5" ry="3" transform="rotate(-30 50 150)"/>
+    <ellipse cx="60" cy="157" rx="5" ry="3" transform="rotate(-25 60 157)"/>
+    <ellipse cx="30" cy="130" rx="4" ry="2.5" transform="rotate(-45 30 130)"/>
+    <!-- Right spreading stem leaves -->
+    <ellipse cx="125" cy="135" rx="5" ry="3" transform="rotate(40 125 135)"/>
+    <ellipse cx="118" cy="143" rx="5" ry="3" transform="rotate(35 118 143)"/>
+    <ellipse cx="110" cy="150" rx="5" ry="3" transform="rotate(30 110 150)"/>
+    <ellipse cx="100" cy="157" rx="5" ry="3" transform="rotate(25 100 157)"/>
+    <ellipse cx="130" cy="130" rx="4" ry="2.5" transform="rotate(45 130 130)"/>
+    <!-- Left mid-stem leaves -->
+    <ellipse cx="54" cy="100" rx="5" ry="3" transform="rotate(-20 54 100)"/>
+    <ellipse cx="53" cy="112" rx="5" ry="3" transform="rotate(-18 53 112)"/>
+    <ellipse cx="54" cy="124" rx="5" ry="3" transform="rotate(-15 54 124)"/>
+    <ellipse cx="48" cy="138" rx="4.5" ry="2.8" transform="rotate(-10 48 138)"/>
+    <!-- Right mid-stem leaves -->
+    <ellipse cx="106" cy="100" rx="5" ry="3" transform="rotate(20 106 100)"/>
+    <ellipse cx="107" cy="112" rx="5" ry="3" transform="rotate(18 107 112)"/>
+    <ellipse cx="106" cy="124" rx="5" ry="3" transform="rotate(15 106 124)"/>
+    <ellipse cx="112" cy="138" rx="4.5" ry="2.8" transform="rotate(10 112 138)"/>
+    <!-- Center stem leaves -->
+    <ellipse cx="75" cy="90" rx="5" ry="3" transform="rotate(-10 75 90)"/>
+    <ellipse cx="85" cy="95" rx="5" ry="3" transform="rotate(10 85 95)"/>
+    <ellipse cx="76" cy="108" rx="5" ry="3" transform="rotate(-8 76 108)"/>
+    <ellipse cx="84" cy="113" rx="5" ry="3" transform="rotate(8 84 113)"/>
+    <ellipse cx="76" cy="125" rx="5" ry="3" transform="rotate(-5 76 125)"/>
+    <ellipse cx="84" cy="130" rx="5" ry="3" transform="rotate(5 84 130)"/>
+    <ellipse cx="77" cy="142" rx="5" ry="3" transform="rotate(-3 77 142)"/>
+    <ellipse cx="83" cy="147" rx="5" ry="3" transform="rotate(3 83 147)"/>
+    <ellipse cx="77" cy="158" rx="4.5" ry="2.8"/><ellipse cx="83" cy="163" rx="4.5" ry="2.8"/>
+  </g>
+  <!-- Darker secondary leaves for depth -->
+  <g fill="#33691e" opacity="0.6">
+    <ellipse cx="58" cy="103" rx="4" ry="2.5" transform="rotate(-15 58 103)"/>
+    <ellipse cx="102" cy="103" rx="4" ry="2.5" transform="rotate(15 102 103)"/>
+    <ellipse cx="35" cy="132" rx="4" ry="2.5" transform="rotate(-38 35 132)"/>
+    <ellipse cx="125" cy="132" rx="4" ry="2.5" transform="rotate(38 125 132)"/>
+  </g>
+  <!-- Small pink/purple flower clusters at stem tips -->
+  <g fill="#ce93d8">
+    <!-- Top center -->
+    <circle cx="80" cy="78" r="3.5"/><circle cx="75" cy="74" r="2.5"/><circle cx="85" cy="74" r="2.5"/>
+    <circle cx="80" cy="70" r="2"/>
+    <!-- Left mid-stem tip -->
+    <circle cx="52" cy="93" r="3"/><circle cx="47" cy="90" r="2.5"/><circle cx="57" cy="91" r="2"/>
+    <!-- Right mid-stem tip -->
+    <circle cx="108" cy="93" r="3"/><circle cx="103" cy="91" r="2"/><circle cx="113" cy="90" r="2.5"/>
+    <!-- Far left tip -->
+    <circle cx="27" cy="128" r="2.5"/><circle cx="23" cy="125" r="2"/><circle cx="31" cy="126" r="2"/>
+    <!-- Far right tip -->
+    <circle cx="133" cy="128" r="2.5"/><circle cx="129" cy="126" r="2"/><circle cx="137" cy="125" r="2"/>
+  </g>
+  <!-- Flower center dots -->
+  <g fill="#fce4ec" opacity="0.9">
+    <circle cx="80" cy="78" r="1"/><circle cx="52" cy="93" r="0.8"/><circle cx="108" cy="93" r="0.8"/>
+  </g>
+</svg>

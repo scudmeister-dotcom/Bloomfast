@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 320" width="220" height="320">
+  <!-- Art Nouveau Epic — Amethyst purple with intricate jeweled corners -->
+
+  <!-- Top-left vine corner — jeweled style -->
+  <path d="M5 58Q5 20 28 20Q28 5 58 5" stroke="#ba68c8" stroke-width="2.4" fill="none" opacity="0.7"/>
+  <path d="M5 58Q17 36 28 30Q32 17 58 5" stroke="#ba68c8" stroke-width="1.1" fill="none" opacity="0.45"/>
+  <path d="M5 58Q12 42 22 36Q30 18 45 8" stroke="#9c27b0" stroke-width="0.7" fill="none" opacity="0.28"/>
+  <!-- Gem ornaments at corner -->
+  <polygon points="28,20 33,26 28,32 23,26" fill="#ba68c8" opacity="0.35"/>
+  <polygon points="28,20 33,26 28,32 23,26" fill="none" stroke="#e1bee7" stroke-width="0.6" opacity="0.5"/>
+  <ellipse cx="15" cy="42" rx="10" ry="4" transform="rotate(-45 15 42)" fill="#ba68c8" opacity="0.38"/>
+  <ellipse cx="42" cy="15" rx="10" ry="4" transform="rotate(-45 42 15)" fill="#ba68c8" opacity="0.38"/>
+  <!-- Crystal highlight on gem -->
+  <polygon points="28,21 31,25 28,25" fill="#e1bee7" opacity="0.4"/>
+  <!-- Small stars at corner tips -->
+  <text x="3" y="58" font-size="7" fill="#ba68c8" opacity="0.45">✦</text>
+  <text x="48" y="8" font-size="7" fill="#ba68c8" opacity="0.45">✦</text>
+
+  <!-- Top-right vine corner -->
+  <path d="M215 58Q215 20 192 20Q192 5 162 5" stroke="#ba68c8" stroke-width="2.4" fill="none" opacity="0.7"/>
+  <path d="M215 58Q203 36 192 30Q188 17 162 5" stroke="#ba68c8" stroke-width="1.1" fill="none" opacity="0.45"/>
+  <path d="M215 58Q208 42 198 36Q190 18 175 8" stroke="#9c27b0" stroke-width="0.7" fill="none" opacity="0.28"/>
+  <polygon points="192,20 197,26 192,32 187,26" fill="#ba68c8" opacity="0.35"/>
+  <polygon points="192,20 197,26 192,32 187,26" fill="none" stroke="#e1bee7" stroke-width="0.6" opacity="0.5"/>
+  <ellipse cx="205" cy="42" rx="10" ry="4" transform="rotate(45 205 42)" fill="#ba68c8" opacity="0.38"/>
+  <ellipse cx="178" cy="15" rx="10" ry="4" transform="rotate(45 178 15)" fill="#ba68c8" opacity="0.38"/>
+  <polygon points="192,21 195,25 192,25" fill="#e1bee7" opacity="0.4"/>
+  <text x="205" y="58" font-size="7" fill="#ba68c8" opacity="0.45">✦</text>
+  <text x="155" y="8" font-size="7" fill="#ba68c8" opacity="0.45">✦</text>
+
+  <!-- Bottom-left vine corner -->
+  <path d="M5 262Q5 300 28 300Q28 315 58 315" stroke="#ba68c8" stroke-width="2.4" fill="none" opacity="0.7"/>
+  <path d="M5 262Q17 284 28 290Q32 303 58 315" stroke="#ba68c8" stroke-width="1.1" fill="none" opacity="0.45"/>
+  <path d="M5 262Q12 278 22 284Q30 302 45 312" stroke="#9c27b0" stroke-width="0.7" fill="none" opacity="0.28"/>
+  <polygon points="28,300 33,294 28,288 23,294" fill="#ba68c8" opacity="0.35"/>
+  <polygon points="28,300 33,294 28,288 23,294" fill="none" stroke="#e1bee7" stroke-width="0.6" opacity="0.5"/>
+  <ellipse cx="15" cy="278" rx="10" ry="4" transform="rotate(45 15 278)" fill="#ba68c8" opacity="0.38"/>
+  <ellipse cx="42" cy="305" rx="10" ry="4" transform="rotate(45 42 305)" fill="#ba68c8" opacity="0.38"/>
+  <text x="3" y="265" font-size="7" fill="#ba68c8" opacity="0.45">✦</text>
+  <text x="48" y="316" font-size="7" fill="#ba68c8" opacity="0.45">✦</text>
+
+  <!-- Bottom-right vine corner -->
+  <path d="M215 262Q215 300 192 300Q192 315 162 315" stroke="#ba68c8" stroke-width="2.4" fill="none" opacity="0.7"/>
+  <path d="M215 262Q203 284 192 290Q188 303 162 315" stroke="#ba68c8" stroke-width="1.1" fill="none" opacity="0.45"/>
+  <path d="M215 262Q208 278 198 284Q190 302 175 312" stroke="#9c27b0" stroke-width="0.7" fill="none" opacity="0.28"/>
+  <polygon points="192,300 197,294 192,288 187,294" fill="#ba68c8" opacity="0.35"/>
+  <polygon points="192,300 197,294 192,288 187,294" fill="none" stroke="#e1bee7" stroke-width="0.6" opacity="0.5"/>
+  <ellipse cx="205" cy="278" rx="10" ry="4" transform="rotate(-45 205 278)" fill="#ba68c8" opacity="0.38"/>
+  <ellipse cx="178" cy="305" rx="10" ry="4" transform="rotate(-45 178 305)" fill="#ba68c8" opacity="0.38"/>
+  <text x="205" y="265" font-size="7" fill="#ba68c8" opacity="0.45">✦</text>
+  <text x="155" y="316" font-size="7" fill="#ba68c8" opacity="0.45">✦</text>
+
+  <!-- Ornate double header line -->
+  <line x1="16" y1="26" x2="204" y2="26" stroke="#ba68c8" stroke-width="0.8" opacity="0.3"/>
+  <line x1="20" y1="29" x2="200" y2="29" stroke="#ba68c8" stroke-width="0.4" opacity="0.2"/>
+
+  <!-- Footer gem divider -->
+  <line x1="18" y1="252" x2="88" y2="252" stroke="#ba68c8" stroke-width="0.9" opacity="0.4"/>
+  <line x1="132" y1="252" x2="202" y2="252" stroke="#ba68c8" stroke-width="0.9" opacity="0.4"/>
+  <polygon points="110,246 116,252 110,258 104,252" fill="none" stroke="#ba68c8" stroke-width="1" opacity="0.55"/>
+  <polygon points="110,248 114,252 110,256 106,252" fill="#ba68c8" opacity="0.25"/>
+  <circle cx="93" cy="252" r="2.5" fill="none" stroke="#ba68c8" stroke-width="0.7" opacity="0.4"/>
+  <circle cx="127" cy="252" r="2.5" fill="none" stroke="#ba68c8" stroke-width="0.7" opacity="0.4"/>
+
+  <!-- Mid edge vine accents -->
+  <path d="M5 148Q15 138 5 128" stroke="#ba68c8" stroke-width="1.3" fill="none" opacity="0.25"/>
+  <polygon points="7,138 11,133 7,130 4,135" fill="#ba68c8" opacity="0.18"/>
+  <path d="M215 148Q205 138 215 128" stroke="#ba68c8" stroke-width="1.3" fill="none" opacity="0.25"/>
+  <polygon points="213,138 209,133 213,130 216,135" fill="#ba68c8" opacity="0.18"/>
+</svg>

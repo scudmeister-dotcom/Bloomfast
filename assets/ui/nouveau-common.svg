@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 320" width="220" height="320">
+  <!-- Art Nouveau Common — Sage green vine corners, subtle engraving style -->
+
+  <!-- Top-left vine corner -->
+  <path d="M5 50Q5 24 29 24Q29 5 53 5" stroke="#a5d6a7" stroke-width="2" fill="none" opacity="0.6"/>
+  <path d="M5 50Q14 36 29 32Q33 14 53 5" stroke="#a5d6a7" stroke-width="0.9" fill="none" opacity="0.35"/>
+  <ellipse cx="15" cy="38" rx="8" ry="3.2" transform="rotate(-45 15 38)" fill="#a5d6a7" opacity="0.35"/>
+  <ellipse cx="38" cy="15" rx="8" ry="3.2" transform="rotate(-45 38 15)" fill="#a5d6a7" opacity="0.35"/>
+  <circle cx="29" cy="24" r="3" fill="none" stroke="#a5d6a7" stroke-width="1" opacity="0.45"/>
+  <!-- Small leaf details TL -->
+  <path d="M19 42Q22 38 26 36" stroke="#a5d6a7" stroke-width="0.7" fill="none" opacity="0.3"/>
+  <path d="M36 21Q38 18 41 19" stroke="#a5d6a7" stroke-width="0.7" fill="none" opacity="0.3"/>
+
+  <!-- Top-right vine corner -->
+  <path d="M215 50Q215 24 191 24Q191 5 167 5" stroke="#a5d6a7" stroke-width="2" fill="none" opacity="0.6"/>
+  <path d="M215 50Q206 36 191 32Q187 14 167 5" stroke="#a5d6a7" stroke-width="0.9" fill="none" opacity="0.35"/>
+  <ellipse cx="205" cy="38" rx="8" ry="3.2" transform="rotate(45 205 38)" fill="#a5d6a7" opacity="0.35"/>
+  <ellipse cx="182" cy="15" rx="8" ry="3.2" transform="rotate(45 182 15)" fill="#a5d6a7" opacity="0.35"/>
+  <circle cx="191" cy="24" r="3" fill="none" stroke="#a5d6a7" stroke-width="1" opacity="0.45"/>
+
+  <!-- Bottom-left vine corner -->
+  <path d="M5 270Q5 296 29 296Q29 315 53 315" stroke="#a5d6a7" stroke-width="2" fill="none" opacity="0.6"/>
+  <path d="M5 270Q14 284 29 288Q33 306 53 315" stroke="#a5d6a7" stroke-width="0.9" fill="none" opacity="0.35"/>
+  <ellipse cx="15" cy="282" rx="8" ry="3.2" transform="rotate(45 15 282)" fill="#a5d6a7" opacity="0.35"/>
+  <ellipse cx="38" cy="305" rx="8" ry="3.2" transform="rotate(45 38 305)" fill="#a5d6a7" opacity="0.35"/>
+  <circle cx="29" cy="296" r="3" fill="none" stroke="#a5d6a7" stroke-width="1" opacity="0.45"/>
+
+  <!-- Bottom-right vine corner -->
+  <path d="M215 270Q215 296 191 296Q191 315 167 315" stroke="#a5d6a7" stroke-width="2" fill="none" opacity="0.6"/>
+  <path d="M215 270Q206 284 191 288Q187 306 167 315" stroke="#a5d6a7" stroke-width="0.9" fill="none" opacity="0.35"/>
+  <ellipse cx="205" cy="282" rx="8" ry="3.2" transform="rotate(-45 205 282)" fill="#a5d6a7" opacity="0.35"/>
+  <ellipse cx="182" cy="305" rx="8" ry="3.2" transform="rotate(-45 182 305)" fill="#a5d6a7" opacity="0.35"/>
+  <circle cx="191" cy="296" r="3" fill="none" stroke="#a5d6a7" stroke-width="1" opacity="0.45"/>
+
+  <!-- Specimen header decorative rule -->
+  <line x1="18" y1="29" x2="202" y2="29" stroke="#a5d6a7" stroke-width="0.5" opacity="0.2"/>
+
+  <!-- Decorative divider above info footer -->
+  <line x1="18" y1="257" x2="97" y2="257" stroke="#a5d6a7" stroke-width="0.6" opacity="0.3"/>
+  <line x1="123" y1="257" x2="202" y2="257" stroke="#a5d6a7" stroke-width="0.6" opacity="0.3"/>
+  <circle cx="110" cy="257" r="4" fill="none" stroke="#a5d6a7" stroke-width="0.9" opacity="0.4"/>
+  <circle cx="98" cy="257" r="2" fill="#a5d6a7" opacity="0.25"/>
+  <circle cx="122" cy="257" r="2" fill="#a5d6a7" opacity="0.25"/>
+
+  <!-- Subtle mid-edge vine tendrils -->
+  <path d="M5 145Q13 138 5 131" stroke="#a5d6a7" stroke-width="1" fill="none" opacity="0.18"/>
+  <ellipse cx="7" cy="138" rx="5" ry="2" transform="rotate(-15 7 138)" fill="#a5d6a7" opacity="0.12"/>
+  <path d="M215 145Q207 138 215 131" stroke="#a5d6a7" stroke-width="1" fill="none" opacity="0.18"/>
+  <ellipse cx="213" cy="138" rx="5" ry="2" transform="rotate(15 213 138)" fill="#a5d6a7" opacity="0.12"/>
+</svg>

@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 320" width="220" height="320">
+  <!-- Art Nouveau Uncommon — Vivid emerald vine corners with double sweep lines -->
+
+  <!-- Top-left vine corner — more elaborate -->
+  <path d="M5 55Q5 22 28 22Q28 5 55 5" stroke="#66bb6a" stroke-width="2.2" fill="none" opacity="0.65"/>
+  <path d="M5 55Q16 38 28 33Q33 16 55 5" stroke="#66bb6a" stroke-width="1" fill="none" opacity="0.4"/>
+  <path d="M5 55Q10 40 20 36Q28 20 40 10" stroke="#4caf50" stroke-width="0.7" fill="none" opacity="0.25"/>
+  <ellipse cx="16" cy="40" rx="9" ry="3.5" transform="rotate(-45 16 40)" fill="#66bb6a" opacity="0.4"/>
+  <ellipse cx="40" cy="16" rx="9" ry="3.5" transform="rotate(-45 40 16)" fill="#66bb6a" opacity="0.4"/>
+  <circle cx="28" cy="22" r="3.5" fill="none" stroke="#66bb6a" stroke-width="1.2" opacity="0.55"/>
+  <circle cx="28" cy="22" r="1.5" fill="#66bb6a" opacity="0.3"/>
+  <!-- Extra leaf details TL -->
+  <ellipse cx="10" cy="48" rx="6" ry="2.5" transform="rotate(-50 10 48)" fill="#4caf50" opacity="0.25"/>
+  <ellipse cx="48" cy="10" rx="6" ry="2.5" transform="rotate(-50 48 10)" fill="#4caf50" opacity="0.25"/>
+
+  <!-- Top-right vine corner -->
+  <path d="M215 55Q215 22 192 22Q192 5 165 5" stroke="#66bb6a" stroke-width="2.2" fill="none" opacity="0.65"/>
+  <path d="M215 55Q204 38 192 33Q187 16 165 5" stroke="#66bb6a" stroke-width="1" fill="none" opacity="0.4"/>
+  <path d="M215 55Q210 40 200 36Q192 20 180 10" stroke="#4caf50" stroke-width="0.7" fill="none" opacity="0.25"/>
+  <ellipse cx="204" cy="40" rx="9" ry="3.5" transform="rotate(45 204 40)" fill="#66bb6a" opacity="0.4"/>
+  <ellipse cx="180" cy="16" rx="9" ry="3.5" transform="rotate(45 180 16)" fill="#66bb6a" opacity="0.4"/>
+  <circle cx="192" cy="22" r="3.5" fill="none" stroke="#66bb6a" stroke-width="1.2" opacity="0.55"/>
+  <circle cx="192" cy="22" r="1.5" fill="#66bb6a" opacity="0.3"/>
+
+  <!-- Bottom-left vine corner -->
+  <path d="M5 265Q5 298 28 298Q28 315 55 315" stroke="#66bb6a" stroke-width="2.2" fill="none" opacity="0.65"/>
+  <path d="M5 265Q16 282 28 287Q33 304 55 315" stroke="#66bb6a" stroke-width="1" fill="none" opacity="0.4"/>
+  <path d="M5 265Q10 280 20 284Q28 300 40 310" stroke="#4caf50" stroke-width="0.7" fill="none" opacity="0.25"/>
+  <ellipse cx="16" cy="280" rx="9" ry="3.5" transform="rotate(45 16 280)" fill="#66bb6a" opacity="0.4"/>
+  <ellipse cx="40" cy="304" rx="9" ry="3.5" transform="rotate(45 40 304)" fill="#66bb6a" opacity="0.4"/>
+  <circle cx="28" cy="298" r="3.5" fill="none" stroke="#66bb6a" stroke-width="1.2" opacity="0.55"/>
+  <circle cx="28" cy="298" r="1.5" fill="#66bb6a" opacity="0.3"/>
+
+  <!-- Bottom-right vine corner -->
+  <path d="M215 265Q215 298 192 298Q192 315 165 315" stroke="#66bb6a" stroke-width="2.2" fill="none" opacity="0.65"/>
+  <path d="M215 265Q204 282 192 287Q187 304 165 315" stroke="#66bb6a" stroke-width="1" fill="none" opacity="0.4"/>
+  <path d="M215 265Q210 280 200 284Q192 300 180 310" stroke="#4caf50" stroke-width="0.7" fill="none" opacity="0.25"/>
+  <ellipse cx="204" cy="280" rx="9" ry="3.5" transform="rotate(-45 204 280)" fill="#66bb6a" opacity="0.4"/>
+  <ellipse cx="180" cy="304" rx="9" ry="3.5" transform="rotate(-45 180 304)" fill="#66bb6a" opacity="0.4"/>
+  <circle cx="192" cy="298" r="3.5" fill="none" stroke="#66bb6a" stroke-width="1.2" opacity="0.55"/>
+  <circle cx="192" cy="298" r="1.5" fill="#66bb6a" opacity="0.3"/>
+
+  <!-- Ornate header separator (double line) -->
+  <line x1="16" y1="28" x2="204" y2="28" stroke="#66bb6a" stroke-width="0.6" opacity="0.25"/>
+  <line x1="16" y1="31" x2="204" y2="31" stroke="#66bb6a" stroke-width="0.3" opacity="0.15"/>
+
+  <!-- Decorative footer divider with gem ornament -->
+  <line x1="18" y1="255" x2="92" y2="255" stroke="#66bb6a" stroke-width="0.8" opacity="0.35"/>
+  <line x1="128" y1="255" x2="202" y2="255" stroke="#66bb6a" stroke-width="0.8" opacity="0.35"/>
+  <!-- Diamond gem center -->
+  <polygon points="110,249 115,255 110,261 105,255" fill="none" stroke="#66bb6a" stroke-width="0.9" opacity="0.5"/>
+  <circle cx="96" cy="255" r="2.2" fill="#66bb6a" opacity="0.3"/>
+  <circle cx="124" cy="255" r="2.2" fill="#66bb6a" opacity="0.3"/>
+
+  <!-- Vine mid-edge accents -->
+  <path d="M5 150Q14 142 5 134" stroke="#66bb6a" stroke-width="1.2" fill="none" opacity="0.22"/>
+  <ellipse cx="7" cy="142" rx="6" ry="2.5" transform="rotate(-20 7 142)" fill="#66bb6a" opacity="0.15"/>
+  <path d="M215 150Q206 142 215 134" stroke="#66bb6a" stroke-width="1.2" fill="none" opacity="0.22"/>
+  <ellipse cx="213" cy="142" rx="6" ry="2.5" transform="rotate(20 213 142)" fill="#66bb6a" opacity="0.15"/>
+</svg>

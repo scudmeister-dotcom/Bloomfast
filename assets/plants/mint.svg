@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" width="160" height="200">
+  <!-- Mint: broad serrated leaves, square stem, lavender flower spike -->
+  <!-- Main square stem -->
+  <rect x="77" y="70" width="6" height="120" rx="2" fill="#2e7d32"/>
+  <!-- Opposite leaf pairs -->
+  <!-- Bottom pair -->
+  <ellipse cx="56" cy="158" rx="22" ry="14" transform="rotate(-30 56 158)" fill="#43a047" stroke="#2e7d32" stroke-width="1"/>
+  <ellipse cx="104" cy="158" rx="22" ry="14" transform="rotate(30 104 158)" fill="#43a047" stroke="#2e7d32" stroke-width="1"/>
+  <!-- Leaf veins bottom -->
+  <line x1="67" y1="155" x2="45" y2="162" stroke="#2e7d32" stroke-width="0.8" opacity="0.7"/>
+  <line x1="57" y1="152" x2="48" y2="156" stroke="#2e7d32" stroke-width="0.5" opacity="0.5"/>
+  <line x1="93" y1="155" x2="115" y2="162" stroke="#2e7d32" stroke-width="0.8" opacity="0.7"/>
+  <!-- Middle pair -->
+  <ellipse cx="52" cy="132" rx="24" ry="15" transform="rotate(-25 52 132)" fill="#4caf50" stroke="#2e7d32" stroke-width="1"/>
+  <ellipse cx="108" cy="132" rx="24" ry="15" transform="rotate(25 108 132)" fill="#4caf50" stroke="#2e7d32" stroke-width="1"/>
+  <!-- Leaf veins middle -->
+  <line x1="65" y1="129" x2="40" y2="136" stroke="#2e7d32" stroke-width="0.8" opacity="0.7"/>
+  <line x1="95" y1="129" x2="120" y2="136" stroke="#2e7d32" stroke-width="0.8" opacity="0.7"/>
+  <!-- Upper pair -->
+  <ellipse cx="55" cy="106" rx="20" ry="12" transform="rotate(-20 55 106)" fill="#66bb6a" stroke="#43a047" stroke-width="1"/>
+  <ellipse cx="105" cy="106" rx="20" ry="12" transform="rotate(20 105 106)" fill="#66bb6a" stroke="#43a047" stroke-width="1"/>
+  <!-- Leaf veins upper -->
+  <line x1="65" y1="104" x2="46" y2="110" stroke="#43a047" stroke-width="0.8" opacity="0.7"/>
+  <line x1="95" y1="104" x2="114" y2="110" stroke="#43a047" stroke-width="0.8" opacity="0.7"/>
+  <!-- Small serration marks on leaves -->
+  <g fill="none" stroke="#2e7d32" stroke-width="0.6" opacity="0.4">
+    <path d="M44 163 L46 161 L48 163 L50 161 L52 163"/>
+    <path d="M108 163 L110 161 L112 163 L114 161 L116 163"/>
+  </g>
+  <!-- Flower spike at top -->
+  <rect x="78" y="35" width="4" height="35" rx="2" fill="#7e57c2"/>
+  <!-- Small flower whorls on spike -->
+  <g fill="#9575cd">
+    <ellipse cx="80" cy="38" rx="5" ry="3.5"/>
+    <ellipse cx="80" cy="46" rx="4.5" ry="3"/>
+    <ellipse cx="80" cy="54" rx="4" ry="2.8"/>
+    <ellipse cx="80" cy="61" rx="3.5" ry="2.5"/>
+  </g>
+  <g fill="#ce93d8" opacity="0.7">
+    <circle cx="75" cy="39" r="2"/><circle cx="85" cy="40" r="2"/>
+    <circle cx="75" cy="47" r="1.8"/><circle cx="85" cy="48" r="1.8"/>
+  </g>
+  <!-- Stem connection at base -->
+  <ellipse cx="80" cy="185" rx="12" ry="6" fill="#1b5e20" opacity="0.5"/>
+</svg>

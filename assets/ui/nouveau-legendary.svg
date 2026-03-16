@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 320" width="220" height="320">
+  <!-- Art Nouveau Legendary — Rich gold/amber filigree with star flourishes -->
+
+  <!-- Top-left corner — ornate gold filigree -->
+  <path d="M5 62Q5 18 28 18Q28 5 62 5" stroke="#d4aa44" stroke-width="2.8" fill="none" opacity="0.75"/>
+  <path d="M5 62Q18 34 28 26Q34 18 62 5" stroke="#d4aa44" stroke-width="1.2" fill="none" opacity="0.5"/>
+  <path d="M5 62Q14 44 24 36Q32 18 48 8" stroke="#f1c40f" stroke-width="0.8" fill="none" opacity="0.32"/>
+  <path d="M5 62Q10 50 18 44Q26 28 38 16" stroke="#fff8dc" stroke-width="0.5" fill="none" opacity="0.18"/>
+  <!-- Gold diamond center -->
+  <polygon points="28,18 35,26 28,34 21,26" fill="#d4aa44" opacity="0.45"/>
+  <polygon points="28,18 35,26 28,34 21,26" fill="none" stroke="#fff8dc" stroke-width="0.8" opacity="0.6"/>
+  <polygon points="28,20 32,26 28,30 24,26" fill="#fff8dc" opacity="0.3"/>
+  <!-- Ornate leaf shapes -->
+  <ellipse cx="13" cy="44" rx="11" ry="4.5" transform="rotate(-45 13 44)" fill="#d4aa44" opacity="0.42"/>
+  <ellipse cx="13" cy="44" rx="9" ry="3" transform="rotate(-45 13 44)" fill="#f1c40f" opacity="0.2"/>
+  <ellipse cx="44" cy="13" rx="11" ry="4.5" transform="rotate(-45 44 13)" fill="#d4aa44" opacity="0.42"/>
+  <ellipse cx="44" cy="13" rx="9" ry="3" transform="rotate(-45 44 13)" fill="#f1c40f" opacity="0.2"/>
+  <!-- Star ornaments at corner tips -->
+  <text x="1" y="63" font-size="9" fill="#f1c40f" opacity="0.6">★</text>
+  <text x="52" y="8" font-size="9" fill="#f1c40f" opacity="0.6">★</text>
+  <!-- Extra spiral detail -->
+  <path d="M6 52Q10 46 14 48Q12 52 8 54" stroke="#d4aa44" stroke-width="0.7" fill="none" opacity="0.3"/>
+  <path d="M52 6Q48 10 48 14Q52 12 54 8" stroke="#d4aa44" stroke-width="0.7" fill="none" opacity="0.3"/>
+
+  <!-- Top-right corner -->
+  <path d="M215 62Q215 18 192 18Q192 5 158 5" stroke="#d4aa44" stroke-width="2.8" fill="none" opacity="0.75"/>
+  <path d="M215 62Q202 34 192 26Q186 18 158 5" stroke="#d4aa44" stroke-width="1.2" fill="none" opacity="0.5"/>
+  <path d="M215 62Q206 44 196 36Q188 18 172 8" stroke="#f1c40f" stroke-width="0.8" fill="none" opacity="0.32"/>
+  <path d="M215 62Q210 50 202 44Q194 28 182 16" stroke="#fff8dc" stroke-width="0.5" fill="none" opacity="0.18"/>
+  <polygon points="192,18 199,26 192,34 185,26" fill="#d4aa44" opacity="0.45"/>
+  <polygon points="192,18 199,26 192,34 185,26" fill="none" stroke="#fff8dc" stroke-width="0.8" opacity="0.6"/>
+  <polygon points="192,20 196,26 192,30 188,26" fill="#fff8dc" opacity="0.3"/>
+  <ellipse cx="207" cy="44" rx="11" ry="4.5" transform="rotate(45 207 44)" fill="#d4aa44" opacity="0.42"/>
+  <ellipse cx="176" cy="13" rx="11" ry="4.5" transform="rotate(45 176 13)" fill="#d4aa44" opacity="0.42"/>
+  <text x="205" y="63" font-size="9" fill="#f1c40f" opacity="0.6">★</text>
+  <text x="152" y="8" font-size="9" fill="#f1c40f" opacity="0.6">★</text>
+
+  <!-- Bottom-left corner -->
+  <path d="M5 258Q5 302 28 302Q28 315 62 315" stroke="#d4aa44" stroke-width="2.8" fill="none" opacity="0.75"/>
+  <path d="M5 258Q18 286 28 294Q34 302 62 315" stroke="#d4aa44" stroke-width="1.2" fill="none" opacity="0.5"/>
+  <path d="M5 258Q14 276 24 284Q32 302 48 312" stroke="#f1c40f" stroke-width="0.8" fill="none" opacity="0.32"/>
+  <path d="M5 258Q10 270 18 276Q26 292 38 304" stroke="#fff8dc" stroke-width="0.5" fill="none" opacity="0.18"/>
+  <polygon points="28,302 35,294 28,286 21,294" fill="#d4aa44" opacity="0.45"/>
+  <polygon points="28,302 35,294 28,286 21,294" fill="none" stroke="#fff8dc" stroke-width="0.8" opacity="0.6"/>
+  <polygon points="28,300 32,294 28,290 24,294" fill="#fff8dc" opacity="0.3"/>
+  <ellipse cx="13" cy="276" rx="11" ry="4.5" transform="rotate(45 13 276)" fill="#d4aa44" opacity="0.42"/>
+  <ellipse cx="44" cy="307" rx="11" ry="4.5" transform="rotate(45 44 307)" fill="#d4aa44" opacity="0.42"/>
+  <text x="1" y="260" font-size="9" fill="#f1c40f" opacity="0.6">★</text>
+  <text x="52" y="315" font-size="9" fill="#f1c40f" opacity="0.6">★</text>
+
+  <!-- Bottom-right corner -->
+  <path d="M215 258Q215 302 192 302Q192 315 158 315" stroke="#d4aa44" stroke-width="2.8" fill="none" opacity="0.75"/>
+  <path d="M215 258Q202 286 192 294Q186 302 158 315" stroke="#d4aa44" stroke-width="1.2" fill="none" opacity="0.5"/>
+  <path d="M215 258Q206 276 196 284Q188 302 172 312" stroke="#f1c40f" stroke-width="0.8" fill="none" opacity="0.32"/>
+  <path d="M215 258Q210 270 202 276Q194 292 182 304" stroke="#fff8dc" stroke-width="0.5" fill="none" opacity="0.18"/>
+  <polygon points="192,302 199,294 192,286 185,294" fill="#d4aa44" opacity="0.45"/>
+  <polygon points="192,302 199,294 192,286 185,294" fill="none" stroke="#fff8dc" stroke-width="0.8" opacity="0.6"/>
+  <polygon points="192,300 196,294 192,290 188,294" fill="#fff8dc" opacity="0.3"/>
+  <ellipse cx="207" cy="276" rx="11" ry="4.5" transform="rotate(-45 207 276)" fill="#d4aa44" opacity="0.42"/>
+  <ellipse cx="176" cy="307" rx="11" ry="4.5" transform="rotate(-45 176 307)" fill="#d4aa44" opacity="0.42"/>
+  <text x="205" y="260" font-size="9" fill="#f1c40f" opacity="0.6">★</text>
+  <text x="152" y="315" font-size="9" fill="#f1c40f" opacity="0.6">★</text>
+
+  <!-- Ornate triple header rule -->
+  <line x1="15" y1="24" x2="205" y2="24" stroke="#d4aa44" stroke-width="1" opacity="0.35"/>
+  <line x1="18" y1="27" x2="202" y2="27" stroke="#d4aa44" stroke-width="0.5" opacity="0.2"/>
+  <line x1="22" y1="30" x2="198" y2="30" stroke="#f1c40f" stroke-width="0.3" opacity="0.15"/>
+
+  <!-- Majestic footer divider -->
+  <line x1="18" y1="248" x2="80" y2="248" stroke="#d4aa44" stroke-width="1" opacity="0.45"/>
+  <line x1="140" y1="248" x2="202" y2="248" stroke="#d4aa44" stroke-width="1" opacity="0.45"/>
+  <line x1="18" y1="251" x2="80" y2="251" stroke="#d4aa44" stroke-width="0.4" opacity="0.25"/>
+  <line x1="140" y1="251" x2="202" y2="251" stroke="#d4aa44" stroke-width="0.4" opacity="0.25"/>
+  <!-- Center star cluster -->
+  <polygon points="110,242 113,248 110,254 107,248" fill="#d4aa44" opacity="0.5"/>
+  <polygon points="110,243 112,248 110,253 108,248" fill="none" stroke="#fff8dc" stroke-width="0.6" opacity="0.55"/>
+  <circle cx="87" cy="249" r="3" fill="none" stroke="#d4aa44" stroke-width="0.8" opacity="0.5"/>
+  <circle cx="87" cy="249" r="1.5" fill="#d4aa44" opacity="0.3"/>
+  <circle cx="133" cy="249" r="3" fill="none" stroke="#d4aa44" stroke-width="0.8" opacity="0.5"/>
+  <circle cx="133" cy="249" r="1.5" fill="#d4aa44" opacity="0.3"/>
+
+  <!-- Mid-edge laurel accents -->
+  <path d="M5 152Q16 140 5 128" stroke="#d4aa44" stroke-width="1.5" fill="none" opacity="0.28"/>
+  <ellipse cx="7" cy="140" rx="8" ry="3" transform="rotate(-20 7 140)" fill="#d4aa44" opacity="0.2"/>
+  <ellipse cx="5" cy="152" rx="4" ry="2" transform="rotate(10 5 152)" fill="#d4aa44" opacity="0.15"/>
+  <path d="M215 152Q204 140 215 128" stroke="#d4aa44" stroke-width="1.5" fill="none" opacity="0.28"/>
+  <ellipse cx="213" cy="140" rx="8" ry="3" transform="rotate(20 213 140)" fill="#d4aa44" opacity="0.2"/>
+  <ellipse cx="215" cy="152" rx="4" ry="2" transform="rotate(-10 215 152)" fill="#d4aa44" opacity="0.15"/>
+</svg>
