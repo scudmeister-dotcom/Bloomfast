@@ -412,6 +412,24 @@ class Store {
     this.updateStreak();
     this.save();
   }
+
+  unlockAll() {
+    PLANT_SPECIES.forEach(species => {
+      // Check if already in garden
+      const exists = this.state.garden.plants.some(p => p.type.id === species.id);
+      if (!exists) {
+        this.state.garden.plants.push({
+          id: 'debug_' + species.id,
+          type: species,
+          x: Math.random() * 800,
+          y: Math.random() * 500,
+          completedAt: Date.now(),
+          rarity: species.rarity || 'common'
+        });
+      }
+    });
+    this.save();
+  }
 }
 
 export const store = new Store();

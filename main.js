@@ -87,6 +87,19 @@ function init() {
   // Bind test plants button
   bindTestPlants();
 
+  // Debug: Unlock All Cards
+  document.getElementById('btn-debug-unlock-all')?.addEventListener('click', () => {
+    customConfirm(
+      'Unlock All Cards?',
+      'This will instantly add all 156 plant species and variations to your collection for debugging. This cannot be easily undone except by resetting all data.',
+      () => {
+        store.unlockAll();
+        showToast('🔓 All 156 species unlocked! Refreshing garden...');
+        if (collectionGallery) collectionGallery.render();
+      }
+    );
+  });
+
   // Subscribe to state changes
   store.subscribe(() => {
     renderWaterGlasses();

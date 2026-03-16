@@ -110,13 +110,13 @@ export class CollectionGallery {
     const rarityColor = {
       common: '#7c8a7c',
       uncommon: '#4c6a4c',
-      rare: '#8e44ad',
+      epic: '#8e44ad',
       legendary: '#d4af37'
     };
     const rarityBg = {
       common: '#f8f9f8',
       uncommon: '#f0f5f0',
-      rare: '#f5f0f8',
+      epic: '#f5f0f8',
       legendary: '#faf8f0'
     };
 

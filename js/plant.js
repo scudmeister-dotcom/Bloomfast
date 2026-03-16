@@ -55,10 +55,10 @@ const BASE_SPECIES = [
 ];
 
 const VARIANTS = [
-  { prefix: 'Classic', rarity: 'common', hueRotate: 0, petal: null },
-  { prefix: 'Golden', rarity: 'uncommon', hueRotate: 45, petal: '#ffd700' },
-  { prefix: 'Sapphire', rarity: 'rare', hueRotate: 200, petal: '#1e88e5' },
-  { prefix: 'Prismatic', rarity: 'legendary', hueRotate: 0, petal: '#fff', isRainbow: true },
+  { prefix: 'Common', rarity: 'common', hueRotate: 0, petal: null },
+  { prefix: 'Uncommon', rarity: 'uncommon', hueRotate: 45, petal: '#ffd700' },
+  { prefix: 'Epic', rarity: 'epic', hueRotate: 200, petal: '#1e88e5' },
+  { prefix: 'Legendary', rarity: 'legendary', hueRotate: 0, petal: '#fff', isRainbow: true },
 ];
 
 export const PLANT_SPECIES = [];
