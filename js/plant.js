@@ -5,60 +5,333 @@
 // Plant species library with drawing parameters
 const BASE_SPECIES = [
   // ===== FLOWERS (10) =====
-  { id: 'sunflower', name: 'Sunflower', emoji: '🌻', image: 'assets/plants/sunflower.png', category: 'Flowers', style: 'flower', petalCount: 16, petalLength: 35, hasFace: false, defaultCenter: '#8B4513', defaultStem: '#2d8a4e', defaultLeaf: '#3cb371', funFact: 'Sunflowers exhibit heliotropism, tracking the sun across the sky.' },
-  { id: 'sampaguita', name: 'Sampaguita', emoji: '🤍', image: 'assets/plants/sampaguita.png', category: 'Flowers', style: 'flower', petalCount: 8, petalLength: 22, hasFace: false, defaultCenter: '#f5e6a8', defaultStem: '#2d7a3e', defaultLeaf: '#4caf50', funFact: 'Sampaguita is the national flower of the Philippines, symbolizing purity.' },
-  { id: 'rose', name: 'Rose', emoji: '🌹', image: 'assets/plants/rose.png', category: 'Flowers', style: 'flower', petalCount: 12, petalLength: 25, hasFace: false, defaultCenter: '#3e2723', defaultStem: '#1b5e20', defaultLeaf: '#388e3c', funFact: 'Roses are one of the oldest cultivated flowers, dating back over 5,000 years.' },
-  { id: 'orchid', name: 'Orchid', emoji: '🪻', image: 'assets/plants/orchid.png', category: 'Flowers', style: 'flower', petalCount: 5, petalLength: 30, hasFace: false, defaultCenter: '#7b1fa2', defaultStem: '#2d6a3e', defaultLeaf: '#4a8f5c', funFact: 'Orchids have the smallest seeds in the world, appearing like fine dust.' },
-  { id: 'lotus', name: 'Lotus', emoji: '🪷', image: 'assets/plants/lotus.png', category: 'Flowers', style: 'flower', petalCount: 10, petalLength: 28, hasFace: false, defaultCenter: '#fce4ec', defaultStem: '#2e7d32', defaultLeaf: '#388e3c', funFact: 'Lotus seeds can survive for more than a thousand years and still sprout!' },
-  { id: 'tulip', name: 'Tulip', emoji: '🌷', image: 'assets/plants/tulip.png', category: 'Flowers', style: 'flower', petalCount: 6, petalLength: 30, hasFace: false, defaultCenter: '#ffe082', defaultStem: '#4caf50', defaultLeaf: '#81c784', funFact: 'In the 1600s, tulip bulbs in the Netherlands became so valuable they were used as currency.' },
-  { id: 'dahlia', name: 'Dahlia', emoji: '🌸', image: 'assets/plants/dahlia.png', category: 'Flowers', style: 'flower', petalCount: 20, petalLength: 22, hasFace: false, defaultCenter: '#c2185b', defaultStem: '#388e3c', defaultLeaf: '#4caf50', funFact: 'Dahlias were originally grown as food crops by the Aztecs before becoming ornamental favorites.' },
-  { id: 'peony', name: 'Peony', emoji: '🌺', image: 'assets/plants/peony.png', category: 'Flowers', style: 'flower', petalCount: 15, petalLength: 26, hasFace: false, defaultCenter: '#f8bbd0', defaultStem: '#2e7d32', defaultLeaf: '#4caf50', funFact: 'Peonies can live for over 100 years and are considered symbols of romance and prosperity.' },
-  { id: 'iris', name: 'Iris', emoji: '💜', image: 'assets/plants/iris.png', category: 'Flowers', style: 'flower', petalCount: 6, petalLength: 28, hasFace: false, defaultCenter: '#4a148c', defaultStem: '#33691e', defaultLeaf: '#558b2f', funFact: 'The iris is named after the Greek goddess of the rainbow, connecting heaven and earth.' },
-  { id: 'magnolia', name: 'Magnolia', emoji: '🤍', image: 'assets/plants/magnolia.png', category: 'Flowers', style: 'flower', petalCount: 8, petalLength: 32, hasFace: false, defaultCenter: '#fce4ec', defaultStem: '#5d4037', defaultLeaf: '#2e7d32', funFact: 'Magnolias are among the most ancient flowering plants, existing before bees evolved.' },
-  { id: 'hibiscus', name: 'Hibiscus', emoji: '🌺', image: 'assets/plants/hibiscus.png', category: 'Flowers', style: 'flower', petalCount: 5, petalLength: 30, hasFace: false, defaultCenter: '#e65100', defaultStem: '#33691e', defaultLeaf: '#558b2f', funFact: 'Hibiscus tea is consumed worldwide and can help lower blood pressure naturally.' },
+  { id: 'sunflower', name: 'Sunflower', emoji: '🌻', image: 'assets/plants/sunflower.png', masteryImage: 'assets/mastery/sunflower.png', category: 'Flowers', style: 'flower', petalCount: 16, petalLength: 35, hasFace: false, defaultCenter: '#8B4513', defaultStem: '#2d8a4e', defaultLeaf: '#3cb371', 
+    facts: {
+      common: 'Sunflowers exhibit heliotropism, where young plants track the sun\'s movement throughout the day.',
+      uncommon: 'A single sunflower head is actually made up of 1,000 to 2,000 individual flowers joined together.',
+      epic: 'Sunflowers can grow up to 12 feet tall in just six months, making them one of the fastest-growing flowers.',
+      legendary: 'Sunflowers can be used to extract toxins, such as lead, arsenic, and uranium, from contaminated soil.'
+    }
+  },
+  { id: 'sampaguita', name: 'Sampaguita', emoji: '🤍', image: 'assets/plants/sampaguita.png', masteryImage: 'assets/mastery/sampaguita.png', category: 'Flowers', style: 'flower', petalCount: 8, petalLength: 22, hasFace: false, defaultCenter: '#f5e6a8', defaultStem: '#2d7a3e', defaultLeaf: '#4caf50', 
+    facts: {
+      common: 'Sampaguita is the national flower of the Philippines, representing purity, fidelity, and hope.',
+      uncommon: 'The name comes from "sumumpa kita," meaning "I promise you" in Tagalog, a traditional vow of love.',
+      epic: 'Unlike many jasmines, Sampaguita flowers often bloom at night and stay fragrant for 24 hours.',
+      legendary: 'Its essential oils are used in aromatherapy to help reduce anxiety and promote a sense of well-being.'
+    }
+  },
+  { id: 'rose', name: 'Rose', emoji: '🌹', image: 'assets/plants/rose.png', masteryImage: 'assets/mastery/rose.png', category: 'Flowers', style: 'flower', petalCount: 12, petalLength: 25, hasFace: false, defaultCenter: '#3e2723', defaultStem: '#1b5e20', defaultLeaf: '#388e3c', 
+    facts: {
+      common: 'Roses are one of the oldest cultivated flowers, with fossils dating back 35 million years.',
+      uncommon: 'There are over 150 species of roses and thousands of hybrids, each with its own unique scent.',
+      epic: 'Rose hips, the fruit of the rose plant, are one of the richest sources of Vitamin C.',
+      legendary: 'In ancient Rome, roses were used as confetti at celebrations and as medicinal herbs.'
+    }
+  },
+  { id: 'orchid', name: 'Orchid', emoji: '🪻', image: 'assets/plants/orchid.png', masteryImage: 'assets/mastery/orchid.png', category: 'Flowers', style: 'flower', petalCount: 5, petalLength: 30, hasFace: false, defaultCenter: '#7b1fa2', defaultStem: '#2d6a3e', defaultLeaf: '#4a8f5c', 
+    facts: {
+      common: 'Orchids have the smallest seeds in the world; one seed pod can contain up to 4 million seeds.',
+      uncommon: 'Many orchids have a symbiotic relationship with fungi to help them absorb nutrients from the soil.',
+      epic: 'Some orchids can live for up to 100 years, making them one of the longest-living flowering plants.',
+      legendary: 'The vanilla bean comes from a specific species of orchid called *Vanilla planifolia*.'
+    }
+  },
+  { id: 'lotus', name: 'Lotus', emoji: '🪷', image: 'assets/plants/lotus.png', masteryImage: 'assets/mastery/lotus.png', category: 'Flowers', style: 'flower', petalCount: 10, petalLength: 28, hasFace: false, defaultCenter: '#fce4ec', defaultStem: '#2e7d32', defaultLeaf: '#388e3c', 
+    facts: {
+      common: 'Lotus seeds can remain viable for over 1,300 years, surviving extreme conditions.',
+      uncommon: 'The lotus plant can regulate its temperature, keeping its blossoms at a steady 86°F.',
+      epic: 'Its leaves are self-cleaning; water droplets roll off, taking dust and dirt with them.',
+      legendary: 'In many cultures, the lotus symbolizes spiritual enlightenment, rising pure from muddy waters.'
+    }
+  },
+  { id: 'tulip', name: 'Tulip', emoji: '🌷', image: 'assets/plants/tulip.png', masteryImage: 'assets/mastery/tulip.png', category: 'Flowers', style: 'flower', petalCount: 6, petalLength: 30, hasFace: false, defaultCenter: '#ffe082', defaultStem: '#4caf50', defaultLeaf: '#81c784', 
+    facts: {
+      common: 'Tulips were once more valuable than gold in the 17th-century Netherlands during "Tulip Mania."',
+      uncommon: 'If you cut a tulip and put it in water, it will continue to grow up to an inch or more.',
+      epic: 'Tulips are edible and were often used as a food source during times of famine in World War II.',
+      legendary: 'There are over 3,000 registered varieties of tulips, ranging in every color except true blue.'
+    }
+  },
+  { id: 'dahlia', name: 'Dahlia', emoji: '🌸', image: 'assets/plants/dahlia.png', masteryImage: 'assets/mastery/dahlia.png', category: 'Flowers', style: 'flower', petalCount: 20, petalLength: 22, hasFace: false, defaultCenter: '#c2185b', defaultStem: '#388e3c', defaultLeaf: '#4caf50', 
+    facts: {
+      common: 'Dahlias were originally classified as a vegetable because their tubers are edible.',
+      uncommon: 'They were used by the Aztecs as a treatment for epilepsy and for their hollow stems as water pipes.',
+      epic: 'The Dahlia is the national flower of Mexico and comes in a vast array of shapes and colors.',
+      legendary: 'Some dahlia varieties can have flowers as small as two inches or as large as 12 inches across.'
+    }
+  },
+  { id: 'peony', name: 'Peony', emoji: '🌺', image: 'assets/plants/peony.png', masteryImage: 'assets/mastery/peony.png', category: 'Flowers', style: 'flower', petalCount: 15, petalLength: 26, hasFace: false, defaultCenter: '#f8bbd0', defaultStem: '#2e7d32', defaultLeaf: '#4caf50', 
+    facts: {
+      common: 'Peonies are known as the "King of Flowers" in China and represent honor and wealth.',
+      uncommon: 'Ants are often found on peony buds; they help the flowers open by eating the sweet nectar.',
+      epic: 'A peony plant can live and bloom for more than 100 years if left undisturbed.',
+      legendary: 'In ancient times, peonies were used to treat headaches and asthma by traditional healers.'
+    }
+  },
+  { id: 'iris', name: 'Iris', emoji: '💜', image: 'assets/plants/iris.png', masteryImage: 'assets/mastery/iris.png', category: 'Flowers', style: 'flower', petalCount: 6, petalLength: 28, hasFace: false, defaultCenter: '#4a148c', defaultStem: '#33691e', defaultLeaf: '#558b2f', 
+    facts: {
+      common: 'The Iris is named after the Greek goddess of the rainbow, who acted as a messenger to the gods.',
+      uncommon: 'Irises have three upright petals called "standards" and three drooping petals called "falls."',
+      epic: 'The "fleur-de-lis" symbol, used by French royalty, is a stylized representation of an iris.',
+      legendary: 'Iris roots, called orris root, are dried and used in perfumes and as a flavoring in gin.'
+    }
+  },
+  { id: 'magnolia', name: 'Magnolia', emoji: '🤍', image: 'assets/plants/magnolia.png', masteryImage: 'assets/mastery/magnolia.png', category: 'Flowers', style: 'flower', petalCount: 8, petalLength: 32, hasFace: false, defaultCenter: '#fce4ec', defaultStem: '#5d4037', defaultLeaf: '#2e7d32', 
+    facts: {
+      common: 'Magnolias are ancient plants that evolved before bees; they are pollinated by beetles.',
+      uncommon: 'Because they are so old, magnolias don\'t have true petals and sepals; they have "tepals."',
+      epic: 'Magnolia bark is used in traditional medicine to help manage stress and anxiety.',
+      legendary: 'Some magnolias are evergreen, while others are deciduous, losing their leaves in winter.'
+    }
+  },
+  { id: 'hibiscus', name: 'Hibiscus', emoji: '🌺', image: 'assets/plants/hibiscus.png', masteryImage: 'assets/mastery/hibiscus.png', category: 'Flowers', style: 'flower', petalCount: 5, petalLength: 30, hasFace: false, defaultCenter: '#e65100', defaultStem: '#33691e', defaultLeaf: '#558b2f', 
+    facts: {
+      common: 'Hibiscus flowers are known for their vibrant colors and are often used as hair ornaments.',
+      uncommon: 'Hibiscus tea is rich in antioxidants and is known to help lower blood pressure.',
+      epic: 'In some cultures, a hibiscus tucked behind the ear can signal a person\'s relationship status.',
+      legendary: 'There are over 200 species of hibiscus, found in tropical and subtropical regions worldwide.'
+    }
+  },
 
   // ===== TREES (7) =====
-  { id: 'cherry_blossom', name: 'Cherry Blossom', emoji: '🌸', image: 'assets/plants/cherry_blossom.png', category: 'Trees', style: 'tree', petalCount: 5, petalLength: 18, hasFace: false, defaultCenter: '#ff69b4', defaultStem: '#5d4037', defaultLeaf: '#4caf50', funFact: 'Cherry blossoms bloom for only about a week, making them a symbol of fleeting beauty.' },
-  { id: 'bonsai', name: 'Bonsai', emoji: '🌳', image: 'assets/plants/bonsai.png', category: 'Trees', style: 'tree', petalCount: 0, petalLength: 0, hasFace: false, defaultCenter: '#43a047', defaultStem: '#5d4037', defaultLeaf: '#2e7d32', funFact: 'The art of bonsai originated in China over 1,000 years ago.' },
-  { id: 'willow', name: 'Weeping Willow', emoji: '🌿', image: 'assets/plants/willow.png', category: 'Trees', style: 'tree', petalCount: 0, petalLength: 0, hasFace: false, defaultCenter: '#689f38', defaultStem: '#5d4037', defaultLeaf: '#8bc34a', funFact: 'Willow bark contains salicin, the natural precursor to aspirin, used for millennia as pain relief.' },
-  { id: 'maple', name: 'Japanese Maple', emoji: '🍁', image: 'assets/plants/maple.png', category: 'Trees', style: 'tree', petalCount: 0, petalLength: 0, hasFace: false, defaultCenter: '#d32f2f', defaultStem: '#4e342e', defaultLeaf: '#c62828', funFact: 'Japanese maples can live for over 300 years and their leaves turn brilliant red in autumn.' },
-  { id: 'olive', name: 'Olive Tree', emoji: '🫒', image: 'assets/plants/olive_tree.png', category: 'Trees', style: 'tree', petalCount: 0, petalLength: 0, hasFace: false, defaultCenter: '#827717', defaultStem: '#5d4037', defaultLeaf: '#9e9d24', funFact: 'Olive trees can live thousands of years. Some in the Mediterranean are over 3,000 years old.' },
-  { id: 'birch', name: 'Silver Birch', emoji: '🌳', image: 'assets/plants/birch.png', category: 'Trees', style: 'tree', petalCount: 0, petalLength: 0, hasFace: false, defaultCenter: '#e0e0e0', defaultStem: '#f5f5f5', defaultLeaf: '#66bb6a', funFact: 'Birch bark was used as paper by ancient cultures and is naturally waterproof.' },
-  { id: 'redwood', name: 'Redwood', emoji: '🌲', image: 'assets/plants/redwood.png', category: 'Trees', style: 'tree', petalCount: 0, petalLength: 0, hasFace: false, defaultCenter: '#6d4c41', defaultStem: '#4e342e', defaultLeaf: '#2e7d32', funFact: 'Coast redwoods are the tallest living organisms on Earth, reaching over 380 feet.' },
+  { id: 'cherry_blossom', name: 'Cherry Blossom', emoji: '🌸', image: 'assets/plants/cherry_blossom.png', masteryImage: 'assets/mastery/cherry_blossom.png', category: 'Trees', style: 'tree', petalCount: 5, petalLength: 18, hasFace: false, defaultCenter: '#ff69b4', defaultStem: '#5d4037', defaultLeaf: '#4caf50', 
+    facts: {
+      common: 'Cherry blossoms, or "sakura," symbolize the beauty and fragility of life in Japanese culture.',
+      uncommon: 'Japan once sent 3,000 cherry trees to the U.S. in 1912 as a symbol of friendship.',
+      epic: 'The peak bloom of cherry blossoms usually lasts only a week before the petals begin to fall.',
+      legendary: 'Both the blossoms and leaves of cherry trees are edible and used in traditional sweets.'
+    }
+  },
+  { id: 'bonsai', name: 'Bonsai', emoji: '🌳', image: 'assets/plants/bonsai.png', masteryImage: 'assets/mastery/bonsai.png', category: 'Trees', style: 'tree', petalCount: 0, petalLength: 0, hasFace: false, defaultCenter: '#43a047', defaultStem: '#5d4037', defaultLeaf: '#2e7d32', 
+    facts: {
+      common: 'Bonsai is not a species of tree, but an ancient art form used to dwarf regular trees.',
+      uncommon: 'The oldest known bonsai tree is over 1,000 years old and resides in Italy.',
+      epic: 'Bonsai trees require constant care, including pruning, wiring, and careful watering.',
+      legendary: 'The word "bonsai" literally translates to "planted in a container" in Japanese.'
+    }
+  },
+  { id: 'willow', name: 'Weeping Willow', emoji: '🌿', image: 'assets/plants/willow.png', masteryImage: 'assets/mastery/willow.png', category: 'Trees', style: 'tree', petalCount: 0, petalLength: 0, hasFace: false, defaultCenter: '#689f38', defaultStem: '#5d4037', defaultLeaf: '#8bc34a', 
+    facts: {
+      common: 'Willow bark was used for thousands of years as a natural pain reliever by ancient cultures.',
+      uncommon: 'The active ingredient in willow bark, salicin, was used to develop modern aspirin.',
+      epic: 'Weeping willows have extensive root systems that can grow three times the size of their canopy.',
+      legendary: 'Willows are often planted near water to help prevent soil erosion with their strong roots.'
+    }
+  },
+  { id: 'maple', name: 'Japanese Maple', emoji: '🍁', image: 'assets/plants/maple.png', masteryImage: 'assets/mastery/maple.png', category: 'Trees', style: 'tree', petalCount: 0, petalLength: 0, hasFace: false, defaultCenter: '#d32f2f', defaultStem: '#4e342e', defaultLeaf: '#c62828', 
+    facts: {
+      common: 'Japanese maples are prized for their intricate leaf shapes and brilliant autumn colors.',
+      uncommon: 'In Japan, the "Momijigari" tradition involves traveling to see the changing maple leaves.',
+      epic: 'Some Japanese maple varieties can live for over 100 years in the right conditions.',
+      legendary: 'Fried maple leaves, called "momiji tempura," are a popular snack in parts of Japan.'
+    }
+  },
+  { id: 'olive', name: 'Olive Tree', emoji: '🫒', image: 'assets/plants/olive_tree.png', masteryImage: 'assets/mastery/olive_tree.png', category: 'Trees', style: 'tree', petalCount: 0, petalLength: 0, hasFace: false, defaultCenter: '#827717', defaultStem: '#5d4037', defaultLeaf: '#9e9d24', 
+    facts: {
+      common: 'Olive trees are incredibly hardy and can survive in poor soil with very little water.',
+      uncommon: 'An olive branch has been a symbol of peace and victory since ancient Greek times.',
+      epic: 'Some olive trees in the Mediterranean are estimated to be over 2,000 years old.',
+      legendary: 'Most olives are too bitter to eat straight from the tree and must be cured first.'
+    }
+  },
+  { id: 'birch', name: 'Silver Birch', emoji: '🌳', image: 'assets/plants/birch.png', masteryImage: 'assets/mastery/birch.png', category: 'Trees', style: 'tree', petalCount: 0, petalLength: 0, hasFace: false, defaultCenter: '#e0e0e0', defaultStem: '#f5f5f5', defaultLeaf: '#66bb6a', 
+    facts: {
+      common: 'Birch bark is filled with highly flammable resin, making it an excellent natural fire starter.',
+      uncommon: 'In some cultures, birch sap is harvested in the spring and turned into traditional syrup.',
+      epic: 'Birch trees are "pioneer species," often the first to grow back after a forest fire.',
+      legendary: 'The bark of a silver birch peels off in thin layers, which were once used as paper.'
+    }
+  },
+  { id: 'redwood', name: 'Redwood', emoji: '🌲', image: 'assets/plants/redwood.png', masteryImage: 'assets/mastery/redwood.png', category: 'Trees', style: 'tree', petalCount: 0, petalLength: 0, hasFace: false, defaultCenter: '#6d4c41', defaultStem: '#4e342e', defaultLeaf: '#2e7d32', 
+    facts: {
+      common: 'Coast redwoods are the tallest trees on Earth, reaching heights of over 380 feet.',
+      uncommon: 'Redwoods can live for over 2,000 years, surviving through fire and disease.',
+      epic: 'They have thick, fire-resistant bark that can be up to 12 inches thick on older trees.',
+      legendary: 'Redwoods can absorb a significant amount of water directly from the fog through their needles.'
+    }
+  },
 
   // ===== SUCCULENTS (7) =====
-  { id: 'cactus', name: 'Barrel Cactus', emoji: '🌵', image: 'assets/plants/cactus.png', category: 'Succulents', style: 'cactus', petalCount: 6, petalLength: 14, hasFace: false, defaultCenter: '#fff176', defaultStem: '#2e7d32', defaultLeaf: '#388e3c', funFact: 'Cacti store water in their thick stems to survive harsh droughts. Some can live 200 years.' },
-  { id: 'succulent', name: 'Succulent', emoji: '💎', image: 'assets/plants/succulent.png', category: 'Succulents', style: 'succulent', petalCount: 8, petalLength: 20, hasFace: false, defaultCenter: '#00bcd4', defaultStem: '#4db6ac', defaultLeaf: '#80cbc4', funFact: 'You can grow a whole new succulent plant from a single fallen leaf.' },
-  { id: 'aloe_vera', name: 'Aloe Vera', emoji: '🌿', image: 'assets/plants/aloe_vera.png', category: 'Succulents', style: 'succulent', petalCount: 10, petalLength: 22, hasFace: false, defaultCenter: '#4caf50', defaultStem: '#388e3c', defaultLeaf: '#66bb6a', funFact: 'Aloe vera gel contains over 75 active compounds including vitamins, enzymes, and amino acids.' },
-  { id: 'jade_plant', name: 'Jade Plant', emoji: '💚', image: 'assets/plants/jade_plant.png', category: 'Succulents', style: 'succulent', petalCount: 6, petalLength: 18, hasFace: false, defaultCenter: '#2e7d32', defaultStem: '#5d4037', defaultLeaf: '#43a047', funFact: 'Jade plants are symbols of luck and prosperity. They can live for decades.' },
-  { id: 'echeveria', name: 'Echeveria', emoji: '🌸', image: 'assets/plants/echeveria.png', category: 'Succulents', style: 'succulent', petalCount: 12, petalLength: 16, hasFace: false, defaultCenter: '#7986cb', defaultStem: '#78909c', defaultLeaf: '#90a4ae', funFact: 'Echeveria rosettes are arranged in a perfect Fibonacci spiral pattern.' },
-  { id: 'agave', name: 'Agave', emoji: '🌿', image: 'assets/plants/agave.png', category: 'Succulents', style: 'succulent', petalCount: 8, petalLength: 24, hasFace: false, defaultCenter: '#546e7a', defaultStem: '#455a64', defaultLeaf: '#78909c', funFact: 'Agave plants only flower once in their lifetime, sometimes after 80 years of growth.' },
-  { id: 'haworthia', name: 'Haworthia', emoji: '💎', image: 'assets/plants/haworthia.png', category: 'Succulents', style: 'succulent', petalCount: 6, petalLength: 14, hasFace: false, defaultCenter: '#66bb6a', defaultStem: '#4caf50', defaultLeaf: '#81c784', funFact: 'Haworthia plants have translucent "windows" on their leaves to let light reach inner cells.' },
+  { id: 'cactus', name: 'Barrel Cactus', emoji: '🌵', image: 'assets/plants/cactus.png', masteryImage: 'assets/mastery/cactus.png', category: 'Succulents', style: 'cactus', petalCount: 6, petalLength: 14, hasFace: false, defaultCenter: '#fff176', defaultStem: '#2e7d32', defaultLeaf: '#388e3c', 
+    facts: {
+      common: 'Barrel cacti grow toward the south, earning them the nickname "Compass Cactus."',
+      uncommon: 'They can grow for over 100 years and store hundreds of gallons of water in their stems.',
+      epic: 'Their spines are actually modified leaves that help reduce water loss and protect from animals.',
+      legendary: 'Native Americans used the internal pulp of the barrel cactus as an emergency water source.'
+    }
+  },
+  { id: 'succulent', name: 'Succulent', emoji: '💎', image: 'assets/plants/succulent.png', masteryImage: 'assets/mastery/succulent.png', category: 'Succulents', style: 'succulent', petalCount: 8, petalLength: 20, hasFace: false, defaultCenter: '#00bcd4', defaultStem: '#4db6ac', defaultLeaf: '#80cbc4', 
+    facts: {
+      common: 'Succulents store water in their leaves, stems, or roots, allowing them to thrive in arid climates.',
+      uncommon: 'Most succulents can be easily propagated from a single leaf or a stem cutting.',
+      epic: 'The name "succulent" comes from the Latin word "succus," meaning juice or sap.',
+      legendary: 'Some succulents produce a waxy "farina" on their leaves to protect against sunburn.'
+    }
+  },
+  { id: 'aloe_vera', name: 'Aloe Vera', emoji: '🌿', image: 'assets/plants/aloe_vera.png', masteryImage: 'assets/mastery/aloe_vera.png', category: 'Succulents', style: 'succulent', petalCount: 10, petalLength: 22, hasFace: false, defaultCenter: '#4caf50', defaultStem: '#388e3c', defaultLeaf: '#66bb6a', 
+    facts: {
+      common: 'Aloe vera has been used medicinally for over 6,000 years, dating back to ancient Egypt.',
+      uncommon: 'The plant is 99% water, with the remaining 1% containing over 75 active nutrients.',
+      epic: 'Aloe vera is effective at cleaning the air by removing toxins like formaldehyde.',
+      legendary: 'Cleopatra reportedly used aloe vera gel as part of her daily beauty and skin-care routine.'
+    }
+  },
+  { id: 'jade_plant', name: 'Jade Plant', emoji: '💚', image: 'assets/plants/jade_plant.png', masteryImage: 'assets/mastery/jade_plant.png', category: 'Succulents', style: 'succulent', petalCount: 6, petalLength: 18, hasFace: false, defaultCenter: '#2e7d32', defaultStem: '#5d4037', defaultLeaf: '#43a047', 
+    facts: {
+      common: 'Jade plants are often called "Money Trees" and are believed to bring good luck and prosperity.',
+      uncommon: 'They can live for 50 to 100 years, often being passed down through generations.',
+      epic: 'Jade plants are extremely resilient and can survive for weeks without water.',
+      legendary: 'In some cultures, a jade plant at the entrance of a home is said to welcome wealth.'
+    }
+  },
+  { id: 'echeveria', name: 'Echeveria', emoji: '🌸', image: 'assets/plants/echeveria.png', masteryImage: 'assets/mastery/echeveria.png', category: 'Succulents', style: 'succulent', petalCount: 12, petalLength: 16, hasFace: false, defaultCenter: '#7986cb', defaultStem: '#78909c', defaultLeaf: '#90a4ae', 
+    facts: {
+      common: 'Echeveria rosettes are arranged in a perfect Fibonacci sequence for maximum light exposure.',
+      uncommon: 'They are native to semi-desert areas of Central America, Mexico, and northwestern South America.',
+      epic: 'Echeveria can produce vibrant, bell-shaped flowers on long stalks during the summer.',
+      legendary: 'Some varieties have a velvety texture on their leaves, which helps them trap moisture.'
+    }
+  },
+  { id: 'agave', name: 'Agave', emoji: '🌿', image: 'assets/plants/agave.png', masteryImage: 'assets/mastery/agave.png', category: 'Succulents', style: 'succulent', petalCount: 8, petalLength: 24, hasFace: false, defaultCenter: '#546e7a', defaultStem: '#455a64', defaultLeaf: '#78909c', 
+    facts: {
+      common: 'Agave plants are sometimes called "Century Plants" because they take so long to bloom.',
+      uncommon: 'Most agave plants die after they flower once, putting all their energy into the seeds.',
+      epic: 'Agave nectar is a popular natural sweetener and alternative to sugar or honey.',
+      legendary: 'The fibers from agave leaves are used to make traditional rope, rugs, and brushes.'
+    }
+  },
+  { id: 'haworthia', name: 'Haworthia', emoji: '💎', image: 'assets/plants/haworthia.png', masteryImage: 'assets/mastery/haworthia.png', category: 'Succulents', style: 'succulent', petalCount: 6, petalLength: 14, hasFace: false, defaultCenter: '#66bb6a', defaultStem: '#4caf50', defaultLeaf: '#81c784', 
+    facts: {
+      common: 'Many Haworthias have "leaf windows"—translucent areas that allow light into the plant interior.',
+      uncommon: 'They are small, slow-growing succulents that are perfect for low-light indoor environments.',
+      epic: 'Haworthias are native to South Africa and are related to the Aloe family.',
+      legendary: 'Their leaves are often decorated with white tubercles, giving them a "zebra" look.'
+    }
+  },
 
   // ===== HERBS (7) =====
-  { id: 'lavender', name: 'Lavender', emoji: '💜', image: 'assets/plants/lavender.png', category: 'Herbs', style: 'spike', petalCount: 20, petalLength: 8, hasFace: false, defaultCenter: '#7e57c2', defaultStem: '#558b2f', defaultLeaf: '#7cb342', funFact: 'Lavender has been used for over 2,500 years as a natural remedy.' },
-  { id: 'fern', name: 'Fern', emoji: '🌿', image: 'assets/plants/fern.png', category: 'Herbs', style: 'spike', petalCount: 15, petalLength: 8, hasFace: false, defaultCenter: '#9ccc65', defaultStem: '#558b2f', defaultLeaf: '#7cb342', funFact: 'Ferns are ancient; they existed before dinosaurs and reproduce via spores.' },
-  { id: 'basil', name: 'Basil', emoji: '🌿', image: 'assets/plants/basil.png', category: 'Herbs', style: 'spike', petalCount: 12, petalLength: 6, hasFace: false, defaultCenter: '#4caf50', defaultStem: '#2e7d32', defaultLeaf: '#43a047', funFact: 'In ancient Greece, basil was considered the "royal herb" and only kings were allowed to cut it.' },
-  { id: 'rosemary', name: 'Rosemary', emoji: '🌿', image: 'assets/plants/rosemary.png', category: 'Herbs', style: 'spike', petalCount: 16, petalLength: 7, hasFace: false, defaultCenter: '#5c6bc0', defaultStem: '#33691e', defaultLeaf: '#558b2f', funFact: 'Rosemary is linked to memory improvement. Ancient Greek students wore garlands of it during exams.' },
-  { id: 'mint', name: 'Mint', emoji: '🌱', image: 'assets/plants/mint.png', category: 'Herbs', style: 'spike', petalCount: 10, petalLength: 6, hasFace: false, defaultCenter: '#66bb6a', defaultStem: '#388e3c', defaultLeaf: '#81c784', funFact: 'Mint is one of the most invasive herbs — it can take over an entire garden in a single season.' },
-  { id: 'sage', name: 'Sage', emoji: '🍃', image: 'assets/plants/sage.png', category: 'Herbs', style: 'spike', petalCount: 14, petalLength: 7, hasFace: false, defaultCenter: '#78909c', defaultStem: '#546e7a', defaultLeaf: '#78909c', funFact: 'The name "sage" comes from the Latin "salvare," meaning "to save," reflecting its medicinal history.' },
-  { id: 'thyme', name: 'Thyme', emoji: '🌱', image: 'assets/plants/thyme.png', category: 'Herbs', style: 'spike', petalCount: 18, petalLength: 5, hasFace: false, defaultCenter: '#c5e1a5', defaultStem: '#558b2f', defaultLeaf: '#7cb342', funFact: 'Ancient Egyptians used thyme for embalming, and Greek soldiers bathed in it for courage.' },
+  { id: 'lavender', name: 'Lavender', emoji: '💜', image: 'assets/plants/lavender.png', masteryImage: 'assets/mastery/lavender.png', category: 'Herbs', style: 'spike', petalCount: 20, petalLength: 8, hasFace: false, defaultCenter: '#7e57c2', defaultStem: '#558b2f', defaultLeaf: '#7cb342', 
+    facts: {
+      common: 'Lavender is a member of the mint family and has been used for its scent for over 2,500 years.',
+      uncommon: 'The name comes from the Latin "lavare," meaning "to wash," as it was often used in baths.',
+      epic: 'Lavender scent is known to have a calming effect, helping to improve sleep and reduce stress.',
+      legendary: 'It takes about 150 pounds of lavender flowers to produce just one pound of essential oil.'
+    }
+  },
+  { id: 'fern', name: 'Fern', emoji: '🌿', image: 'assets/plants/fern.png', masteryImage: 'assets/mastery/fern.png', category: 'Herbs', style: 'spike', petalCount: 15, petalLength: 8, hasFace: false, defaultCenter: '#9ccc65', defaultStem: '#558b2f', defaultLeaf: '#7cb342', 
+    facts: {
+      common: 'Ferns are ancient plants that appeared on Earth 360 million years ago, before dinosaurs.',
+      uncommon: 'They don\'t have seeds or flowers; instead, they reproduce using tiny spores.',
+      epic: 'A young fern leaf is called a "fiddlehead" because it resembles the scroll of a violin.',
+      legendary: 'There are over 10,000 species of ferns, ranging from tiny plants to tall tree ferns.'
+    }
+  },
+  { id: 'basil', name: 'Basil', emoji: '🌿', image: 'assets/plants/basil.png', masteryImage: 'assets/mastery/basil.png', category: 'Herbs', style: 'spike', petalCount: 12, petalLength: 6, hasFace: false, defaultCenter: '#4caf50', defaultStem: '#2e7d32', defaultLeaf: '#43a047', 
+    facts: {
+      common: 'In some cultures, basil is a symbol of love and is given as a gift to romantic partners.',
+      uncommon: 'Basil is sensitive to cold and will quickly wilt if exposed to frost or low temperatures.',
+      epic: 'There are many varieties of basil, including Lemon, Thai, and even Chocolate basil.',
+      legendary: 'Ancient Egyptians believed basil would open the gates of heaven for people passing on.'
+    }
+  },
+  { id: 'rosemary', name: 'Rosemary', emoji: '🌿', image: 'assets/plants/rosemary.png', masteryImage: 'assets/mastery/rosemary.png', category: 'Herbs', style: 'spike', petalCount: 16, petalLength: 7, hasFace: false, defaultCenter: '#5c6bc0', defaultStem: '#33691e', defaultLeaf: '#558b2f', 
+    facts: {
+      common: 'Rosemary has been associated with memory since ancient times; people often wore it during exams.',
+      uncommon: 'It is one of the most durable herbs, able to withstand drought and heat once established.',
+      epic: 'Rosemary essential oil is frequently used in hair care products to stimulate growth.',
+      legendary: 'In the Middle Ages, it was believed that rosemary would keep evil spirits away from a home.'
+    }
+  },
+  { id: 'mint', name: 'Mint', emoji: '🌱', image: 'assets/plants/mint.png', masteryImage: 'assets/mastery/mint.png', category: 'Herbs', style: 'spike', petalCount: 10, petalLength: 6, hasFace: false, defaultCenter: '#66bb6a', defaultStem: '#388e3c', defaultLeaf: '#81c784', 
+    facts: {
+      common: 'Mint is incredibly fast-growing and can easily take over a garden if not kept in a pot.',
+      uncommon: 'The cooling sensation of mint comes from menthol, which triggers cold-sensitive receptors.',
+      epic: 'There are over 600 varieties of mint, including Spearmint, Peppermint, and Pineapple mint.',
+      legendary: 'In ancient Greece, mint was rubbed on banquet tables as a sign of hospitality.'
+    }
+  },
+  { id: 'sage', name: 'Sage', emoji: '🍃', image: 'assets/plants/sage.png', masteryImage: 'assets/mastery/sage.png', category: 'Herbs', style: 'spike', petalCount: 14, petalLength: 7, hasFace: false, defaultCenter: '#78909c', defaultStem: '#546e7a', defaultLeaf: '#78909c', 
+    facts: {
+      common: 'Sage has been used for centuries to preserve meat due to its natural antibacterial properties.',
+      uncommon: 'The botanical name *Salvia* comes from the Latin "salvere," meaning "to feel healthy."',
+      epic: 'Sage is often burned in "smudging" ceremonies to clear negative energy from a space.',
+      legendary: 'Consuming sage was once believed to enhance wisdom and improve concentration.'
+    }
+  },
+  { id: 'thyme', name: 'Thyme', emoji: '🌱', image: 'assets/plants/thyme.png', masteryImage: 'assets/mastery/thyme.png', category: 'Herbs', style: 'spike', petalCount: 18, petalLength: 5, hasFace: false, defaultCenter: '#c5e1a5', defaultStem: '#558b2f', defaultLeaf: '#7cb342', 
+    facts: {
+      common: 'Ancient Greeks believed thyme was a source of courage and would add it to their bathwater.',
+      uncommon: 'Thyme oil contains thymol, a powerful naturally occurring antiseptic and disinfectant.',
+      epic: 'Thyme is a low-growing plant that makes an excellent, fragrant ground cover in gardens.',
+      legendary: 'In the Middle Ages, thyme was often tucked under pillows to help ward off nightmares.'
+    }
+  },
 
   // ===== EXOTIC (7) =====
-  { id: 'mushroom', name: 'Mushroom', emoji: '🍄', image: 'assets/plants/mushroom.png', category: 'Exotic', style: 'mushroom', petalCount: 0, petalLength: 0, hasFace: false, defaultCenter: '#ffffff', defaultStem: '#e0e0e0', defaultLeaf: '#ff5252', funFact: 'Mushrooms are more closely related to humans than they are to plants!' },
-  { id: 'flytrap', name: 'Venus Flytrap', emoji: '🪴', image: 'assets/plants/flytrap.png', category: 'Exotic', style: 'carnivorous', petalCount: 2, petalLength: 30, hasFace: true, defaultCenter: '#e53935', defaultStem: '#388e3c', defaultLeaf: '#4caf50', funFact: 'Flytraps require two touches within 20 seconds to snap shut.' },
-  { id: 'corpse_flower', name: 'Corpse Flower', emoji: '🌺', image: 'assets/plants/corpse_flower.png', category: 'Exotic', style: 'flower', petalCount: 1, petalLength: 40, hasFace: false, defaultCenter: '#880e4f', defaultStem: '#388e3c', defaultLeaf: '#4caf50', funFact: 'The corpse flower blooms for only 24-48 hours and smells like rotting flesh to attract pollinators.' },
-  { id: 'pitcher_plant', name: 'Pitcher Plant', emoji: '🪴', image: 'assets/plants/pitcher_plant.png', category: 'Exotic', style: 'carnivorous', petalCount: 3, petalLength: 25, hasFace: false, defaultCenter: '#8bc34a', defaultStem: '#33691e', defaultLeaf: '#689f38', funFact: 'Pitcher plants drown insects in pools of digestive enzymes inside their tubular leaves.' },
-  { id: 'bird_of_paradise', name: 'Bird of Paradise', emoji: '🧡', image: 'assets/plants/bird_of_paradise.png', category: 'Exotic', style: 'flower', petalCount: 5, petalLength: 35, hasFace: false, defaultCenter: '#e65100', defaultStem: '#2e7d32', defaultLeaf: '#388e3c', funFact: 'Bird of Paradise flowers resemble tropical birds in flight and are pollinated by sunbirds.' },
-  { id: 'dragon_fruit', name: 'Dragon Fruit Cactus', emoji: '🐉', image: 'assets/plants/dragon_fruit.png', category: 'Exotic', style: 'cactus', petalCount: 8, petalLength: 20, hasFace: false, defaultCenter: '#e91e63', defaultStem: '#2e7d32', defaultLeaf: '#388e3c', funFact: 'Dragon fruit cactus blooms only at night, earning it the nickname "moonflower."' },
-  { id: 'baobab', name: 'Baobab', emoji: '🌳', image: 'assets/plants/baobab.png', category: 'Exotic', style: 'tree', petalCount: 0, petalLength: 0, hasFace: false, defaultCenter: '#8d6e63', defaultStem: '#6d4c41', defaultLeaf: '#a5d6a7', funFact: 'Baobab trees can store up to 32,000 gallons of water in their trunks to survive droughts.' },
+  { id: 'mushroom', name: 'Mushroom', emoji: '🍄', image: 'assets/plants/mushroom.png', masteryImage: 'assets/mastery/mushroom.png', category: 'Exotic', style: 'mushroom', petalCount: 0, petalLength: 0, hasFace: false, defaultCenter: '#ffffff', defaultStem: '#e0e0e0', defaultLeaf: '#ff5252', 
+    facts: {
+      common: 'Mushrooms are more closely related to animals than they are to green plants.',
+      uncommon: 'The largest organism on Earth is a honey mushroom fungus in Oregon, covering 2,400 acres.',
+      epic: 'Mushrooms can produce their own wind to help spread their spores across greater distances.',
+      legendary: 'Some mushrooms are bioluminescent, glowing in the dark to attract insects.'
+    }
+  },
+  { id: 'flytrap', name: 'Venus Flytrap', emoji: '🪴', image: 'assets/plants/flytrap.png', masteryImage: 'assets/mastery/flytrap.png', category: 'Exotic', style: 'carnivorous', petalCount: 2, petalLength: 30, hasFace: true, defaultCenter: '#e53935', defaultStem: '#388e3c', defaultLeaf: '#4caf50', 
+    facts: {
+      common: 'The Venus Flytrap is one of the few plants capable of rapid movement to catch prey.',
+      uncommon: 'They are native only to a small area of the coastal plains in North and South Carolina.',
+      epic: 'The trap only shuts if the interior hairs are touched twice in a short period of time.',
+      legendary: 'Venus Flytraps are "carnivorous" to get nutrients like nitrogen from insects in poor soil.'
+    }
+  },
+  { id: 'corpse_flower', name: 'Corpse Flower', emoji: '🌺', image: 'assets/plants/corpse_flower.png', masteryImage: 'assets/mastery/corpse_flower.png', category: 'Exotic', style: 'flower', petalCount: 1, petalLength: 40, hasFace: false, defaultCenter: '#880e4f', defaultStem: '#388e3c', defaultLeaf: '#4caf50', 
+    facts: {
+      common: 'The Corpse Flower can take up to 10 years to bloom for the first time.',
+      uncommon: 'It is the largest unbranched flower structure in the world, reaching over 10 feet tall.',
+      epic: 'Its famous "rotting meat" smell is designed to attract carrion beetles and flesh flies.',
+      legendary: 'When blooming, the plant\'s temperature rises to over 98°F to help spread its scent.'
+    }
+  },
+  { id: 'pitcher_plant', name: 'Pitcher Plant', emoji: '🪴', image: 'assets/plants/pitcher_plant.png', masteryImage: 'assets/mastery/pitcher_plant.png', category: 'Exotic', style: 'carnivorous', petalCount: 3, petalLength: 25, hasFace: false, defaultCenter: '#8bc34a', defaultStem: '#33691e', defaultLeaf: '#689f38', 
+    facts: {
+      common: 'Pitcher plants use "pitfall traps"—slippery tubes filled with digestive liquid—to catch insects.',
+      uncommon: 'Some pitcher plants are so large they can occasionally catch small frogs or even mice.',
+      epic: 'Many species of pitcher plants have a "lid" that prevents the tube from filling with rainwater.',
+      legendary: 'Some animals, like the woolly bat, actually sleep inside pitcher plants for protection.'
+    }
+  },
+  { id: 'bird_of_paradise', name: 'Bird of Paradise', emoji: '🧡', image: 'assets/plants/bird_of_paradise.png', masteryImage: 'assets/mastery/bird_of_paradise.png', category: 'Exotic', style: 'flower', petalCount: 5, petalLength: 35, hasFace: false, defaultCenter: '#e65100', defaultStem: '#2e7d32', defaultLeaf: '#388e3c', 
+    facts: {
+      common: 'The Bird of Paradise flower is native to South Africa and is the official flower of Los Angeles.',
+      uncommon: 'It can take up to five years for a Bird of Paradise plant to produce its first flower.',
+      epic: 'In the wild, the flowers are pollinated by sunbirds that perch on the plant\'s petals.',
+      legendary: 'The plant is related to the banana and has similar large, waxy-green leaves.'
+    }
+  },
+  { id: 'dragon_fruit', name: 'Dragon Fruit Cactus', emoji: '🐉', image: 'assets/plants/dragon_fruit.png', masteryImage: 'assets/mastery/dragon_fruit.png', category: 'Exotic', style: 'cactus', petalCount: 8, petalLength: 20, hasFace: false, defaultCenter: '#e91e63', defaultStem: '#2e7d32', defaultLeaf: '#388e3c', 
+    facts: {
+      common: 'Dragon fruit comes from a vining cactus that climbs on trees or fences in tropical climates.',
+      uncommon: 'The flowers of the dragon fruit cactus only bloom for one night and then wilt.',
+      epic: 'Because it blooms at night, dragon fruit is often pollinated by moths and bats.',
+      legendary: 'The fruit is rich in fiber and magnesium and is prized for its unique, scaly appearance.'
+    }
+  },
+  { id: 'baobab', name: 'Baobab', emoji: '🌳', image: 'assets/plants/baobab.png', masteryImage: 'assets/mastery/baobab.png', category: 'Exotic', style: 'tree', petalCount: 0, petalLength: 0, hasFace: false, defaultCenter: '#8d6e63', defaultStem: '#6d4c41', defaultLeaf: '#a5d6a7', 
+    facts: {
+      common: 'The Baobab tree is often called the "Tree of Life" because it can provide water, food, and shelter.',
+      uncommon: 'Baobabs can store up to 32,000 gallons of water in their trunks to survive long droughts.',
+      epic: 'Some Baobab trees are so large that their hollow trunks have been used as shops or jails.',
+      legendary: 'The fruit of the Baobab is a "superfood," packed with Vitamin C, calcium, and antioxidants.'
+    }
+  },
 ];
 
 const VARIANTS = [
-  { prefix: 'Common', rarity: 'common', hueRotate: 0, petal: null },
-  { prefix: 'Uncommon', rarity: 'uncommon', hueRotate: 45, petal: '#ffd700' },
-  { prefix: 'Epic', rarity: 'epic', hueRotate: 200, petal: '#1e88e5' },
-  { prefix: 'Legendary', rarity: 'legendary', hueRotate: 0, petal: '#fff', isRainbow: true },
+  { prefix: 'Sprout', rarity: 'common', hueRotate: 0, petal: null },
+  { prefix: 'Bud', rarity: 'uncommon', hueRotate: 45, petal: '#ffd700' },
+  { prefix: 'Bloom', rarity: 'epic', hueRotate: 200, petal: '#1e88e5' },
+  { prefix: 'Radiant', rarity: 'legendary', hueRotate: 0, petal: '#fff', isRainbow: true },
 ];
 
 export const PLANT_SPECIES = [];
@@ -78,13 +351,14 @@ BASE_SPECIES.forEach(base => {
       name: `${variant.prefix} ${base.name}`,
       emoji: base.emoji,
       image: base.image,
+      masteryImage: base.masteryImage,
       category: base.category,
       rarity: variant.rarity,
       style: base.style,
       petalCount: base.petalCount,
       petalLength: base.petalLength,
       hasFace: base.hasFace,
-      funFact: base.funFact,
+      funFact: base.facts ? base.facts[variant.rarity] : (base.funFact || 'A beautiful specimen for your collection.'),
       emojiFilter: emojiFilter,
       colors: {
         stem: base.defaultStem,
@@ -104,17 +378,33 @@ BASE_SPECIES.forEach(base => {
  */
 export function getRandomPlant(excludeIds) {
   const excluded = excludeIds instanceof Set ? excludeIds : new Set(excludeIds || []);
-  const available = PLANT_SPECIES.filter(p => !excluded.has(p.id));
-
-  if (available.length === 0) return null;
-
-  const weights = { common: 50, uncommon: 30, rare: 15, legendary: 5 };
-  const pool = [];
-  available.forEach(p => {
-    const w = weights[p.rarity] || 10;
-    for (let i = 0; i < w; i++) pool.push(p);
+  
+  // Group all available species by their base ID
+  const baseSpeciesGroups = {};
+  BASE_SPECIES.forEach(base => {
+    // Find all variants for this base species
+    const variants = PLANT_SPECIES.filter(p => p.id.startsWith(base.id + '_'));
+    // Filter to only uncollected variants
+    const uncollectedVariants = variants.filter(v => !excluded.has(v.id));
+    
+    if (uncollectedVariants.length > 0) {
+      // Sort by rarity order: sprout (common), bud (uncommon), bloom (epic), radiant (legendary)
+      // The order in VARIANTS is already [sprout, bud, bloom, radiant]
+      const rarityOrder = ['common', 'uncommon', 'epic', 'legendary'];
+      uncollectedVariants.sort((a, b) => rarityOrder.indexOf(a.rarity) - rarityOrder.indexOf(b.rarity));
+      
+      baseSpeciesGroups[base.id] = uncollectedVariants;
+    }
   });
-  return pool[Math.floor(Math.random() * pool.length)];
+
+  const availableBaseIds = Object.keys(baseSpeciesGroups);
+  if (availableBaseIds.length === 0) return null;
+
+  // Pick a random base species from those that have uncollected variants
+  const randomBaseId = availableBaseIds[Math.floor(Math.random() * availableBaseIds.length)];
+  
+  // Return the first (lowest rarity) uncollected variant for that species
+  return baseSpeciesGroups[randomBaseId][0];
 }
 
 /**

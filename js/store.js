@@ -190,11 +190,19 @@ class Store {
 
   completeFast() {
     if (!this.state.activeFast) return null;
-    const fast = { ...this.state.activeFast, completed: true, endTime: Date.now() };
-    fast.actualMs = fast.endTime - fast.startTime;
+    const endTime = Date.now();
+    const actualMs = endTime - this.state.activeFast.startTime;
+    const success = actualMs >= this.state.activeFast.goalMs;
+    
+    const fast = { 
+      ...this.state.activeFast, 
+      completed: true, 
+      endTime,
+      actualMs,
+      success
+    };
     this.state.fasts.push(fast);
 
-    const success = fast.actualMs >= fast.goalMs;
     let plant = null;
 
     if (success) {
