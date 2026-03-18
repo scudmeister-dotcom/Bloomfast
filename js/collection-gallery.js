@@ -90,6 +90,14 @@ export class CollectionGallery {
     // Style switching removed in favor of minimalist polaroid design.
   }
 
+  getBaseSpeciesId(plantId) {
+    return plantId.replace(/_(sprout|bud|bloom|radiant)$/i, '');
+  }
+
+  getBaseSpeciesName(plantName) {
+    return plantName.replace(/^(Sprout|Bud|Bloom|Radiant)\s+/i, '');
+  }
+
   getEarnedPlants() {
     // Build map: fasts data has priority (it has planName, actualMs)
     // Garden entries are fallback (starter plants only have completedAt)
@@ -108,7 +116,7 @@ export class CollectionGallery {
       };
     });
 
-    // 2. Then overwrite with fasts data (richer info — always preferred)
+    // 2. Then overwrite with fasts data (richer info â€” always preferred)
     this.store.state.fasts
       .filter(f => f.completed && f.plantType && (f.success || (f.actualMs >= f.goalMs)))
       .forEach(f => {
@@ -171,27 +179,26 @@ export class CollectionGallery {
 
     // Group by base species to detect mastery
     const baseSpeciesStatus = {};
-    const baseSpeciesOrder = []; // To keep track of original order
-    
     // We can use PLANT_SPECIES directly since it's already sorted by base then variant
     PLANT_SPECIES.forEach(p => {
-      const baseId = p.id.split('_')[0];
+      const baseId = this.getBaseSpeciesId(p.id);
       if (!baseSpeciesStatus[baseId]) {
         baseSpeciesStatus[baseId] = { variants: [], earnedCount: 0 };
-        baseSpeciesOrder.push(baseId);
       }
       baseSpeciesStatus[baseId].variants.push(p.id);
       if (earnedMap[p.id]) baseSpeciesStatus[baseId].earnedCount++;
     });
 
-    filtered.forEach((plant, index) => {
+    const showMasteryColumn = this.rarityFilter === 'all' && !this.acquiredOnly;
+
+    filtered.forEach((plant) => {
       const isEarned = !!earnedMap[plant.id];
       const stats = earnedMap[plant.id];
       const stampNo = String(speciesIndex[plant.id] || 0).padStart(3, '0');
       
-      const baseId = plant.id.split('_')[0];
+      const baseId = this.getBaseSpeciesId(plant.id);
       const status = baseSpeciesStatus[baseId];
-      const isMastered = status.earnedCount === status.variants.length;
+      const isMastered = !!status && status.earnedCount === status.variants.length;
       
       const el = document.createElement('div');
       el.className = 'botanical-card-container';
@@ -240,7 +247,6 @@ export class CollectionGallery {
               </div>
             </div>
             <div class="card-face card-back" style="border-color:${rarityColor[plant.rarity]}">
-              <div class="specimen-stamp-no">No. ${stampNo}</div>
               <div class="specimen-header">Specimen Record</div>
               <div class="name">${plant.name}</div>
               <div class="specimen-stats">
@@ -280,9 +286,8 @@ export class CollectionGallery {
 
       this.container.appendChild(el);
 
-      // Mastery Column Logic: Insert after every 4th plant (Radiant variant)
-      // Only when viewing all rarities, so rows stay aligned
-      if (this.rarityFilter === 'all' && (index + 1) % 4 === 0) {
+      // Mastery column appears at the end of each 4-card species row.
+      if (showMasteryColumn && plant.rarity === 'legendary' && status) {
         const masteryEl = document.createElement('div');
         masteryEl.className = `mastery-indicator-column${isMastered ? ' mastered' : ''}`;
         
@@ -292,28 +297,36 @@ export class CollectionGallery {
             .map(vid => earnedMap[vid]?.firstEarned?.endTime)
             .filter(date => !!date);
           const latestDate = new Date(Math.max(...completionDates));
-          const masteryDateStr = latestDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+          const masteryDateStr = latestDate.toLocaleString(undefined, {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit'
+          });
           
           // Get the mastery image from the first variant (they all share the same base)
           const samplePlant = PLANT_SPECIES.find(p => p.id === status.variants[0]);
           const mImage = samplePlant?.masteryImage || samplePlant?.image;
+          const baseName = samplePlant ? this.getBaseSpeciesName(samplePlant.name) : 'Species';
 
           masteryEl.innerHTML = `
             <div class="mastery-card-spruced">
-              <div class="mastery-crown">👑</div>
+              <div class="mastery-garland" aria-hidden="true">&#x273F; &#x273D; Completed &#x273D; &#x273F;</div>
               <div class="mastery-img-wrap">
-                <img src="${mImage}" class="mastery-realistic-img" alt="Mastered ${samplePlant?.name}">
+                <img src="${mImage}" class="mastery-realistic-img" alt="${baseName} photo">
               </div>
               <div class="mastery-info">
-                <div class="mastery-label">Mastered</div>
+                <div class="mastery-species">${baseName}</div>
                 <div class="mastery-date">${masteryDateStr}</div>
               </div>
             </div>
           `;
         } else {
           masteryEl.innerHTML = `
-            <div class="mastery-seal">🏆</div>
+            <div class="mastery-seal" aria-hidden="true">&#x1F3C6;</div>
             <div class="mastery-label">Locked</div>
+            <div class="mastery-progress">${status.earnedCount}/${status.variants.length} collected</div>
           `;
         }
         
@@ -322,3 +335,5 @@ export class CollectionGallery {
     });
   }
 }
+
+
