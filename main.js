@@ -4,7 +4,8 @@
 
 import { store } from './js/store.js';
 import { FastingTimer, PLANS } from './js/timer.js';
-import { PlantRenderer, getRandomPlant, getCategoryTemplate, PLANT_SPECIES } from './js/plant.js';
+import { PlantRenderer, getRandomPlant, PLANT_SPECIES } from './js/plant.js';
+import { PlantSVGRenderer } from './js/plant-svg.js';
 import { CollectionGallery } from './js/collection-gallery.js';
 import { AnalyticsDashboard } from './js/analytics.js';
 import { HabitsManager } from './js/habits.js';
@@ -13,15 +14,31 @@ import { NotificationManager } from './js/notifications.js';
 import { DECORATIONS_CATALOG } from './js/garden.js';
 
 // ---- Globals ----
-let timer, plantRenderer, collectionGallery, analytics, habits, social, notifications;
+let timer, plantRenderer, plantSVG, collectionGallery, analytics, habits, social, notifications;
 let selectedPlan = null;
 let currentTab = 'timer';
+
+// ---- Plant SVG Helpers ----
+function showPlantSVG(category, progress) {
+  document.getElementById('plant-canvas').style.display = 'none';
+  // show() BEFORE setCategory() — renderers call getTotalLength() in _build(),
+  // which returns 0 on display:none elements, causing strokes to stay fully visible.
+  plantSVG.show();
+  plantSVG.setCategory(category);
+  plantSVG.setProgress(progress ?? 0);
+}
+
+function hidePlantSVG() {
+  plantSVG.hide();
+  document.getElementById('plant-canvas').style.display = '';
+}
 
 // ---- Initialize ----
 function init() {
   // Create managers
   timer = new FastingTimer(store);
   plantRenderer = new PlantRenderer(document.getElementById('plant-canvas'));
+  plantSVG = new PlantSVGRenderer(document.getElementById('plant-svg'));
   notifications = new NotificationManager(store);
   habits = new HabitsManager(store);
   notifications = new NotificationManager(store);
@@ -48,6 +65,9 @@ function init() {
   // Bind mobile
   bindMobile();
 
+  // Bind color palette theme switcher
+  bindThemeSwitcher();
+
   // Initialize water glasses display
   renderWaterGlasses();
 
@@ -58,10 +78,7 @@ function init() {
   // Resume active fast if any
   if (timer.resume()) {
     showActiveFastUI();
-    // Show category template (not actual species) during growth
-    const growthTemplate = getCategoryTemplate(store.state.activeFast.plantType);
-    plantRenderer.setPlant(growthTemplate);
-    plantRenderer.setProgress(timer.progress);
+    showPlantSVG(store.state.activeFast.plantType.category, timer.progress);
     plantRenderer.startAnimation();
   } else {
     plantRenderer.startAnimation();
@@ -284,11 +301,10 @@ function startFast() {
   }
 
   timer.start(selectedPlan, goalMs, plantType);
+  console.log('[Bloomfast] Plant selected:', plantType.name, '| Category:', plantType.category);
 
-  // Show category growth template (not actual species) during the fast
-  const growthTemplate = getCategoryTemplate(plantType);
-  plantRenderer.setPlant(growthTemplate);
-  plantRenderer.setProgress(0);
+  // Show SVG growth animation for this category
+  showPlantSVG(plantType.category, 0);
 
   // Update UI — hide species info, show mystery
   showActiveFastUI();
@@ -323,6 +339,74 @@ function showIdleTimerUI() {
   document.getElementById('timer-progress-fill').style.width = '0%';
   document.getElementById('plant-species-label').textContent = '';
   document.getElementById('growth-stage-label').textContent = 'Plant a seed to begin';
+  document.getElementById('tab-timer').style.backgroundColor = '';
+  hidePlantSVG();
+}
+
+// ---- Seasonal Helpers ----
+function getSeasonMessage(progress) {
+  if (progress <= 0)    return 'Plant a seed to begin';
+  if (progress < 0.20)  return '🌰 The seed is resting';
+  if (progress < 0.40)  return '🌱 Roots are reaching';
+  if (progress < 0.60)  return '🌿 Something stirs underground';
+  if (progress < 0.80)  return '🌼 Breaking through the soil';
+  if (progress < 1.0)   return '🌸 Reaching for the light';
+  return '🌺 In full bloom';
+}
+
+// Color key arrays per category: [progress, hue, saturation%, lightness%]
+// All start in dark green tones, each ends with a signature hue.
+const CATEGORY_GRADIENT_KEYS = {
+  Flowers: [
+    [0,    150, 30,  7 ],  // deep green
+    [0.30, 200, 25,  8 ],  // blue-green
+    [0.60, 280, 28,  9 ],  // violet
+    [0.80, 320, 38, 10 ],  // magenta-rose
+    [1.0,  340, 50, 11 ],  // deep pink bloom
+  ],
+  Trees: [
+    [0,    150, 30,  7 ],  // deep green
+    [0.30, 130, 35,  8 ],  // bright forest
+    [0.60, 110, 32,  8 ],  // yellow-green canopy
+    [0.80,  60, 38,  8 ],  // golden
+    [1.0,   35, 48,  9 ],  // warm autumn amber
+  ],
+  Succulents: [
+    [0,    150, 28,  7 ],  // deep green
+    [0.30, 165, 30,  7 ],  // jade
+    [0.60, 178, 35,  8 ],  // teal-green
+    [0.80, 185, 45,  9 ],  // teal
+    [1.0,  190, 55, 10 ],  // deep ocean teal
+  ],
+  Herbs: [
+    [0,    150, 28,  7 ],  // deep green
+    [0.30, 170, 25,  8 ],  // sage
+    [0.60, 220, 30,  9 ],  // blue-grey
+    [0.80, 255, 35, 10 ],  // soft indigo
+    [1.0,  270, 45, 11 ],  // lavender purple
+  ],
+  Exotic: [
+    [0,    150, 28,  7 ],  // deep green
+    [0.30,  90, 22,  7 ],  // olive
+    [0.60,  30, 30,  7 ],  // brown-orange
+    [0.80,  10, 45,  8 ],  // brick red
+    [1.0,    5, 55,  9 ],  // deep crimson
+  ],
+};
+
+function updateSeasonBackground(progress, category) {
+  const tab = document.getElementById('tab-timer');
+  if (!tab) return;
+  const keys = CATEGORY_GRADIENT_KEYS[category] || CATEGORY_GRADIENT_KEYS.Trees;
+  let a = keys[0], b = keys[keys.length - 1];
+  for (let i = 0; i < keys.length - 1; i++) {
+    if (progress >= keys[i][0] && progress <= keys[i + 1][0]) {
+      a = keys[i]; b = keys[i + 1]; break;
+    }
+  }
+  const t = a[0] === b[0] ? 0 : (progress - a[0]) / (b[0] - a[0]);
+  const lerp = (x, y) => x + (y - x) * t;
+  tab.style.backgroundColor = `hsl(${Math.round(lerp(a[1], b[1]))}, ${Math.round(lerp(a[2], b[2]))}%, ${Math.round(lerp(a[3], b[3]))}%)`;
 }
 
 // ---- Timer Tick ----
@@ -343,11 +427,12 @@ function onTimerTick(t) {
   
   document.getElementById('timer-progress-fill').style.width = `${Math.min(1, t.progress) * 100}%`;
 
-  // Update growth stage (don't reveal species)
-  document.getElementById('growth-stage-label').textContent = t.growthStageLabel;
+  // Update growth stage with poetic seasonal message
+  document.getElementById('growth-stage-label').textContent = getSeasonMessage(t.progress);
+  updateSeasonBackground(t.progress, t.activeFast?.plantType?.category);
 
-  // Update plant renderer
-  plantRenderer.setProgress(t.progress);
+  // Update plant SVG
+  plantSVG.setProgress(Math.min(1, t.progress));
 
   // Update body milestones
   updateMilestones(t.elapsedHours);
@@ -406,7 +491,7 @@ function onFastComplete(result) {
   renderWaterGlasses();
 
   // Show the plant reveal modal
-  showPlantRevealModal(plantType, funFact);
+  showPlantRevealModal(plantType, funFact, waterCount);
 
   notifications.notifyFastComplete(plantName);
 
@@ -428,7 +513,7 @@ function onFastComplete(result) {
   }
 }
 
-function showPlantRevealModal(plantType, funFact) {
+function showPlantRevealModal(plantType, funFact, waterCount) {
   const modalOverlay = document.getElementById('modal-overlay');
   const modalContent = document.getElementById('modal-content');
   if (!modalOverlay || !modalContent) return;
@@ -450,6 +535,7 @@ function showPlantRevealModal(plantType, funFact) {
       <div class="plant-reveal-fact">
         🌿 <strong>Fun Fact:</strong> ${funFact}
       </div>
+      ${waterCount > 0 ? `<div class="plant-reveal-water">💧 You logged <strong>${waterCount}</strong> glass${waterCount !== 1 ? 'es' : ''} of water during this fast!</div>` : ''}
       <p style="color: var(--text-secondary); font-size: var(--fs-sm); margin-top: var(--space-md);">
         This ${plantType?.name || 'plant'} has been added to your Botanical Collection! 🏛️
       </p>
@@ -477,6 +563,27 @@ function bindModal() {
   });
 }
 
+// ---- Theme Switcher ----
+function bindThemeSwitcher() {
+  const savedTheme = localStorage.getItem('bloomfast-theme') || 'forest';
+  applyTheme(savedTheme);
+
+  document.querySelectorAll('.palette-swatch').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const theme = btn.dataset.theme;
+      applyTheme(theme);
+      localStorage.setItem('bloomfast-theme', theme);
+    });
+  });
+}
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme === 'forest' ? '' : theme);
+  document.querySelectorAll('.palette-swatch').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.theme === theme);
+  });
+}
+
 // ---- Water Tracker ----
 function bindWaterTracker() {
   document.getElementById('btn-log-water')?.addEventListener('click', logWater);
@@ -484,6 +591,10 @@ function bindWaterTracker() {
 }
 
 function logWater() {
+  if (!timer.isRunning) {
+    showToast('Start a fast to log water! 💧');
+    return;
+  }
   store.logWater();
   renderWaterGlasses();
 
@@ -515,6 +626,12 @@ function renderWaterGlasses() {
 
   const ozNum = document.getElementById('water-oz-num');
   if (ozNum) ozNum.textContent = count * 8;
+
+  const logBtn = document.getElementById('btn-log-water');
+  const mobileBtn = document.getElementById('mobile-water-btn');
+  const fastActive = timer?.isRunning ?? false;
+  if (logBtn) logBtn.disabled = !fastActive;
+  if (mobileBtn) mobileBtn.disabled = !fastActive;
 }
 
 // ---- Analytics Controls ----
