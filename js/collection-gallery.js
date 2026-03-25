@@ -177,6 +177,11 @@ export class CollectionGallery {
     let specNum = 1;
     PLANT_SPECIES.forEach(p => { speciesIndex[p.id] = specNum++; });
 
+    // Shelf tracking — each base species gets its own labeled group
+    let currentShelf = null;
+    let currentShelfGroup = null;
+    let lastBaseId = null;
+
     // Group by base species to detect mastery
     const baseSpeciesStatus = {};
     // We can use PLANT_SPECIES directly since it's already sorted by base then variant
@@ -195,8 +200,28 @@ export class CollectionGallery {
       const isEarned = !!earnedMap[plant.id];
       const stats = earnedMap[plant.id];
       const stampNo = String(speciesIndex[plant.id] || 0).padStart(3, '0');
-      
+
       const baseId = this.getBaseSpeciesId(plant.id);
+
+      // Start a new shelf group for each new base species
+      if (baseId !== lastBaseId) {
+        if (currentShelfGroup) this.container.appendChild(currentShelfGroup);
+
+        currentShelfGroup = document.createElement('div');
+        currentShelfGroup.className = 'shelf-group';
+
+        const label = document.createElement('div');
+        const groupEarned = baseSpeciesStatus[baseId]?.earnedCount > 0;
+        label.className = 'shelf-label';
+        label.textContent = groupEarned ? this.getBaseSpeciesName(plant.name) : '???';
+        currentShelfGroup.appendChild(label);
+
+        currentShelf = document.createElement('div');
+        currentShelf.className = 'plant-shelf';
+        currentShelfGroup.appendChild(currentShelf);
+
+        lastBaseId = baseId;
+      }
       const status = baseSpeciesStatus[baseId];
       const isMastered = !!status && status.earnedCount === status.variants.length;
       
@@ -225,7 +250,7 @@ export class CollectionGallery {
           </div>` : '';
           
         const raysHtml = isLegendary ? `<div class="radiant-rays"></div>` : '';
-        const overlayHtml = (isLegendary || isEpic || isUncommon) ? `<div class="rarity-overlay"></div>` : '';
+        const overlayHtml = isLegendary ? `<div class="rarity-overlay"></div>` : '';
 
         const borderWrapOpen = isLegendary ? `<div class="legendary-border-wrap"><div class="border-inner"></div></div>` : '';
 
@@ -234,13 +259,15 @@ export class CollectionGallery {
             ${borderWrapOpen}
             <div class="card-face card-front">
               ${sparkleHtml}
-              <div class="specimen-stamp-no">No. ${stampNo}</div>
-              <div class="specimen-header">Specimen Card</div>
+              <div class="card-header-row">
+                <span class="specimen-header">Specimen Card</span>
+              </div>
               <div class="img-wrap">
                 ${raysHtml}
                 <img src="${plant.image}" class="card-art" alt="${plant.name}">
                 ${overlayHtml}
               </div>
+              <div class="specimen-stamp-no">No. ${stampNo}</div>
               <div class="info">
                 <div class="name">${plant.name}</div>
                 <div class="rarity">${rarityDisplay[plant.rarity]}</div>
@@ -262,11 +289,13 @@ export class CollectionGallery {
         el.innerHTML = `
           <div class="botanical-card style-specimen card-undiscovered rarity-common">
             <div class="card-face card-front">
-              <div class="specimen-stamp-no">No. ${stampNo}</div>
-              <div class="specimen-header">Specimen Card</div>
+              <div class="card-header-row">
+                <span class="specimen-header">Specimen Card</span>
+              </div>
               <div class="img-wrap">
                 <img src="${plant.image}" class="card-art undiscovered-art" alt="?">
               </div>
+              <div class="specimen-stamp-no">No. ${stampNo}</div>
               <div class="info">
                 <div class="name">Undiscovered</div>
                 <div class="rarity">???</div>
@@ -284,7 +313,7 @@ export class CollectionGallery {
         });
       }
 
-      this.container.appendChild(el);
+      currentShelf.appendChild(el);
 
       // Mastery column appears at the end of each 4-card species row.
       if (showMasteryColumn && plant.rarity === 'legendary' && status) {
@@ -330,9 +359,12 @@ export class CollectionGallery {
           `;
         }
         
-        this.container.appendChild(masteryEl);
+        currentShelf.appendChild(masteryEl);
       }
     });
+
+    // Append the final shelf group
+    if (currentShelfGroup) this.container.appendChild(currentShelfGroup);
   }
 }
 

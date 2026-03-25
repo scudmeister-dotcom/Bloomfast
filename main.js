@@ -8,15 +8,13 @@ import { PlantRenderer, getRandomPlant, PLANT_SPECIES } from './js/plant.js';
 import { PlantSVGRenderer } from './js/plant-svg.js';
 import { CollectionGallery } from './js/collection-gallery.js';
 import { AnalyticsDashboard } from './js/analytics.js';
-import { HabitsManager } from './js/habits.js';
 import { showToast } from './js/social.js';
 import { NotificationManager } from './js/notifications.js';
 import { DECORATIONS_CATALOG } from './js/garden.js';
 
 // ---- Globals ----
-let timer, plantRenderer, plantSVG, collectionGallery, analytics, habits, social, notifications;
+let timer, plantRenderer, plantSVG, collectionGallery, analytics, social, notifications;
 let selectedPlan = null;
-let currentTab = 'timer';
 
 // ---- Plant SVG Helpers ----
 function showPlantSVG(category, progress) {
@@ -40,9 +38,6 @@ function init() {
   plantRenderer = new PlantRenderer(document.getElementById('plant-canvas'));
   plantSVG = new PlantSVGRenderer(document.getElementById('plant-svg'));
   notifications = new NotificationManager(store);
-  habits = new HabitsManager(store);
-  notifications = new NotificationManager(store);
-  habits = new HabitsManager(store);
 
   // Bind navigation
   bindNavigation();
@@ -84,9 +79,6 @@ function init() {
     plantRenderer.startAnimation();
   }
 
-  // Init habits
-  habits.init();
-
     // social removed
 
   // Init notifications
@@ -120,8 +112,14 @@ function init() {
   // Subscribe to state changes
   store.subscribe(() => {
     renderWaterGlasses();
-    updateWellnessUI(); // Add this to reactive updates
+    updateWellnessUI();
   });
+
+  // Auto-generate coach insights on load
+  setTimeout(() => generateCoachingInsights(), 500);
+
+  // Render wellness date
+  renderWellnessDate();
 }
 
 // ---- Navigation ----
@@ -165,6 +163,7 @@ function switchTab(tabName) {
   }
 
   if (tabName === 'wellness') {
+    renderWellnessDate();
     updateWellnessUI();
   }
 
@@ -172,7 +171,6 @@ function switchTab(tabName) {
     social.updateProfile();
   }
 
-  currentTab = tabName;
 }
 
 // ---- Timer Controls ----
@@ -194,41 +192,33 @@ function bindTimerControls() {
     });
   });
 
-  // Start fast
-  document.getElementById('btn-start-fast')?.addEventListener('click', startFast);
-
-  // Stop fast
-  const stopBtn = document.getElementById('btn-stop-fast');
-  if (stopBtn) {
-    stopBtn.onclick = (e) => {
-      e.preventDefault();
+  // Single fast action button — starts or stops depending on state
+  document.getElementById('btn-fast-action')?.addEventListener('click', () => {
+    if (!timer.isRunning) {
+      startFast();
+    } else {
       const isGoalMet = timer.elapsedMs >= timer.activeFast.goalMs;
       const title = isGoalMet ? 'Finish Fast?' : 'End Fast Early?';
-      const msg = isGoalMet 
-        ? 'Great job! Ready to harvest your plant and end the fast?' 
-        : 'Are you sure you want to end your fast early? The plant won\'t be added to your garden.';
-        
-      customConfirm(title, msg, () => {
-          const { success, plant } = store.completeFast();
-          timer.stopTicking();
-          plantRenderer.setProgress(0);
-          plantRenderer.setPlant(null);
+      const msg = isGoalMet
+        ? 'Great job! Ready to harvest your plant and end the fast?'
+        : "Are you sure you want to end your fast early? The plant won't be added to your garden.";
 
-          if (!success) {
-            // Reset hydration only if ended early? User request didn't specify, but existing code did.
-            // Actually, user said "only ends when the user actually ends the fast", 
-            // so let's keep hydration reset for now if that's the current behavior.
-            store.state.water.today = 0;
-            store.save();
-            renderWaterGlasses();
-            showIdleTimerUI();
-            showToast('Fast ended early. 🌸');
-          } else {
-            onFastComplete({ plant }); // Pass the earned plant
-          }
+      customConfirm(title, msg, () => {
+        const { success, plant } = store.completeFast();
+        timer.stopTicking();
+        plantRenderer.setProgress(0);
+        plantRenderer.setPlant(null);
+
+        if (!success) {
+          logAndResetWater(false);
+          showIdleTimerUI();
+          showToast('Fast ended early. 🌸');
+        } else {
+          onFastComplete({ plant });
+        }
       });
-    };
-  }
+    }
+  });
 
   // Debug Timer Controls
   document.getElementById('btn-debug-add-1h')?.addEventListener('click', () => {
@@ -267,6 +257,19 @@ function bindTimerControls() {
     showToast('🚀 Fast forwarded to 99% completion!');
     if (timer.tickInterval) onTimerTick(timer);
   });
+
+  // Animation preview helpers (debug)
+  function startPreview(category) {
+    if (window._previewInterval) clearInterval(window._previewInterval);
+    showPlantSVG(category, 0);
+    let p = 0;
+    window._previewInterval = setInterval(() => {
+      p += 0.015;
+      plantSVG.setProgress(Math.min(1, p));
+      if (p >= 1) { clearInterval(window._previewInterval); window._previewInterval = null; }
+    }, 100);
+  }
+  document.getElementById('btn-debug-zen')?.addEventListener('click', () => startPreview('Zen'));
 }
 
 function startFast() {
@@ -295,35 +298,60 @@ function startFast() {
 
   const plantType = getRandomPlant(earnedIds);
 
-  if (!plantType) {
-    showToast('🎉 You\'ve collected every plant! You are a true Botanical Master! 🏆');
-    return;
+  const allCollectedAtStart = !plantType;
+  if (allCollectedAtStart) {
+    showToast('✦ Legendary. Your constellation is complete.');
   }
 
-  timer.start(selectedPlan, goalMs, plantType);
-  console.log('[Bloomfast] Plant selected:', plantType.name, '| Category:', plantType.category);
+  // Reset hydration at the start of every new fast
+  logAndResetWater(false);
 
-  // Show SVG growth animation for this category
-  showPlantSVG(plantType.category, 0);
+  timer.start(selectedPlan, goalMs, plantType);
+  console.log('[Bloomfast] Plant selected:', plantType?.name ?? 'Zen Garden (all collected)', '| Category:', plantType?.category ?? 'Zen');
+
+  // Show SVG growth animation — Zen Garden if all plants collected
+  showPlantSVG(plantType?.category ?? 'Zen', 0);
 
   // Update UI — hide species info, show mystery
   showActiveFastUI();
 
-  // Don't reveal plant type — it's a mystery!
-  document.getElementById('plant-species-label').textContent = '🌱 A mystery seed is growing...';
+  document.getElementById('plant-species-label').textContent = allCollectedAtStart
+    ? '✦ Your constellation — all plants collected'
+    : '🌱 A mystery seed is growing...';
   document.getElementById('growth-stage-label').textContent = timer.growthStageLabel;
 
   // Notification
   notifications.notifyFastStart();
 
-  showToast('🌱 Fast started! A mystery seed has been planted...');
+  if (!allCollectedAtStart) showToast('🌱 Fast started! A mystery seed has been planted...');
+  setTimeout(() => generateCoachingInsights(), 300);
+}
+
+// ---- Hydration helpers ----
+function logAndResetWater(success) {
+  const count = store.state.water.today;
+  if (count > 0) {
+    if (!store.state.water.history) store.state.water.history = [];
+    store.state.water.history.push({
+      date: new Date().toDateString(),
+      glasses: count,
+      flOz: count * 8,
+      fastPlan: store.state.activeFast?.planName ?? selectedPlan ?? 'unknown',
+      earlyEnd: !success
+    });
+  }
+  store.state.water.today = 0;
+  store.save();
+  renderWaterGlasses();
 }
 
 function showActiveFastUI() {
   document.getElementById('plan-selector')?.classList.add('hidden');
-  document.getElementById('btn-start-fast')?.classList.add('hidden');
-  document.getElementById('btn-stop-fast')?.classList.remove('hidden');
   document.getElementById('body-status-timeline')?.classList.remove('hidden');
+  document.getElementById('timer-coach-card')?.classList.add('hidden');
+  document.getElementById('water-tracker-card')?.classList.remove('hidden');
+  const actionBtn = document.getElementById('btn-fast-action');
+  if (actionBtn) { actionBtn.innerHTML = '<span>🏁</span> Complete Fast'; actionBtn.classList.remove('btn-glow'); }
 
   // Mystery labels
   document.getElementById('plant-species-label').textContent = '🌱 A mystery seed is growing...';
@@ -331,9 +359,11 @@ function showActiveFastUI() {
 
 function showIdleTimerUI() {
   document.getElementById('plan-selector')?.classList.remove('hidden');
-  document.getElementById('btn-start-fast')?.classList.remove('hidden');
-  document.getElementById('btn-stop-fast')?.classList.add('hidden');
   document.getElementById('body-status-timeline')?.classList.add('hidden');
+  document.getElementById('timer-coach-card')?.classList.remove('hidden');
+  document.getElementById('water-tracker-card')?.classList.add('hidden');
+  const actionBtn = document.getElementById('btn-fast-action');
+  if (actionBtn) { actionBtn.innerHTML = '<span>🌱</span> Plant a Seed'; actionBtn.classList.add('btn-glow'); }
   document.getElementById('timer-display').textContent = '00:00:00';
   document.getElementById('timer-subtitle').textContent = 'Select a fasting plan to start';
   document.getElementById('timer-progress-fill').style.width = '0%';
@@ -356,41 +386,43 @@ function getSeasonMessage(progress) {
 
 // Color key arrays per category: [progress, hue, saturation%, lightness%]
 // All start in dark green tones, each ends with a signature hue.
+// All categories stay identical dark-green until p=0.40 — the type is a mystery
+// until the plant has been visibly growing for a while.
 const CATEGORY_GRADIENT_KEYS = {
   Flowers: [
-    [0,    150, 30,  7 ],  // deep green
-    [0.30, 200, 25,  8 ],  // blue-green
-    [0.60, 280, 28,  9 ],  // violet
-    [0.80, 320, 38, 10 ],  // magenta-rose
-    [1.0,  340, 50, 11 ],  // deep pink bloom
+    [0,    150, 28,  7 ],  // dark forest green — same for ALL types
+    [0.40, 150, 28,  7 ],  // still neutral at 40%
+    [0.62, 310, 30,  9 ],  // soft pink hint
+    [0.82, 332, 42, 10 ],  // rose
+    [1.0,  345, 52, 12 ],  // full pink bloom
   ],
   Trees: [
-    [0,    150, 30,  7 ],  // deep green
-    [0.30, 130, 35,  8 ],  // bright forest
-    [0.60, 110, 32,  8 ],  // yellow-green canopy
-    [0.80,  60, 38,  8 ],  // golden
-    [1.0,   35, 48,  9 ],  // warm autumn amber
+    [0,    150, 28,  7 ],
+    [0.40, 150, 28,  7 ],
+    [0.62,  96, 34,  8 ],  // yellow-green canopy hint
+    [0.82,  56, 40,  9 ],  // golden
+    [1.0,   32, 50, 10 ],  // warm amber
   ],
   Succulents: [
-    [0,    150, 28,  7 ],  // deep green
-    [0.30, 165, 30,  7 ],  // jade
-    [0.60, 178, 35,  8 ],  // teal-green
-    [0.80, 185, 45,  9 ],  // teal
-    [1.0,  190, 55, 10 ],  // deep ocean teal
+    [0,    150, 28,  7 ],
+    [0.40, 150, 28,  7 ],
+    [0.62, 174, 36,  8 ],  // jade-teal hint
+    [0.82, 185, 46,  9 ],  // teal
+    [1.0,  192, 56, 11 ],  // deep ocean teal
   ],
   Herbs: [
-    [0,    150, 28,  7 ],  // deep green
-    [0.30, 170, 25,  8 ],  // sage
-    [0.60, 220, 30,  9 ],  // blue-grey
-    [0.80, 255, 35, 10 ],  // soft indigo
-    [1.0,  270, 45, 11 ],  // lavender purple
+    [0,    150, 28,  7 ],
+    [0.40, 150, 28,  7 ],
+    [0.62, 224, 28,  9 ],  // blue-lavender hint
+    [0.82, 256, 36, 10 ],  // soft indigo
+    [1.0,  270, 46, 12 ],  // lavender purple
   ],
   Exotic: [
-    [0,    150, 28,  7 ],  // deep green
-    [0.30,  90, 22,  7 ],  // olive
-    [0.60,  30, 30,  7 ],  // brown-orange
-    [0.80,  10, 45,  8 ],  // brick red
-    [1.0,    5, 55,  9 ],  // deep crimson
+    [0,    150, 28,  7 ],
+    [0.40, 150, 28,  7 ],
+    [0.60,  52, 24,  8 ],  // amber-olive hint
+    [0.80,  14, 42,  9 ],  // brick red
+    [1.0,    4, 56, 10 ],  // deep crimson
   ],
 };
 
@@ -433,6 +465,7 @@ function onTimerTick(t) {
 
   // Update plant SVG
   plantSVG.setProgress(Math.min(1, t.progress));
+  updateTimerDecoration(t.progress);
 
   // Update body milestones
   updateMilestones(t.elapsedHours);
@@ -471,36 +504,34 @@ function onFastComplete(result) {
   const plantData = result?.plant || result;
   const plantType = plantData?.type || store.state.fasts[store.state.fasts.length - 1]?.plantType;
   const plantName = plantType?.name || 'plant';
-  const funFact = plantType?.funFact || 'Every plant you grow represents your dedication to a healthier you!';
+  const funFact = plantType?.funFact || 'Every fast you complete is a testament to your dedication!';
+  const allCollected = !plantType;
 
   // Log hydration data before reset
   const waterCount = store.state.water.today;
-  if (waterCount > 0) {
-    if (!store.state.water.history) store.state.water.history = [];
-    store.state.water.history.push({
-      date: new Date().toDateString(),
-      glasses: waterCount,
-      flOz: waterCount * 8,
-      fastPlan: selectedPlan || 'unknown'
-    });
+  logAndResetWater(true);
+
+  // Show the plant reveal modal (skip if no plant awarded)
+  if (!allCollected) {
+    showPlantRevealModal(plantType, funFact, waterCount);
+  } else {
+    showToast('🏆 Fast complete! Your streak grows stronger. Botanical Master!');
+    setTimeout(() => {
+      showIdleTimerUI();
+      hidePlantSVG();
+    }, 2000);
   }
 
-  // Reset hydration for next fast
-  store.state.water.today = 0;
-  store.save();
-  renderWaterGlasses();
+  if (!allCollected) notifications.notifyFastComplete(plantName);
 
-  // Show the plant reveal modal
-  showPlantRevealModal(plantType, funFact, waterCount);
-
-  notifications.notifyFastComplete(plantName);
-
-  // Keep the Full Bloom visible for a moment, then reset
-  setTimeout(() => {
-    showIdleTimerUI();
-    plantRenderer.setProgress(0);
-    plantRenderer.setPlant(null);
-  }, 5000);
+  if (!allCollected) {
+    // Keep the Full Bloom visible for a moment, then reset
+    setTimeout(() => {
+      showIdleTimerUI();
+      plantRenderer.setProgress(0);
+      plantRenderer.setPlant(null);
+    }, 5000);
+  }
 
   // Update collection gallery
   if (collectionGallery) {
@@ -563,16 +594,39 @@ function bindModal() {
   });
 }
 
+// ---- Timer Vine Decoration ----
+function updateTimerDecoration(progress) {
+  const p = Math.min(1, Math.max(0, progress ?? 0));
+  const vineSets    = ['vine-L1','vine-L2','vine-L3','vine-L4','vine-R1','vine-R2','vine-R3','vine-R4'];
+  const thresholds  = [0.20, 0.40, 0.60, 0.80, 0.20, 0.40, 0.60, 0.80];
+  vineSets.forEach((id, i) => {
+    const el = document.getElementById(id);
+    if (el) el.setAttribute('opacity', Math.min(1, Math.max(0, (p - thresholds[i]) / 0.10)).toFixed(3));
+  });
+}
+
+
 // ---- Theme Switcher ----
 function bindThemeSwitcher() {
   const savedTheme = localStorage.getItem('bloomfast-theme') || 'forest';
   applyTheme(savedTheme);
+
+  // Toggle palette open/closed
+  document.getElementById('palette-toggle')?.addEventListener('click', () => {
+    const swatches = document.getElementById('palette-swatches');
+    const toggle   = document.getElementById('palette-toggle');
+    swatches?.classList.toggle('open');
+    toggle?.classList.toggle('open');
+  });
 
   document.querySelectorAll('.palette-swatch').forEach(btn => {
     btn.addEventListener('click', () => {
       const theme = btn.dataset.theme;
       applyTheme(theme);
       localStorage.setItem('bloomfast-theme', theme);
+      // Close the palette after picking
+      document.getElementById('palette-swatches')?.classList.remove('open');
+      document.getElementById('palette-toggle')?.classList.remove('open');
     });
   });
 }
@@ -587,7 +641,6 @@ function applyTheme(theme) {
 // ---- Water Tracker ----
 function bindWaterTracker() {
   document.getElementById('btn-log-water')?.addEventListener('click', logWater);
-  document.getElementById('mobile-water-btn')?.addEventListener('click', logWater);
 }
 
 function logWater() {
@@ -597,11 +650,6 @@ function logWater() {
   }
   store.logWater();
   renderWaterGlasses();
-
-  // Trigger garden watering if garden is active
-  if (gardenGame && gardenGame.scene) {
-    gardenGame.scene.doWater(448, 256);
-  }
 
   const count = store.state.water.today;
   const flOz = count * 8;
@@ -628,14 +676,27 @@ function renderWaterGlasses() {
   if (ozNum) ozNum.textContent = count * 8;
 
   const logBtn = document.getElementById('btn-log-water');
-  const mobileBtn = document.getElementById('mobile-water-btn');
   const fastActive = timer?.isRunning ?? false;
   if (logBtn) logBtn.disabled = !fastActive;
-  if (mobileBtn) mobileBtn.disabled = !fastActive;
+
 }
 
 // ---- Analytics Controls ----
+let weightUnit = 'lbs'; // module-level toggle state
+
 function bindAnalyticsControls() {
+  // Weight unit toggle
+  document.querySelectorAll('.weight-unit-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      weightUnit = btn.dataset.unit;
+      document.querySelectorAll('.weight-unit-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const input = document.getElementById('weight-input');
+      if (input) input.placeholder = `Weight (${weightUnit})`;
+      if (analytics) analytics.setWeightUnit(weightUnit);
+    });
+  });
+
   document.getElementById('btn-export-data')?.addEventListener('click', () => {
     store.exportJSON();
     showToast('📥 Data exported as JSON');
@@ -659,9 +720,10 @@ function bindAnalyticsControls() {
       timestamp = d.getTime();
     }
 
-    store.logWeight(value, timestamp);
+    const lbsValue = weightUnit === 'kg' ? Math.round(value * 2.20462 * 10) / 10 : value;
+    store.logWeight(lbsValue, timestamp);
     if (input) input.value = '';
-    showToast(`⚖️ Weight logged for ${new Date(timestamp).toLocaleDateString()}: ${value} lbs`);
+    showToast(`⚖️ Weight logged: ${value} ${weightUnit}`);
 
     if (analytics) analytics.refresh();
   });
@@ -681,62 +743,72 @@ function bindAnalyticsControls() {
 }
 
 // ---- Wellness Tab ----
-// ---- Wellness Tab ----
 function bindWellnessTab() {
-  // Save journal
-  document.getElementById('btn-save-journal')?.addEventListener('click', () => {
-    const textarea = document.getElementById('journal-entry');
-    const text = textarea?.value.trim();
-    if (!text) {
-      showToast('Please write something in your journal first! ✍️');
-      return;
-    }
-    saveJournal();
-    showToast('📖 Journal entry saved! Ritual complete for today.');
-    updateWellnessUI();
-  });
-
-  // Log metrics
+  // Save metrics
   document.getElementById('btn-log-metrics')?.addEventListener('click', () => {
-    const mood = parseInt(document.getElementById('metric-mood')?.value) || 5;
-    const sleep = parseInt(document.getElementById('metric-sleep')?.value) || 5;
+    const mood   = parseInt(document.getElementById('metric-mood')?.value)   || 5;
+    const sleep  = parseInt(document.getElementById('metric-sleep')?.value)  || 5;
     const energy = parseInt(document.getElementById('metric-energy')?.value) || 5;
     store.saveMetrics(mood, sleep, energy);
-    showToast('📊 Metrics saved! Move to step 2: Mindfulness Journal.');
+    showToast('🌿 Body metrics saved!');
     updateWellnessUI();
   });
 
-  // Edit metrics
+  // Edit metrics — unlock and repopulate sliders
   document.getElementById('btn-edit-metrics')?.addEventListener('click', () => {
     document.getElementById('wellness-metrics-section')?.classList.remove('daily-checkin-locked');
     document.getElementById('btn-edit-metrics')?.classList.add('hidden');
-    showToast('Editing metrics...');
+    const saved = store.getTodayMetrics();
+    if (saved) {
+      ['mood', 'sleep', 'energy'].forEach(m => {
+        const slider  = document.getElementById(`metric-${m}`);
+        const display = document.getElementById(`metric-${m}-val`);
+        if (slider && saved[m] != null) { slider.value = saved[m]; if (display) display.textContent = saved[m]; }
+      });
+    }
+    updateRitualProgress();
+    showToast('✏️ Update your metrics and save again.');
   });
 
-  // Edit journal
+  // Save journal
+  document.getElementById('btn-save-journal')?.addEventListener('click', () => {
+    const text = document.getElementById('journal-entry')?.value.trim();
+    if (!text) { showToast('Write something first! ✍️'); return; }
+    saveJournal();
+    showToast('📖 Journal entry saved!');
+    updateWellnessUI();
+  });
+
+  // Journal history toggle
+  document.getElementById('btn-toggle-journal-history')?.addEventListener('click', () => {
+    const list = document.getElementById('past-entries-list');
+    const btn  = document.getElementById('btn-toggle-journal-history');
+    const open = list?.hasAttribute('hidden');
+    if (open) { list.removeAttribute('hidden'); btn.setAttribute('aria-expanded', 'true'); }
+    else       { list.setAttribute('hidden', ''); btn.setAttribute('aria-expanded', 'false'); }
+  });
+
+  // Edit journal — unlock and restore text
   document.getElementById('btn-edit-journal')?.addEventListener('click', () => {
-    const section = document.getElementById('wellness-journal-section');
-    section?.classList.remove('daily-checkin-locked');
+    document.getElementById('wellness-journal-section')?.classList.remove('daily-checkin-locked');
     document.getElementById('btn-edit-journal')?.classList.add('hidden');
-    
-    // Put text back in textarea if empty
     const textarea = document.getElementById('journal-entry');
-    const todayJournal = store.getTodayJournal();
-    if (textarea && todayJournal && !textarea.value) {
-      textarea.value = todayJournal.text;
-    }
-    showToast('Editing journal entry...');
+    const saved = store.getTodayJournal();
+    if (textarea && saved) textarea.value = saved.text;
+    updateRitualProgress();
+    showToast('✏️ Edit your entry and save again.');
   });
+}
 
-  // AI Coaching
-  document.getElementById('btn-get-coaching')?.addEventListener('click', () => {
-    if (!store.canUseCoach()) {
-      showToast('🤖 Bloom Coach is resting. (Limit: 5/day)');
-      return;
-    }
-    generateCoachingInsights();
-    store.incrementCoachUsage();
-  });
+function renderWellnessDate() {
+  const now = new Date();
+  const monthFlowers = ['🌾','🌹','🌱','🌸','🌺','🌻','🌻','🌿','🍂','🍁','🌾','🌲'];
+  const flower = monthFlowers[now.getMonth()];
+  const dateStr = now.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+  const el = document.getElementById('wellness-date-display');
+  const flowerEl = document.getElementById('wellness-date-flower');
+  if (el) el.textContent = dateStr;
+  if (flowerEl) flowerEl.textContent = flower;
 }
 
 function updateWellnessUI() {
@@ -746,43 +818,45 @@ function updateWellnessUI() {
 
   // Metrics Section
   const metricsSection = document.getElementById('wellness-metrics-section');
-  const editMetricsBtn = document.getElementById('btn-edit-metrics');
   if (metricsSection) {
     if (metricsDone) {
       metricsSection.classList.add('daily-checkin-locked');
-      editMetricsBtn?.classList.remove('hidden');
+      document.getElementById('btn-edit-metrics')?.classList.remove('hidden');
     } else {
       metricsSection.classList.remove('daily-checkin-locked');
-      editMetricsBtn?.classList.add('hidden');
+      document.getElementById('btn-edit-metrics')?.classList.add('hidden');
     }
   }
 
   // Journal Section
   const journalSection = document.getElementById('wellness-journal-section');
-  const editJournalBtn = document.getElementById('btn-edit-journal');
   if (journalSection) {
     if (journalDone) {
       journalSection.classList.add('daily-checkin-locked');
-      editJournalBtn?.classList.remove('hidden');
+      document.getElementById('btn-edit-journal')?.classList.remove('hidden');
     } else {
       journalSection.classList.remove('daily-checkin-locked');
-      editJournalBtn?.classList.add('hidden');
+      document.getElementById('btn-edit-journal')?.classList.add('hidden');
     }
   }
 
-  // Ritual Progress
-  const progressFill = document.getElementById('ritual-progress-fill');
-  if (progressFill) {
-    let progress = 0;
-    if (metricsDone) progress += 50;
-    if (journalDone) progress += 50;
-    progressFill.style.width = `${progress}%`;
-  }
+  // Ritual Progress — based on which sections are currently locked (submitted & not editing)
+  updateRitualProgress();
 
   // Update chart average
   updateWellbeingAvg();
   renderMetricsHistory();
   renderPastEntries();
+}
+
+function updateRitualProgress() {
+  const metricsLocked = document.getElementById('wellness-metrics-section')?.classList.contains('daily-checkin-locked');
+  const journalLocked = document.getElementById('wellness-journal-section')?.classList.contains('daily-checkin-locked');
+  const pct = (metricsLocked ? 50 : 0) + (journalLocked ? 50 : 0);
+  const fill = document.getElementById('ritual-progress-fill');
+  const label = document.getElementById('ritual-progress-pct');
+  if (fill) fill.style.width = `${pct}%`;
+  if (label) label.textContent = `${pct}%`;
 }
 
 function updateWellbeingAvg() {
@@ -823,63 +897,50 @@ function renderPastEntries() {
   const container = document.getElementById('past-entries-list');
   if (!container) return;
 
-  const entries = store.state.journal.slice(0, 15);
+  const entries = store.state.journal.slice(0, 20);
 
   if (entries.length === 0) {
-    container.innerHTML = '<p class="empty-msg">No journal entries yet. Start writing!</p>';
+    container.innerHTML = '<p class="empty-msg vine-empty">No journal entries yet. Start writing!</p>';
     return;
   }
 
-  container.innerHTML = entries.map((entry, idx) => {
+  // Build a lookup map: dateString → glasses
+  const waterByDate = {};
+  (store.state.water.history || []).forEach(h => { waterByDate[h.date] = h.glasses || 0; });
+  waterByDate[new Date().toDateString()] = store.state.water.today || 0;
+
+  const nodeEmojis = ['🌸', '🌺', '🌼', '🌻', '🌹', '🌷', '🍀', '🌸', '🌺', '🌼'];
+
+  container.innerHTML = entries.map((entry, i) => {
     const d = new Date(entry.timestamp);
-    const dateStr = d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+    const dateStr = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+    const entryDate = d.toDateString();
     const hasFast = entry.fastSeconds > 0;
-    const fastHours = (entry.fastSeconds / 3600).toFixed(1);
+    const fastHours = hasFast ? (entry.fastSeconds / 3600).toFixed(1) : null;
+    const glasses = waterByDate[entryDate] ?? 0;
+    const emoji = nodeEmojis[i % nodeEmojis.length];
+
+    const fastBadge = fastHours ? `<span class="jlog-badge jlog-badge-fast">🌱 ${fastHours}h fast</span>` : '';
+    const waterBadge = `<span class="jlog-badge jlog-badge-water">💧 ${glasses} glass${glasses !== 1 ? 'es' : ''}</span>`;
 
     return `
-      <div class="journal-item">
-        <div class="journal-header" style="display:flex; justify-content: space-between; align-items: center; width: 100%;">
-          <div style="display:flex; align-items:center; gap:10px;">
-            <strong style="color:var(--accent);">${dateStr}</strong>
-            <span style="font-size: 0.8rem; opacity: 0.6; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;">${entry.text}</span>
-          </div>
-          <div style="display:flex; gap:8px;">
-            ${entry.metrics ? '<span>😊</span>' : ''}
-            ${hasFast ? '<span>🌱</span>' : ''}
-            <span class="expand-icon" style="font-size:0.7rem; opacity:0.4;">▼</span>
-          </div>
-        </div>
-        <div class="journal-details hidden" style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.05);">
-          <div class="journal-meta-row" style="display:flex; gap:15px; margin-bottom:12px;">
-            ${entry.metrics ? `
-              <div class="journal-meta-item">😊 ${entry.metrics.mood}</div>
-              <div class="journal-meta-item">😴 ${entry.metrics.sleep}</div>
-              <div class="journal-meta-item">⚡ ${entry.metrics.energy}</div>
-            ` : ''}
-            ${hasFast ? `<div class="journal-meta-item">⏱️ ${fastHours}h fast</div>` : ''}
-          </div>
-          <p style="white-space: pre-wrap; line-height:1.5;">${escapeHtml(entry.text)}</p>
+      <div class="vine-entry" style="--vine-i:${i}">
+        <div class="vine-dot">${emoji}</div>
+        <div class="vine-entry-content">
+          <div class="jlog-date">${dateStr}</div>
+          <div class="jlog-badges">${fastBadge}${waterBadge}</div>
+          <p class="jlog-text">${escapeHtml(entry.text)}</p>
         </div>
       </div>
     `;
   }).join('');
-
-  // Add event listeners for expansion
-  container.querySelectorAll('.journal-item').forEach(item => {
-    item.addEventListener('click', () => {
-      const details = item.querySelector('.journal-details');
-      const icon = item.querySelector('.expand-icon');
-      details.classList.toggle('hidden');
-      icon.textContent = details.classList.contains('hidden') ? '▼' : '▲';
-    });
-  });
 }
 
 function renderMetricsHistory() {
   const container = document.getElementById('metrics-history-list');
   if (!container) return;
 
-  const metricsArr = store.state.metrics.slice(-14).reverse();
+  const metricsArr = store.state.metrics.slice(-30).reverse();
   if (metricsArr.length === 0) {
     container.innerHTML = '<p class="empty-msg">No metrics logged yet.</p>';
     return;
@@ -910,68 +971,172 @@ function generateCoachingInsights() {
   const output = document.getElementById('ai-coach-output');
   if (!output) return;
 
-  const entries = store.state.journal.slice(-7);
-  const metrics = store.state.metrics.slice(-7);
-  const fasts = store.state.fasts.filter(f => f.completed).slice(-7);
+  const name = store.state.profile?.name || 'there';
+  const allFasts = store.state.fasts;
+  const completed = allFasts.filter(f => f.completed);
+  const recentMetrics = store.state.metrics.slice(-7);
+  const allJournal = store.state.journal;
+  const recentJournal = allJournal.slice(0, 5);
+  const streak = store.state.streakCount || 0;
+  const weights = store.state.weight;
 
-  if (entries.length === 0 && metrics.length === 0 && fasts.length === 0) {
-    output.innerHTML = '<p class="empty-msg">📝 Start tracking to unlock insights!</p>';
+  const hasAnyData = completed.length > 0 || recentMetrics.length > 0 || allJournal.length > 0;
+  if (!hasAnyData) {
+    output.innerHTML = `<p class="empty-msg">🌱 Hey ${name}! Log your first fast, metrics, or journal entry and I'll start personalizing your insights.</p>`;
     return;
   }
 
   const pool = [];
 
-  // Fasting Insights
-  if (fasts.length > 0) {
-    const streak = store.state.streakCount;
-    if (streak >= 3) {
-      pool.push({ title: '🔥 Consistency Hero', text: `You're on a ${streak}-day streak! Your body is likely shifting into metabolic flexibility mode.` });
+  // ---- Fasting patterns ----
+  if (completed.length > 0) {
+    const avgMs = completed.reduce((s, f) => s + (f.actualMs || 0), 0) / completed.length;
+    const avgH = Math.round(avgMs / 3600000 * 10) / 10;
+
+    if (streak >= 7) {
+      pool.push({ title: '🌺 7-Day Bloomer', text: `${name}, you've fasted ${streak} days in a row! At this level your body is deep into metabolic flexibility. You're building something lasting.` });
+    } else if (streak >= 3) {
+      pool.push({ title: '🌿 Growing Streak', text: `${streak} days in a row, ${name}. Consistency is your superpower right now — keep nurturing it like a seedling that needs daily sunlight.` });
+    } else if (streak === 1) {
+      pool.push({ title: '🌱 First Step', text: `You started today, ${name}. Every garden begins with a single seed. Show up again tomorrow and a streak begins.` });
+    }
+
+    if (completed.length >= 10) {
+      pool.push({ title: '🌳 Root System Strong', text: `${completed.length} completed fasts — you're no longer experimenting, you're practicing. Your average is ${avgH}h, a solid foundation for deep metabolic health.` });
+    } else if (completed.length >= 3) {
+      pool.push({ title: '🌿 Pattern Forming', text: `${completed.length} fasts completed with an average of ${avgH}h. The habit loop is taking shape — your body is learning to expect and adapt to fasting windows.` });
+    }
+
+    // Completion rate
+    const rate = Math.round((completed.length / (allFasts.length || 1)) * 100);
+    if (allFasts.length >= 3 && rate < 60) {
+      pool.push({ title: '🌻 Early Endings', text: `About ${100 - rate}% of your fasts end early. That's okay — observe what time of day cravings hit hardest and try shifting your eating window to protect those hours.` });
+    } else if (allFasts.length >= 3 && rate >= 85) {
+      pool.push({ title: `🏆 Bloom Rate ${rate}%`, text: `${rate}% of your fasts reach full bloom, ${name}. That level of follow-through is rare. Your garden reflects it.` });
+    }
+
+    // Most used plan
+    const planCounts = {};
+    allFasts.forEach(f => { if (f.planName) planCounts[f.planName] = (planCounts[f.planName] || 0) + 1; });
+    const favPlan = Object.entries(planCounts).sort((a, b) => b[1] - a[1])[0];
+    if (favPlan && favPlan[1] >= 3) {
+      pool.push({ title: `🗓️ Your Rhythm: ${favPlan[0]}`, text: `You've leaned on ${favPlan[0]} ${favPlan[1]} times. Consistency with a single protocol is more effective than switching — your body thrives on predictable fasting windows.` });
     }
   }
 
-  // Journal-based insights (Keyword analysis)
-  const recentJournal = store.state.journal[0]?.text?.toLowerCase() || "";
-  if (recentJournal.includes("tired") || recentJournal.includes("sleep")) {
-    pool.push({ title: '😴 Rest Prioritization', text: "Your recent entry mentions fatigue. Ensure you're hitting your sleep goals; deep sleep supports autophagy." });
-  }
-  if (recentJournal.includes("hungry") || recentJournal.includes("craving")) {
-    pool.push({ title: '🌊 Hydration Check', text: "Cravings detected. Often the body confuses thirst for hunger. Try a sparkling mineral water." });
-  }
-  if (recentJournal.includes("victory") || recentJournal.includes("happy") || recentJournal.includes("great")) {
-    pool.push({ title: '🌟 Positive Momentum', text: "You're celebrating victories! This mindset strengthens your discipline. Keep growing!" });
+  // ---- Wellness metrics ----
+  if (recentMetrics.length >= 3) {
+    const avg = key => Math.round(recentMetrics.reduce((s, m) => s + (m[key] || 0), 0) / recentMetrics.length * 10) / 10;
+    const avgMood = avg('mood'), avgSleep = avg('sleep'), avgEnergy = avg('energy');
+
+    // Trend: compare first half vs second half
+    const half = Math.floor(recentMetrics.length / 2);
+    const old = recentMetrics.slice(0, half);
+    const fresh = recentMetrics.slice(half);
+    const trendAvg = (arr, key) => arr.length ? arr.reduce((s, m) => s + (m[key] || 0), 0) / arr.length : 0;
+
+    const moodTrend = trendAvg(fresh, 'mood') - trendAvg(old, 'mood');
+    const energyTrend = trendAvg(fresh, 'energy') - trendAvg(old, 'energy');
+    const sleepTrend = trendAvg(fresh, 'sleep') - trendAvg(old, 'sleep');
+
+    if (moodTrend >= 1) {
+      pool.push({ title: '😊 Mood Rising', text: `Your mood scores have been climbing, ${name}. Fasting often reduces inflammation which directly impacts emotional regulation. You're feeling the effect.` });
+    } else if (moodTrend <= -1.5) {
+      pool.push({ title: '💙 Mood Check-in', text: `Your mood has dipped recently. Make sure you're eating nutrient-dense meals in your window — micronutrient deficiencies can mask as low mood.` });
+    }
+
+    if (energyTrend >= 1) {
+      pool.push({ title: '⚡ Energy Blooming', text: `Energy trending up over your last ${recentMetrics.length} check-ins (avg ${avgEnergy}/10). Your mitochondria are adapting — this is fat adaptation in action.` });
+    } else if (avgEnergy <= 4) {
+      pool.push({ title: '⚡ Low Energy Signal', text: `Average energy at ${avgEnergy}/10, ${name}. Try extending your eating window slightly or adding more protein and healthy fats during your window.` });
+    }
+
+    if (avgSleep <= 5) {
+      pool.push({ title: '🌙 Sleep is the Root', text: `Sleep averaging ${avgSleep}/10. Deep sleep is when autophagy peaks and growth hormone surges — your fasting benefits are amplified by quality rest.` });
+    } else if (sleepTrend >= 1) {
+      pool.push({ title: '🌙 Sleep Improving', text: `Sleep quality trending upward! Many people find fasting improves sleep by stabilizing blood sugar overnight. You may be experiencing this firsthand.` });
+    }
+
+    // Best and worst metric
+    const pairs = [['mood', avgMood], ['sleep', avgSleep], ['energy', avgEnergy]];
+    pairs.sort((a, b) => b[1] - a[1]);
+    if (pairs[0][1] >= 7) {
+      const labels = { mood: 'mood 😊', sleep: 'sleep 🌙', energy: 'energy ⚡' };
+      pool.push({ title: `✨ Strong ${pairs[0][0].charAt(0).toUpperCase() + pairs[0][0].slice(1)}`, text: `Your ${labels[pairs[0][0]]} is your brightest metric at ${pairs[0][1]}/10. Protect what's driving it — note the habits on those high-${pairs[0][0]} days.` });
+    }
+  } else if (recentMetrics.length === 0 && completed.length >= 2) {
+    pool.push({ title: '📊 Track Your Bloom', text: `${name}, you've completed fasts but haven't logged wellness metrics yet. Mood, sleep, and energy data will help me give you much sharper insights.` });
   }
 
-  // Fasting Insights
-  const completed = store.state.fasts.filter(f => f.completed);
-  if (completed.length > 5) {
-    pool.push({ title: '🔥 Fat Adapted', text: "With over 5 fasts completed, your metabolic flexibility is improving. You're becoming a more efficient fat burner." });
+  // ---- Journal patterns ----
+  const combinedJournal = recentJournal.map(j => j.text?.toLowerCase() || '').join(' ');
+  if (combinedJournal) {
+    if (combinedJournal.match(/tired|exhausted|fatigue|drained/)) {
+      pool.push({ title: '😴 Fatigue Pattern', text: `Your journal mentions fatigue more than once. Consider whether your eating window provides enough calories and iron-rich foods — fatigue is the #1 sign of under-fueling.` });
+    }
+    if (combinedJournal.match(/hungry|craving|starving|weak/)) {
+      pool.push({ title: '💧 Hunger vs. Thirst', text: `Cravings show up in your recent entries. Your brain can't distinguish hunger from thirst — try 500ml of water when a craving hits. It works more often than you'd expect.` });
+    }
+    if (combinedJournal.match(/great|amazing|strong|proud|accomplished|won|best/)) {
+      pool.push({ title: '🌟 Victory Mindset', text: `Your journal is full of wins, ${name}. Documenting victories isn't just motivating — it rewires how your brain perceives the challenge. Keep writing them down.` });
+    }
+    if (combinedJournal.match(/stress|anxious|overwhelm|hard|difficult/)) {
+      pool.push({ title: '🌿 Stress & Fasting', text: `Your entries mention stress. High cortisol can make fasting feel harder and slow fat adaptation. Even 5 minutes of breathing before your window opens can help.` });
+    }
+    if (combinedJournal.match(/coffee|caffeine|tea/)) {
+      pool.push({ title: '☕ Caffeine Timing', text: `Coffee and tea appear in your journal. Black coffee doesn't break a fast and can even boost autophagy — just avoid it within 6 hours of sleep to protect your sleep quality.` });
+    }
   }
 
-  // Variety - pick a random "Did you know?" if pool is small
+  // ---- Hydration ----
+  const waterHistory = store.state.water.history || [];
+  if (waterHistory.length >= 3) {
+    const avgGlasses = waterHistory.slice(-7).reduce((s, h) => s + (h.glasses || 0), 0) / Math.min(waterHistory.length, 7);
+    if (avgGlasses < 4) {
+      pool.push({ title: '💧 Hydration Gap', text: `Your average hydration is under 4 glasses per fasting window, ${name}. Dehydration mimics hunger, slows autophagy, and tanks energy. Aim for 8 glasses.` });
+    } else if (avgGlasses >= 7) {
+      pool.push({ title: '💧 Hydration Champion', text: `Averaging ${Math.round(avgGlasses)} glasses per fast — your cells are thanking you. Proper hydration amplifies every fasting benefit from cognitive clarity to fat oxidation.` });
+    }
+  }
+
+  // ---- Weight trend ----
+  if (weights.length >= 5) {
+    const recent5 = weights.slice(-5);
+    const first = recent5[0].value, last = recent5[recent5.length - 1].value;
+    const diff = Math.round((last - first) * 10) / 10;
+    if (diff < -1) {
+      pool.push({ title: `⚖️ ${Math.abs(diff)} lbs Down`, text: `You've dropped ${Math.abs(diff)} lbs over your last few weigh-ins, ${name}. Steady, gradual loss is the most sustainable — your body is adapting, not just shrinking.` });
+    } else if (diff > 1) {
+      pool.push({ title: '⚖️ Weight Check', text: `The scale has moved up slightly. This could be muscle gain, water retention, or eating window timing. Look at sleep and stress scores — they're often the real driver.` });
+    } else {
+      pool.push({ title: '⚖️ Holding Steady', text: `Your weight has been stable. If loss is your goal, try tightening your eating window by 1 hour or cutting processed foods — small changes compound quickly with fasting.` });
+    }
+  }
+
+  // ---- Trivia fallback (unique, rotate based on total fasts) ----
   const trivia = [
-    { title: '💡 Did you know?', text: "Autophagy (cellular cleanup) typically peaks between 24-48 hours of fasting." },
-    { title: '🧬 Genetic Health', text: "Fasting triggers SIRT1 genes, which are associated with longevity and DNA repair." },
-    { title: '🧠 Brain Fuel', text: "BDNF (brain-derived neurotrophic factor) increases during fasts, supporting new neuron growth." }
+    { title: '🌸 Autophagy Window', text: "Cellular cleanup (autophagy) typically activates around 12-16h and peaks between 24-48h. Every fast you complete nudges that process further." },
+    { title: '🧬 Longevity Signal', text: "Fasting activates SIRT1 genes linked to longevity and DNA repair. Think of each fast as sending a renewal signal to your cells." },
+    { title: '🧠 Brain Bloom', text: "BDNF — brain-derived neurotrophic factor — rises during fasting. It supports new neuron growth and is associated with sharper focus and better mood." },
+    { title: '🌿 Gut Rest', text: "During a fast your gut microbiome shifts. Beneficial bacteria thrive while harmful strains are starved — fasting is one of the most powerful gut health tools available." },
+    { title: '🔥 Fat as Fuel', text: "Once glycogen stores deplete (around 12-16h), your body switches to burning fat for fuel. This metabolic switch is the core of fasting's body composition benefits." },
   ];
 
-  const finalInsights = [];
-  // Ensure variety: prioritize unique pool items
+  // Shuffle trivia so it doesn't always show the same one
+  const triviaIndex = (completed.length + new Date().getDay()) % trivia.length;
+
   const uniquePool = [...new Map(pool.map(item => [item.title, item])).values()];
-  
+  const finalInsights = uniquePool.slice(0, 3);
   while (finalInsights.length < 3) {
-    if (uniquePool.length > 0) {
-      finalInsights.push(uniquePool.shift());
-    } else {
-      const item = trivia[Math.floor(Math.random() * trivia.length)];
-      if (!finalInsights.find(ins => ins.title === item.title)) finalInsights.push(item);
-      else break;
-    }
+    const t = trivia[(triviaIndex + finalInsights.length) % trivia.length];
+    if (!finalInsights.find(i => i.title === t.title)) finalInsights.push(t);
+    else break;
   }
 
   output.innerHTML = finalInsights.map(insight => `
-    <div class="coach-insight" style="background:rgba(255,255,255,0.03); padding:15px; border-radius:12px; margin-bottom:10px; border-left: 3px solid var(--accent);">
-      <h4 style="margin:0 0 5px 0; color:var(--accent);">${insight.title}</h4>
-      <p style="margin:0; font-size:0.9rem; line-height:1.4;">${insight.text}</p>
+    <div class="coach-insight">
+      <h4>${insight.title}</h4>
+      <p>${insight.text}</p>
     </div>
   `).join('');
 }
@@ -988,40 +1153,9 @@ function bindMetricSliders() {
   });
 }
 
-// ---- Garden Tools ----
-function bindGardenTools() {
-  document.querySelectorAll('.toolbar-btn[data-tool]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.toolbar-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-
-      const tool = btn.dataset.tool;
-      if (gardenGame) gardenGame.setTool(tool);
-
-      // Toggle decor panel
-      const decorPanel = document.getElementById('decor-panel');
-      if (tool === 'decor') {
-        decorPanel?.classList.remove('hidden');
-      } else {
-        decorPanel?.classList.add('hidden');
-      }
-    });
-  });
-}
-
 function updateGardenStats() {
   const plantCount = document.getElementById('garden-plant-count');
-  const tierLabel = document.getElementById('garden-tier-label');
   if (plantCount) plantCount.textContent = store.state.garden.plants.length;
-  if (tierLabel && gardenGame) tierLabel.textContent = gardenGame.getTierLabel();
-}
-
-function updateInventoryBadges() {
-  if (!store.state.inventory) store.state.inventory = { water: 0, fertilizer: 0 };
-  const waterBadge = document.getElementById('badge-water');
-  const fertBadge = document.getElementById('badge-fertilizer');
-  if (waterBadge) waterBadge.textContent = store.state.inventory.water;
-  if (fertBadge) fertBadge.textContent = store.state.inventory.fertilizer;
 }
 
 function initDecorPanel() {
@@ -1042,11 +1176,8 @@ function initDecorPanel() {
 
     if (isUnlocked) {
       item.addEventListener('click', () => {
-        if (gardenGame) {
-          gardenGame.placeDecoration(decor.type);
-          showToast(`${decor.emoji} ${decor.label} placed in your garden!`);
-          updateGardenStats();
-        }
+        showToast(`${decor.emoji} ${decor.label} placed in your garden!`);
+        updateGardenStats();
       });
     }
 
@@ -1087,11 +1218,7 @@ function bindTestPlants() {
 
     showToast(`🧪 Added ${speciesSample.length} test plants to your garden!`);
 
-    // Refresh garden
-    if (gardenGame) {
-      gardenGame.refreshPlants();
-      updateGardenStats();
-    }
+    updateGardenStats();
 
     // Refresh analytics
     if (analytics) analytics.refresh();

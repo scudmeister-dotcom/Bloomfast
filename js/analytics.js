@@ -14,23 +14,27 @@ export class AnalyticsDashboard {
   constructor(store) {
     this.store = store;
     this.charts = {};
+    this.weightUnit = 'lbs';
+  }
+
+  setWeightUnit(unit) {
+    this.weightUnit = unit;
+    this.updateWeightChart();
   }
 
   init() {
-    this.createStreakChart();
     this.createWeightChart();
     this.createWellbeingChart();
-    this.renderWeeklyStreak();
     this.updateStats();
+    this.renderFastLog();
     this.bindEvents();
   }
 
   refresh() {
-    this.updateStreakChart();
     this.updateWeightChart();
     this.updateWellbeingChart();
-    this.renderWeeklyStreak();
     this.updateStats();
+    this.renderFastLog();
   }
 
   bindEvents() {
@@ -57,6 +61,55 @@ export class AnalyticsDashboard {
     this.charts = {};
   }
 
+  // ---- Fast History Log ----
+
+  renderFastLog() {
+    const container = document.getElementById('fast-log-list');
+    if (!container) return;
+
+    const fasts = [...this.store.state.fasts].reverse(); // newest first
+
+    if (fasts.length === 0) {
+      container.innerHTML = '<div class="fast-log-empty">No fasts recorded yet. Plant your first seed!</div>';
+      return;
+    }
+
+    const fmt = ms => {
+      const h = Math.floor(ms / 3600000);
+      const m = Math.floor((ms % 3600000) / 60000);
+      return m > 0 ? `${h}h ${m}m` : `${h}h`;
+    };
+
+    const header = `
+      <div class="fast-log-row header">
+        <span class="fast-log-date">Date</span>
+        <span class="fast-log-plan">Plan</span>
+        <span class="fast-log-duration">Duration / Goal</span>
+        <span class="fast-log-plant">Plant</span>
+        <span class="fast-log-status">Status</span>
+      </div>`;
+
+    const rows = fasts.map(f => {
+      const date = f.endTime ? new Date(f.endTime).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—';
+      const plan = f.planName || '—';
+      const actual = fmt(f.actualMs || 0);
+      const goal   = fmt(f.goalMs   || 0);
+      const plant  = f.success && f.plantType ? `${f.plantType.emoji || ''} ${f.plantType.name}` : '—';
+      const statusClass = f.success ? 'complete' : 'early';
+      const statusLabel = f.success ? '✓ Complete' : 'Ended early';
+      return `
+        <div class="fast-log-row">
+          <span class="fast-log-date">${date}</span>
+          <span class="fast-log-plan">${plan}</span>
+          <span class="fast-log-duration">${actual} / ${goal}</span>
+          <span class="fast-log-plant">${plant}</span>
+          <span class="fast-log-status ${statusClass}">${statusLabel}</span>
+        </div>`;
+    }).join('');
+
+    container.innerHTML = header + rows;
+  }
+
   // ---- Stats Summary ----
 
   updateStats() {
@@ -80,11 +133,22 @@ export class AnalyticsDashboard {
       if (completionEl) completionEl.textContent = '0%';
     }
 
-    // Today's Focus
-    const todayHrsEl = document.getElementById('analytics-today-hours');
-    const todayWaterEl = document.getElementById('analytics-today-water');
-    if (todayHrsEl) todayHrsEl.textContent = this.store.getTodayHours() + 'h';
-    if (todayWaterEl) todayWaterEl.textContent = this.store.getTodayWater() + ' glasses';
+    // Weekly Focus
+    const weekHrsEl = document.getElementById('analytics-today-hours');
+    const weekWaterEl = document.getElementById('analytics-today-water');
+    if (weekHrsEl) {
+      const weeklyHours = this.store.getWeeklyHours();
+      const totalWeekHours = Object.values(weeklyHours).reduce((a, b) => a + b, 0);
+      weekHrsEl.textContent = Math.round(totalWeekHours * 10) / 10 + 'h';
+    }
+    if (weekWaterEl) {
+      const startOfWeek = this.store.getStartOfCurrentWeek();
+      const historyGlasses = (this.store.state.water.history || [])
+        .filter(h => new Date(h.date) >= startOfWeek)
+        .reduce((sum, h) => sum + (h.glasses || 0), 0);
+      const totalGlasses = historyGlasses + (this.store.state.water.today || 0);
+      weekWaterEl.textContent = totalGlasses + ' glasses';
+    }
   }
 
   // ---- Weekly Streak (replaces heatmap) ----
@@ -239,17 +303,19 @@ export class AnalyticsDashboard {
     const data = this.getWeightData();
     this.charts.weight.data.labels = data.labels;
     this.charts.weight.data.datasets[0].data = data.values;
+    this.charts.weight.data.datasets[0].label = `Weight (${this.weightUnit})`;
     this.charts.weight.update();
   }
 
   getWeightData() {
-    const weights = this.store.state.weight.slice(-7);
+    const weights = this.store.state.weight.slice(-14);
+    const convert = v => this.weightUnit === 'kg' ? Math.round(v / 2.20462 * 10) / 10 : v;
     return {
       labels: weights.map(w => {
         const d = new Date(w.timestamp || Date.now());
         return `${d.getMonth() + 1}/${d.getDate()}`;
       }),
-      values: weights.map(w => w.value)
+      values: weights.map(w => convert(w.value))
     };
   }
 

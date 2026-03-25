@@ -99,17 +99,15 @@ class Store {
       }
     }
 
-    // Daily reset for water
+    // Daily reset for water — always log previous day (even 0 glasses)
     const today = new Date().toDateString();
     if (this.state.water.date !== today) {
-      if (this.state.water.today > 0) {
-        if (!this.state.water.history) this.state.water.history = [];
-        this.state.water.history.push({
-          date: this.state.water.date,
-          glasses: this.state.water.today,
-          flOz: this.state.water.today * 8
-        });
-      }
+      if (!this.state.water.history) this.state.water.history = [];
+      this.state.water.history.push({
+        date: this.state.water.date,
+        glasses: this.state.water.today,
+        flOz: this.state.water.today * 8
+      });
       this.state.water.today = 0;
       this.state.water.date = today;
       this.save();
@@ -206,16 +204,18 @@ class Store {
     let plant = null;
 
     if (success) {
-      plant = {
-        id: Date.now().toString(36),
-        type: fast.plantType,
-        x: 100 + Math.random() * 600,
-        y: 100 + Math.random() * 400,
-        completedAt: fast.endTime,
-        rarity: fast.plantType.rarity || 'common'
-      };
-      this.state.garden.plants.push(plant);
       this.updateStreak();
+      if (fast.plantType) {
+        plant = {
+          id: Date.now().toString(36),
+          type: fast.plantType,
+          x: 100 + Math.random() * 600,
+          y: 100 + Math.random() * 400,
+          completedAt: fast.endTime,
+          rarity: fast.plantType.rarity || 'common'
+        };
+        this.state.garden.plants.push(plant);
+      }
     }
     
     this.state.activeFast = null;

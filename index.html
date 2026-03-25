@@ -33,14 +33,8 @@
         </li>
         <li>
           <button class="nav-btn" data-tab="analytics" id="nav-analytics">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
-            <span>Analytics</span>
-          </button>
-        </li>
-        <li>
-          <button class="nav-btn" data-tab="habits" id="nav-habits">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
-            <span>Habits</span>
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 6v6l4 2"/><path d="M16 2l4 4-4 4"/></svg>
+            <span>Bloom Log</span>
           </button>
         </li>
         <li>
@@ -52,13 +46,27 @@
 
       </ul>
       <div class="sidebar-palette">
-        <span class="palette-label">Theme</span>
-        <div class="palette-swatches">
-          <button class="palette-swatch active" data-theme="forest" title="Forest" style="background: #4caf50;"></button>
-          <button class="palette-swatch" data-theme="ocean" title="Ocean" style="background: #0ea5e9;"></button>
-          <button class="palette-swatch" data-theme="rose" title="Rose" style="background: #ec4899;"></button>
-          <button class="palette-swatch" data-theme="amethyst" title="Amethyst" style="background: #a855f7;"></button>
-          <button class="palette-swatch" data-theme="ember" title="Ember" style="background: #f59e0b;"></button>
+        <button class="palette-toggle nav-btn" id="palette-toggle">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="13.5" cy="6.5" r="1.5"/><circle cx="17.5" cy="10.5" r="1.5"/><circle cx="8.5" cy="7.5" r="1.5"/><circle cx="6.5" cy="12.5" r="1.5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>
+          <span>Theme</span>
+          <svg class="palette-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="palette-swatches" id="palette-swatches">
+          <button class="palette-swatch active" data-theme="forest"   title="Forest"   style="background:#4caf50;"></button>
+          <button class="palette-swatch"        data-theme="ocean"    title="Ocean"    style="background:#0ea5e9;"></button>
+          <button class="palette-swatch"        data-theme="rose"     title="Rose"     style="background:#ec4899;"></button>
+          <button class="palette-swatch"        data-theme="amethyst" title="Amethyst" style="background:#a855f7;"></button>
+          <button class="palette-swatch"        data-theme="ember"    title="Ember"    style="background:#f59e0b;"></button>
+          <button class="palette-swatch"        data-theme="midnight" title="Midnight" style="background:#4f8ef7;"></button>
+          <button class="palette-swatch"        data-theme="sakura"   title="Sakura"   style="background:#f9a8d4;"></button>
+          <button class="palette-swatch"        data-theme="slate"    title="Slate"    style="background:#64748b;"></button>
+          <button class="palette-swatch"        data-theme="volcano"  title="Volcano"  style="background:#ea580c;"></button>
+          <button class="palette-swatch"        data-theme="arctic"   title="Arctic"   style="background:#22d3ee;"></button>
+          <button class="palette-swatch"        data-theme="sage"     title="Sage"     style="background:#6b9e60;"></button>
+          <button class="palette-swatch"        data-theme="crimson"  title="Crimson"  style="background:#dc2626;"></button>
+          <button class="palette-swatch"        data-theme="citrus"   title="Citrus"   style="background:#84cc16;"></button>
+          <button class="palette-swatch"        data-theme="copper"   title="Copper"   style="background:#b45309;"></button>
+          <button class="palette-swatch"        data-theme="indigo"   title="Indigo"   style="background:#6366f1;"></button>
         </div>
       </div>
       <div class="sidebar-footer">
@@ -78,9 +86,7 @@
         <span class="logo-icon">🌸</span>
         <span>Bloomfast</span>
       </div>
-      <div class="mobile-water-btn-wrap">
-        <button id="mobile-water-btn" class="water-btn-small" title="Log Water">💧</button>
-      </div>
+      <div></div>
     </header>
 
     <!-- Main Content Area -->
@@ -99,16 +105,76 @@
             ></svg>
             <div id="plant-species-label" class="plant-species-label"></div>
             <div id="growth-stage-label" class="growth-stage-label">Plant a seed to begin</div>
+
+            <!-- Bloom Coach -->
+            <div class="bloom-coach-card glass-card" id="timer-coach-card">
+              <div class="bloom-coach-header">
+                <div class="coach-bloom-icon">🌸</div>
+                <div>
+                  <h3 class="bloom-coach-title">Bloom Coach</h3>
+                  <p class="bloom-coach-subtitle">Your personal growth guide</p>
+                </div>
+              </div>
+              <div id="ai-coach-output" class="ai-coach-output">
+                <p class="empty-msg">🌱 Gathering insights from your garden...</p>
+              </div>
+            </div>
           </div>
 
           <!-- Timer Controls -->
           <div class="timer-controls-area">
-            <div class="timer-display-card glass-card">
-              <div id="timer-display" class="timer-display">00:00:00</div>
-              <div id="timer-subtitle" class="timer-subtitle">Select a fasting plan to start</div>
-              <div id="timer-progress-bar" class="timer-progress-bar">
-                <div id="timer-progress-fill" class="timer-progress-fill" style="width:0%"></div>
+            <div class="timer-card-wrap" id="timer-card-wrap">
+              <!-- Glass card with timer content -->
+              <div class="timer-display-card glass-card">
+                <div id="timer-display" class="timer-display">00:00:00</div>
+                <div id="timer-subtitle" class="timer-subtitle">Select a fasting plan to start</div>
+                <div id="timer-progress-bar" class="timer-progress-bar">
+                  <div id="timer-progress-fill" class="timer-progress-fill" style="width:0%"></div>
+                </div>
               </div>
+              <!-- Vine decoration: grows up both sides of the card as fast progresses -->
+              <svg class="timer-vines-svg" viewBox="0 0 300 220" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <!-- Left vines, appear at 20/40/60/80% progress -->
+                <g id="vine-L1" opacity="0">
+                  <path d="M18,218 C14,200 20,182 12,162" stroke="#4a8c2a" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+                  <ellipse cx="8" cy="152" rx="9" ry="5.5" fill="#3d7a22" transform="rotate(-30,8,152)"/>
+                  <ellipse cx="20" cy="166" rx="8" ry="4.5" fill="#4a8c2a" transform="rotate(20,20,166)"/>
+                </g>
+                <g id="vine-L2" opacity="0">
+                  <path d="M12,162 C6,140 14,118 6,96" stroke="#4a8c2a" stroke-width="2" stroke-linecap="round" fill="none"/>
+                  <ellipse cx="2" cy="106" rx="8" ry="4.5" fill="#3d7a22" transform="rotate(-25,2,106)"/>
+                  <ellipse cx="14" cy="120" rx="7" ry="4" fill="#4a8c2a" transform="rotate(15,14,120)"/>
+                </g>
+                <g id="vine-L3" opacity="0">
+                  <path d="M6,96 C2,74 10,52 4,30" stroke="#558b2f" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+                  <ellipse cx="0" cy="42" rx="7" ry="4" fill="#4a8c2a" transform="rotate(-20,0,42)"/>
+                  <ellipse cx="10" cy="58" rx="6" ry="3.5" fill="#558b2f" transform="rotate(10,10,58)"/>
+                </g>
+                <g id="vine-L4" opacity="0">
+                  <path d="M4,30 C2,14 8,4 14,0" stroke="#66a335" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+                  <circle cx="16" cy="2" r="4" fill="#66a335" opacity="0.85"/>
+                </g>
+                <!-- Right vines (mirrored) -->
+                <g id="vine-R1" opacity="0">
+                  <path d="M282,218 C286,200 280,182 288,162" stroke="#4a8c2a" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+                  <ellipse cx="292" cy="152" rx="9" ry="5.5" fill="#3d7a22" transform="rotate(30,292,152)"/>
+                  <ellipse cx="280" cy="166" rx="8" ry="4.5" fill="#4a8c2a" transform="rotate(-20,280,166)"/>
+                </g>
+                <g id="vine-R2" opacity="0">
+                  <path d="M288,162 C294,140 286,118 294,96" stroke="#4a8c2a" stroke-width="2" stroke-linecap="round" fill="none"/>
+                  <ellipse cx="298" cy="106" rx="8" ry="4.5" fill="#3d7a22" transform="rotate(25,298,106)"/>
+                  <ellipse cx="286" cy="120" rx="7" ry="4" fill="#4a8c2a" transform="rotate(-15,286,120)"/>
+                </g>
+                <g id="vine-R3" opacity="0">
+                  <path d="M294,96 C298,74 290,52 296,30" stroke="#558b2f" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+                  <ellipse cx="300" cy="42" rx="7" ry="4" fill="#4a8c2a" transform="rotate(20,300,42)"/>
+                  <ellipse cx="290" cy="58" rx="6" ry="3.5" fill="#558b2f" transform="rotate(-10,290,58)"/>
+                </g>
+                <g id="vine-R4" opacity="0">
+                  <path d="M296,30 C298,14 292,4 286,0" stroke="#66a335" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+                  <circle cx="284" cy="2" r="4" fill="#66a335" opacity="0.85"/>
+                </g>
+              </svg>
             </div>
 
             <!-- Fasting Plan Selector -->
@@ -147,13 +213,10 @@
               </div>
             </div>
 
-            <!-- Start / Stop Buttons -->
+            <!-- Fast Action Button (changes text based on state) -->
             <div class="timer-actions">
-              <button id="btn-start-fast" class="btn btn-primary btn-glow">
+              <button id="btn-fast-action" class="btn btn-primary btn-glow">
                 <span>🌱</span> Plant a Seed
-              </button>
-              <button id="btn-stop-fast" class="btn btn-primary hidden">
-                <span>🏁</span> Complete Fast
               </button>
             </div>
 
@@ -164,6 +227,7 @@
                 <button id="btn-debug-add-1h" class="btn btn-sm btn-outline">＋1 Hour</button>
                 <button id="btn-debug-sub-1h" class="btn btn-sm btn-outline">－1 Hour</button>
                 <button id="btn-debug-fast-forward" class="btn btn-sm btn-outline" style="border-color: #ff9800; color: #ff9800;">⏩ Fast Forward (99%)</button>
+                <button id="btn-debug-zen" class="btn btn-sm btn-outline" style="border-color: #ffe566; color: #ffe566;">✦ Preview Constellation</button>
               </div>
             </div>
 
@@ -231,15 +295,21 @@
             </div>
 
             <!-- Water Tracker -->
-            <div class="water-tracker glass-card">
+            <!-- Water Tracker -->
+            <div class="water-tracker glass-card hidden" id="water-tracker-card" data-water-style="E">
               <h3 class="section-title">💧 Hydration</h3>
-              <div class="water-display">
-                <div class="water-glasses" id="water-glasses"></div>
-                <div class="water-count">
-                  <span id="water-count-num">0</span> / 8 glasses
-                  <span class="water-oz">(<span id="water-oz-num">0</span> fl oz)</span>
+
+              <!-- Water glasses display -->
+              <div id="wstyle-E">
+                <div class="water-display">
+                  <div class="water-glasses" id="water-glasses"></div>
+                  <div class="water-count">
+                    <span id="water-count-num">0</span> / 8 glasses
+                    <span class="water-oz">(<span id="water-oz-num">0</span> fl oz)</span>
+                  </div>
                 </div>
               </div>
+
               <button id="btn-log-water" class="btn btn-water">
                 <span>💧</span> Log Water (8 fl oz)
               </button>
@@ -298,162 +368,104 @@
         </div>
       </section>
 
-      <!-- ============ ANALYTICS TAB ============ -->
+      <!-- ============ BLOOM LOG TAB ============ -->
       <section id="tab-analytics" class="tab-panel">
         <div class="analytics-page">
           <div class="analytics-header">
-            <h2 class="page-title">📊 Analytics</h2>
+            <div>
+              <h2 class="page-title">🌺 Bloom Log</h2>
+              <p style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 2px;">Your fasting journey through the seasons</p>
+            </div>
             <div class="analytics-actions">
-              <select id="analytics-range" class="select-input">
-                <option value="7">Last 7 days</option>
-                <option value="30" selected>Last 30 days</option>
-                <option value="90">Last 90 days</option>
-                <option value="365">Last year</option>
-              </select>
               <button id="btn-debug-mock-data" class="btn btn-outline" style="border-color: var(--accent); color: var(--accent);" title="Inject 30 days of sample data">🧪 Mock Data</button>
-              <button id="btn-reset-stats" class="btn btn-outline btn-danger-hover" title="Reset all statistics">🔄 Reset Stats</button>
-              <button id="btn-export-data" class="btn btn-outline">📥 Export Data</button>
+              <button id="btn-reset-stats" class="btn btn-outline btn-danger-hover" title="Reset all statistics">🔄 Reset</button>
             </div>
           </div>
 
           <!-- Stats Row -->
           <div class="stats-row">
             <div class="stat-card glass-card">
+              <div class="stat-emoji">🌱</div>
               <div class="stat-value" id="stat-total-fasts">0</div>
-              <div class="stat-label">Total Fasts</div>
+              <div class="stat-label">Seeds Planted</div>
             </div>
             <div class="stat-card glass-card">
+              <div class="stat-emoji">⏱️</div>
               <div class="stat-value" id="stat-avg-hours">0h</div>
               <div class="stat-label">Avg Duration</div>
             </div>
             <div class="stat-card glass-card">
+              <div class="stat-emoji">🌸</div>
               <div class="stat-value" id="stat-completion">0%</div>
-              <div class="stat-label">Completion Rate</div>
+              <div class="stat-label">Bloom Rate</div>
             </div>
-          </div>
-          <!-- Today's Focus (New) -->
-          <div class="focus-card glass-card" style="display:flex; justify-content: space-around; padding: 20px; margin-bottom: var(--space-md); text-align: center;">
-            <div class="focus-item">
-              <span style="font-size:0.75rem; color:var(--text-secondary); text-transform:uppercase; letter-spacing:1.5px; display:block; margin-bottom:5px;">Hours Fasted Today</span>
-              <div id="analytics-today-hours" style="font-size:2rem; font-weight:800; color:var(--accent);">0h</div>
-            </div>
-            <div style="width:1px; background:rgba(255,255,255,0.1); align-self:stretch;"></div>
-            <div class="focus-item">
-              <span style="font-size:0.75rem; color:var(--text-secondary); text-transform:uppercase; letter-spacing:1.5px; display:block; margin-bottom:5px;">Water Intake Today</span>
-              <div id="analytics-today-water" style="font-size:2rem; font-weight:800; color:#4fc3f7;">0 glasses</div>
-            </div>
-          </div>
-          <!-- Weekly Streak Tracker -->
-          <div class="chart-card glass-card weekly-streak-card">
-            <h3>🔥 Weekly Streak</h3>
-            <p class="section-desc">Complete fasts each day this week to fill the streak. Resets every Monday!</p>
-            <div id="weekly-streak-bar" class="weekly-streak-bar"></div>
           </div>
 
-          <!-- Charts Grid -->
-          <div class="charts-grid">
-            <div class="chart-card glass-card">
-              <h3>Fasting History</h3>
-              <canvas id="chart-streaks"></canvas>
+          <!-- Weekly Focus -->
+          <div class="focus-card glass-card">
+            <div class="focus-item">
+              <span class="focus-label">🌿 Hours Fasted This Week</span>
+              <div id="analytics-today-hours" class="focus-value">0h</div>
             </div>
-            <div class="chart-card glass-card">
-              <h3>Weight Trend</h3>
-              <div class="weight-log-area">
-                <div class="weight-input-row" style="flex-wrap: wrap; gap: 8px;">
-                  <input type="date" id="weight-date" class="select-input" style="flex: 1; min-width: 120px;" />
-                  <input type="number" id="weight-input" class="weight-input" placeholder="Weight (lbs)" step="0.1" style="flex: 1; min-width: 100px;" />
-                  <button id="btn-log-weight" class="btn btn-primary btn-sm">Log</button>
-                </div>
-                <canvas id="chart-weight"></canvas>
+            <div class="focus-divider"></div>
+            <div class="focus-item">
+              <span class="focus-label">💧 Water Intake This Week</span>
+              <div id="analytics-today-water" class="focus-value focus-value-water">0 glasses</div>
+            </div>
+          </div>
+
+          <!-- Weight Chart -->
+          <div class="chart-card glass-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-md);">
+              <h3 style="margin: 0;">⚖️ Weight Journey</h3>
+              <div class="weight-unit-toggle">
+                <button class="weight-unit-btn active" id="btn-unit-lbs" data-unit="lbs">lbs</button>
+                <button class="weight-unit-btn" id="btn-unit-kg" data-unit="kg">kg</button>
               </div>
             </div>
+            <div class="weight-log-area">
+              <div class="weight-input-row" style="flex-wrap: wrap; gap: 8px;">
+                <input type="date" id="weight-date" class="select-input" style="flex: 1; min-width: 120px;" />
+                <input type="number" id="weight-input" class="weight-input" placeholder="Weight (lbs)" step="0.1" style="flex: 1; min-width: 100px;" />
+                <button id="btn-log-weight" class="btn btn-primary btn-sm">Log</button>
+              </div>
+              <canvas id="chart-weight"></canvas>
+            </div>
+          </div>
+
+          <!-- Fast History Log -->
+          <div class="chart-card glass-card fast-log-card">
+            <h3>🌿 Garden History</h3>
+            <p class="section-desc">Every fast you've attempted — seeds planted, blooms earned.</p>
+            <div id="fast-log-list" class="fast-log-list"></div>
           </div>
         </div>
       </section>
 
-      <!-- ============ HABITS TAB ============ -->
-      <section id="tab-habits" class="tab-panel">
-        <div class="habits-page">
-          <h2 class="page-title">✅ Habits</h2>
-
-          <!-- Active Habit Toggles -->
-          <div class="habits-section glass-card">
-            <h3>Vice/Habit Toggles</h3>
-            <p class="section-desc">Attach secondary goals to your fasting timer</p>
-            <div class="habit-toggles" id="habit-toggles">
-              <div class="habit-toggle-row" data-habit-id="no-junk-food">
-                <label class="habit-toggle">
-                  <input type="checkbox" data-habit="no-junk-food" />
-                  <span class="toggle-switch"></span>
-                  <span class="habit-label">🍔 No Junk Food</span>
-                </label>
-                <button class="habit-remove-btn" data-remove="no-junk-food" title="Remove habit">✕</button>
-              </div>
-              <div class="habit-toggle-row" data-habit-id="no-scrolling">
-                <label class="habit-toggle">
-                  <input type="checkbox" data-habit="no-scrolling" />
-                  <span class="toggle-switch"></span>
-                  <span class="habit-label">📱 No Heavy Scrolling</span>
-                </label>
-                <button class="habit-remove-btn" data-remove="no-scrolling" title="Remove habit">✕</button>
-              </div>
-              <div class="habit-toggle-row" data-habit-id="no-sugar">
-                <label class="habit-toggle">
-                  <input type="checkbox" data-habit="no-sugar" />
-                  <span class="toggle-switch"></span>
-                  <span class="habit-label">🍬 No Sugar</span>
-                </label>
-                <button class="habit-remove-btn" data-remove="no-sugar" title="Remove habit">✕</button>
-              </div>
-              <div class="habit-toggle-row" data-habit-id="no-caffeine">
-                <label class="habit-toggle">
-                  <input type="checkbox" data-habit="no-caffeine" />
-                  <span class="toggle-switch"></span>
-                  <span class="habit-label">☕ No Caffeine</span>
-                </label>
-                <button class="habit-remove-btn" data-remove="no-caffeine" title="Remove habit">✕</button>
-              </div>
-              <div class="habit-toggle-row" data-habit-id="meditation">
-                <label class="habit-toggle">
-                  <input type="checkbox" data-habit="meditation" />
-                  <span class="toggle-switch"></span>
-                  <span class="habit-label">🧘 Meditate</span>
-                </label>
-                <button class="habit-remove-btn" data-remove="meditation" title="Remove habit">✕</button>
-              </div>
-              <div class="habit-toggle-row" data-habit-id="exercise">
-                <label class="habit-toggle">
-                  <input type="checkbox" data-habit="exercise" />
-                  <span class="toggle-switch"></span>
-                  <span class="habit-label">🏃 Exercise</span>
-                </label>
-                <button class="habit-remove-btn" data-remove="exercise" title="Remove habit">✕</button>
-              </div>
-            </div>
-            <!-- Custom Habit -->
-            <div class="add-habit-row">
-              <input type="text" id="custom-habit-input" class="text-input" placeholder="Add a custom habit..." />
-              <button id="btn-add-habit" class="btn btn-primary btn-sm">Add</button>
-            </div>
-          </div>
-        </div>
-      </section>
 
       <!-- ============ WELLNESS TAB (new) ============ -->
       <section id="tab-wellness" class="tab-panel">
         <div class="wellness-page">
-          <div class="content-header" style="margin-bottom: 20px;">
-            <div>
-              <h2 style="display: flex; align-items: center; gap: 8px;">
-                <span style="font-size: 24px;">💚</span> Daily Wellness Ritual
-              </h2>
-              <p style="color: var(--text-secondary);">Reflect on your body and mind today. Reset every morning!</p>
+          <div class="wellness-top-row">
+            <div class="wellness-date-banner glass-card">
+              <div id="wellness-date-flower" class="wellness-date-flower">🌸</div>
+              <div>
+                <div id="wellness-date-display" class="wellness-date-text">March 25</div>
+                <div class="wellness-date-sub">Today's ritual</div>
+              </div>
             </div>
-            <div id="checkin-overall-progress" style="text-align: right;">
-               <div style="font-size: 0.8rem; font-weight: 700; color: var(--accent); margin-bottom: 4px; text-transform: uppercase;">Ritual Progress</div>
-               <div class="progress-bar-container" style="width: 120px; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; float: right;">
-                 <div id="ritual-progress-fill" style="width: 0%; height: 100%; background: var(--gradient-primary); transition: width 0.5s ease;"></div>
-               </div>
+            <div class="wellness-header-info">
+              <h2>Daily Wellness Ritual</h2>
+              <p style="color: var(--text-secondary);">Reflect on your body and mind. Resets each morning.</p>
+              <div id="checkin-overall-progress" style="margin-top: 8px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                  <div style="font-size: 0.7rem; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 1px;">Ritual Progress</div>
+                  <span id="ritual-progress-pct" style="font-size: 0.8rem; font-weight: 800; color: var(--accent);">0%</span>
+                </div>
+                <div class="progress-bar-container" style="width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden;">
+                  <div id="ritual-progress-fill" style="width: 0%; height: 100%; background: var(--gradient-primary); transition: width 0.4s ease;"></div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -466,25 +478,74 @@
               </div>
               <button id="btn-edit-metrics" class="btn btn-outline btn-edit-checkin hidden">✏️ Edit</button>
             </div>
-            <p class="section-desc">How is your physical body feeling right now?</p>
-            <div class="metric-sliders">
-              <div class="metric-row">
-                <label>😊 Mood</label>
-                <input type="range" id="metric-mood" min="1" max="10" value="5" class="metric-slider" />
-                <span class="metric-val" id="metric-mood-val">5</span>
+            <!-- Shown when saved -->
+            <div class="locked-garden-art" aria-hidden="true">
+              <div class="garden-scatter">
+                <span style="--gr: 12deg; --gx: 8%;  --gy: 18%;">🌿</span>
+                <span style="--gr:-18deg; --gx: 72%; --gy: 8%;" >🌸</span>
+                <span style="--gr:  8deg; --gx: 38%; --gy: 55%;">🌺</span>
+                <span style="--gr:-10deg; --gx: 82%; --gy: 62%;">🌱</span>
+                <span style="--gr: 22deg; --gx: 18%; --gy: 72%;">🌼</span>
+                <span style="--gr:-14deg; --gx: 55%; --gy: 25%;">🍃</span>
+                <span style="--gr:  5deg; --gx: 90%; --gy: 35%;">🌾</span>
+                <span style="--gr:-22deg; --gx: 30%; --gy: 85%;">🌻</span>
               </div>
-              <div class="metric-row">
-                <label>😴 Sleep</label>
-                <input type="range" id="metric-sleep" min="1" max="10" value="5" class="metric-slider" />
-                <span class="metric-val" id="metric-sleep-val">5</span>
-              </div>
-              <div class="metric-row">
-                <label>⚡ Energy</label>
-                <input type="range" id="metric-energy" min="1" max="10" value="5" class="metric-slider" />
-                <span class="metric-val" id="metric-energy-val">5</span>
-              </div>
+              <p class="garden-art-msg">Logged for today ✓</p>
             </div>
-            <button id="btn-log-metrics" class="btn btn-primary" style="width: 100%;">Save Body Metrics</button>
+            <!-- Shown when editing -->
+            <div class="checkin-content">
+              <p class="section-desc">How is your physical body feeling right now?</p>
+              <div class="metric-sliders">
+                <div class="metric-row">
+                  <label>😊 Mood</label>
+                  <input type="range" id="metric-mood" min="1" max="10" value="5" class="metric-slider" />
+                  <span class="metric-val" id="metric-mood-val">5</span>
+                </div>
+                <div class="metric-row">
+                  <label>😴 Sleep</label>
+                  <input type="range" id="metric-sleep" min="1" max="10" value="5" class="metric-slider" />
+                  <span class="metric-val" id="metric-sleep-val">5</span>
+                </div>
+                <div class="metric-row">
+                  <label>⚡ Energy</label>
+                  <input type="range" id="metric-energy" min="1" max="10" value="5" class="metric-slider" />
+                  <span class="metric-val" id="metric-energy-val">5</span>
+                </div>
+              </div>
+              <button id="btn-log-metrics" class="btn btn-primary" style="width: 100%;">Save Body Metrics</button>
+            </div>
+          </div>
+
+          <!-- Mindfulness Journal -->
+          <div id="wellness-journal-section" class="journal-section glass-card daily-checkin-card">
+            <div class="daily-checkin-header">
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <div class="checkin-step-indicator">2</div>
+                <h3>Mindfulness Journal</h3>
+              </div>
+              <button id="btn-edit-journal" class="btn btn-outline btn-edit-checkin hidden">✏️ Edit</button>
+            </div>
+            <!-- Shown when saved -->
+            <div class="locked-garden-art" aria-hidden="true">
+              <div class="garden-scatter">
+                <span style="--gr:-10deg; --gx: 12%; --gy: 15%;">🌱</span>
+                <span style="--gr: 15deg; --gx: 68%; --gy: 12%;">🌺</span>
+                <span style="--gr:-20deg; --gx: 42%; --gy: 50%;">🌸</span>
+                <span style="--gr:  8deg; --gx: 85%; --gy: 58%;">🌿</span>
+                <span style="--gr:-12deg; --gx: 22%; --gy: 78%;">🌼</span>
+                <span style="--gr: 18deg; --gx: 58%; --gy: 30%;">🍃</span>
+                <span style="--gr: -6deg; --gx: 5%;  --gy: 55%;">🌾</span>
+                <span style="--gr: 24deg; --gx: 78%; --gy: 82%;">🌻</span>
+              </div>
+              <p class="garden-art-msg">Logged for today ✓</p>
+            </div>
+            <!-- Shown when editing -->
+            <div class="checkin-content">
+              <p class="section-desc">Capture your thoughts, cravings, or victories for today.</p>
+              <textarea id="journal-entry" class="journal-textarea" placeholder="How are you feeling today? Any cravings? Victories?"></textarea>
+              <button id="btn-save-journal" class="btn btn-primary" style="width: 100%; margin-top: var(--space-md);">Save Journal Entry</button>
+            </div>
+            <span id="journal-saved-msg" class="saved-msg hidden" style="position: absolute; bottom: 20px; right: 20px;">✓ Saved</span>
           </div>
 
           <!-- Well-being Chart -->
@@ -504,41 +565,19 @@
             </div>
           </div>
 
-          <!-- Mindfulness Journal -->
-          <div id="wellness-journal-section" class="journal-section glass-card daily-checkin-card">
-            <div class="daily-checkin-header">
-              <div style="display: flex; align-items: center; gap: 12px;">
-                <div class="checkin-step-indicator">2</div>
-                <h3>Mindfulness Journal</h3>
+          <!-- Past Entries — Vine Timeline -->
+          <div class="vine-journal">
+            <button class="vine-toggle-bar" id="btn-toggle-journal-history" aria-expanded="false">
+              <div class="vine-twig"></div>
+              <div class="vine-toggle-node">
+                <span class="vine-toggle-leaf">🌿</span>
+                <span class="vine-toggle-label">Journal History</span>
               </div>
-              <button id="btn-edit-journal" class="btn btn-outline btn-edit-checkin hidden">✏️ Edit</button>
-            </div>
-            <p class="section-desc">Capture your thoughts, cravings, or victories for today.</p>
-            <textarea id="journal-entry" class="journal-textarea" placeholder="How are you feeling today? Any cravings? Victories?"></textarea>
-            <div class="journal-actions">
-              <button id="btn-save-journal" class="btn btn-primary" style="width: 100%;">Complete Daily Journal</button>
-            </div>
-            <span id="journal-saved-msg" class="saved-msg hidden" style="position: absolute; bottom: 20px; right: 20px;">✓ Saved</span>
-          </div>
-
-          <!-- Past Entries -->
-          <div class="past-entries glass-card">
-            <h3>📖 Journal</h3>
-            <div id="past-entries-list" class="past-entries-list">
-              <p class="empty-msg">No journal entries yet. Start writing!</p>
-            </div>
-          </div>
-
-          <!-- AI Coach -->
-          <div class="ai-coach glass-card">
-            <h3>🤖 Bloom Coach</h3>
-            <p class="section-desc">AI-powered insights from your journal entries and metrics</p>
-            <div id="ai-coach-output" class="ai-coach-output">
-              <p class="empty-msg">Write a few journal entries and log metrics — Bloom Coach will analyze your patterns and offer personalized advice.</p>
-            </div>
-            <button id="btn-get-coaching" class="btn btn-primary">
-              <span>✨</span> Get Coaching Insights
+              <div class="vine-twig"></div>
             </button>
+            <div id="past-entries-list" class="vine-timeline" hidden>
+              <p class="empty-msg vine-empty">No journal entries yet. Start writing!</p>
+            </div>
           </div>
         </div>
       </section>

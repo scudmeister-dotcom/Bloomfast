@@ -238,8 +238,8 @@ class SucculentSVGRenderer {
     this.svg.innerHTML = `
       <defs>
         <radialGradient id="sSoilBg" cx="50%" cy="50%" r="65%">
-          <stop offset="0%"   stop-color="#3d2b1e"/>
-          <stop offset="100%" stop-color="#1a0f08"/>
+          <stop offset="0%"   stop-color="#1e2e18"/>
+          <stop offset="100%" stop-color="#0a1208"/>
         </radialGradient>
         <radialGradient id="sBud" cx="40%" cy="35%" r="55%">
           <stop offset="0%"   stop-color="#e8f5e9"/>
@@ -253,17 +253,17 @@ class SucculentSVGRenderer {
       <!-- Top-down soil fills the entire viewport — no floating horizon -->
       <rect x="0" y="0" width="300" height="420" fill="url(#sSoilBg)"/>
       <!-- Scattered soil particles -->
-      <circle cx="42"  cy="38"  r="3.5" fill="#2a1a0e" opacity="0.50"/>
-      <circle cx="118" cy="22"  r="2.5" fill="#2a1a0e" opacity="0.40"/>
-      <circle cx="240" cy="68"  r="3"   fill="#2a1a0e" opacity="0.45"/>
-      <circle cx="275" cy="140" r="2"   fill="#2a1a0e" opacity="0.35"/>
-      <circle cx="18"  cy="195" r="3"   fill="#2a1a0e" opacity="0.42"/>
-      <circle cx="260" cy="280" r="2.5" fill="#2a1a0e" opacity="0.40"/>
-      <circle cx="55"  cy="340" r="2"   fill="#2a1a0e" opacity="0.35"/>
-      <circle cx="200" cy="390" r="3"   fill="#2a1a0e" opacity="0.45"/>
-      <circle cx="88"  cy="408" r="2.5" fill="#2a1a0e" opacity="0.38"/>
-      <ellipse cx="30"  cy="310" rx="4"   ry="3"   fill="#2a1a0e" opacity="0.38"/>
-      <ellipse cx="272" cy="360" rx="3.5" ry="2.5" fill="#2a1a0e" opacity="0.35"/>
+      <circle cx="42"  cy="38"  r="3.5" fill="#1a2a12" opacity="0.50"/>
+      <circle cx="118" cy="22"  r="2.5" fill="#1a2a12" opacity="0.40"/>
+      <circle cx="240" cy="68"  r="3"   fill="#1a2a12" opacity="0.45"/>
+      <circle cx="275" cy="140" r="2"   fill="#1a2a12" opacity="0.35"/>
+      <circle cx="18"  cy="195" r="3"   fill="#1a2a12" opacity="0.42"/>
+      <circle cx="260" cy="280" r="2.5" fill="#1a2a12" opacity="0.40"/>
+      <circle cx="55"  cy="340" r="2"   fill="#1a2a12" opacity="0.35"/>
+      <circle cx="200" cy="390" r="3"   fill="#1a2a12" opacity="0.45"/>
+      <circle cx="88"  cy="408" r="2.5" fill="#1a2a12" opacity="0.38"/>
+      <ellipse cx="30"  cy="310" rx="4"   ry="3"   fill="#1a2a12" opacity="0.38"/>
+      <ellipse cx="272" cy="360" rx="3.5" ry="2.5" fill="#1a2a12" opacity="0.35"/>
 
       <!-- Seed at rosette center -->
       <g id="ssv-seed">
@@ -463,8 +463,8 @@ class ExoticSVGRenderer {
     this.svg.innerHTML = `
       <defs>
         <radialGradient id="eGnd" cx="50%" cy="40%" r="60%">
-          <stop offset="0%"   stop-color="#3d2b1a"/>
-          <stop offset="100%" stop-color="#1a0f08"/>
+          <stop offset="0%"   stop-color="#243d14"/>
+          <stop offset="100%" stop-color="#0c1a08"/>
         </radialGradient>
         <radialGradient id="eCapGrad" cx="28%" cy="20%" r="65%">
           <stop offset="0%"   stop-color="#ef5350"/>
@@ -492,10 +492,10 @@ class ExoticSVGRenderer {
 
       <!-- Ground -->
       <ellipse cx="150" cy="390" rx="108" ry="24" fill="url(#eGnd)" opacity="0.98"/>
-      <ellipse cx="150" cy="383" rx="78"  ry="14" fill="#2a1a0a"    opacity="0.55"/>
-      <circle cx="110" cy="384" r="3" fill="#1a0f08" opacity="0.35"/>
-      <circle cx="182" cy="387" r="2" fill="#1a0f08" opacity="0.30"/>
-      <circle cx="142" cy="390" r="2" fill="#1a0f08" opacity="0.28"/>
+      <ellipse cx="150" cy="383" rx="78"  ry="14" fill="#162a0e"    opacity="0.55"/>
+      <circle cx="110" cy="384" r="3" fill="#0c1a08" opacity="0.35"/>
+      <circle cx="182" cy="387" r="2" fill="#0c1a08" opacity="0.30"/>
+      <circle cx="142" cy="390" r="2" fill="#0c1a08" opacity="0.28"/>
 
       <!-- Mycelium threads -->
       <g id="esv-mycelium" opacity="0">
@@ -645,6 +645,285 @@ class ExoticSVGRenderer {
 }
 
 /* ══════════════════════════════════════════════════════════
+   CONSTELLATION MAP — Shown when all plants are collected.
+   Every plant you earned is a star. They all glow at once,
+   then hairline connections draw themselves branch by branch,
+   forming YOUR constellation. "COMPLETE" fades in last.
+   Stars twinkle slowly throughout the fast.
+   ══════════════════════════════════════════════════════════ */
+class ConstellationSVGRenderer {
+  constructor(svgEl) {
+    this.svg = svgEl;
+    this._triggered  = new Set();
+    this._twinkleRAF = null;
+    this._build();
+    this.setProgress(0);
+  }
+
+  _build() {
+    this.svg.setAttribute('viewBox', '0 0 300 420');
+
+    // Star positions [x, y, radius, brightness 0-1]
+    // Sunflower shape: center + 8 petal-tip ring + stem + two leaves
+    const CX = 150, CY = 182, R = 76; // flower center and petal-ring radius
+    const D45 = R * Math.SQRT1_2;     // 76 * 0.7071 ≈ 53.7
+
+    this._stars = [
+      // 0 — center disk (brightest)
+      [CX,          CY,          4.2, 1.00],
+
+      // 1–8 — petal tips, clockwise from top
+      [CX,          CY - R,      2.8, 0.90],  // 1  top
+      [CX + D45,    CY - D45,    2.4, 0.80],  // 2  top-right
+      [CX + R,      CY,          2.6, 0.84],  // 3  right
+      [CX + D45,    CY + D45,    2.4, 0.80],  // 4  bottom-right
+      [CX,          CY + R,      2.6, 0.86],  // 5  bottom (stem connects here)
+      [CX - D45,    CY + D45,    2.4, 0.78],  // 6  bottom-left
+      [CX - R,      CY,          2.6, 0.82],  // 7  left
+      [CX - D45,    CY - D45,    2.4, 0.80],  // 8  top-left
+
+      // 9–10 — stem
+      [CX,          CY + R + 58, 1.9, 0.66],  // 9  stem upper
+      [CX,          CY + R + 98, 1.6, 0.58],  // 10 stem lower
+
+      // 11–12 — leaves
+      [CX - 42,     CY + R + 76, 1.8, 0.62],  // 11 left leaf
+      [CX + 44,     CY + R + 80, 1.8, 0.60],  // 12 right leaf
+    ].map(([x, y, r, b]) => [Math.round(x * 10) / 10, Math.round(y * 10) / 10, r, b]);
+
+    // Edge order matters — spokes first, then ring, then stem+leaves
+    this._edges = [
+      // 8 spokes (center → each petal tip), cardinal first then diagonal
+      [0,1],[0,3],[0,5],[0,7],   // edges 0–3:  top / right / bottom / left
+      [0,2],[0,4],[0,6],[0,8],   // edges 4–7:  diagonals
+
+      // 8 ring connections (closes the circular flower head)
+      [1,2],[2,3],[3,4],[4,5],   // edges 8–11: top-right arc
+      [5,6],[6,7],[7,8],[8,1],   // edges 12–15: bottom-left arc
+
+      // Stem drops from bottom petal tip
+      [5,9],[9,10],              // edges 16–17
+
+      // Leaves branch off stem upper
+      [9,11],[9,12],             // edges 18–19
+    ];
+
+    // Deterministic background star field (no Math.random — consistent across redraws)
+    let bgField = '';
+    for (let i = 0; i < 60; i++) {
+      const s  = Math.sin(i * 127.1) * 43758.5453;
+      const s2 = Math.sin(i *  311.7) * 43758.5453;
+      const s3 = Math.sin(i *  591.3) * 43758.5453;
+      const x  = ((s  - Math.floor(s))  * 290 + 5).toFixed(1);
+      const y  = ((s2 - Math.floor(s2)) * 410 + 5).toFixed(1);
+      const r  = ((s3 - Math.floor(s3)) * 1.1 + 0.3).toFixed(1);
+      const o  = ((Math.sin(i * 73.1) * 43758.5453 % 1 + 1) % 1 * 0.28 + 0.08).toFixed(2);
+      bgField += `<circle cx="${x}" cy="${y}" r="${r}" fill="white" opacity="${o}"/>`;
+    }
+
+    // Connection line elements
+    let linesSVG = '';
+    this._edges.forEach(([a, b], i) => {
+      const [x1, y1] = this._stars[a];
+      const [x2, y2] = this._stars[b];
+      linesSVG += `<line id="cn-l${i}" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"
+        stroke="rgba(255,218,80,0.32)" stroke-width="0.8" stroke-linecap="round"
+        opacity="0"/>`;
+    });
+
+    // Main star elements (glow halo + bright core)
+    let starsSVG = '';
+    this._stars.forEach(([x, y, r], i) => {
+      starsSVG += `<g id="cn-s${i}" opacity="0">
+        <circle cx="${x}" cy="${y}" r="${(r * 3).toFixed(1)}" fill="rgba(255,218,80,0.10)"/>
+        <circle cx="${x}" cy="${y}" r="${(r * 1.6).toFixed(1)}" fill="rgba(255,218,80,0.28)"/>
+        <circle cx="${x}" cy="${y}" r="${r.toFixed(1)}" fill="#ffe566"/>
+      </g>`;
+    });
+
+    this.svg.innerHTML = `
+      <defs>
+        <radialGradient id="cn-bg" cx="42%" cy="35%" r="72%">
+          <stop offset="0%"   stop-color="#18182e"/>
+          <stop offset="60%"  stop-color="#0e0e1e"/>
+          <stop offset="100%" stop-color="#060610"/>
+        </radialGradient>
+        <radialGradient id="cn-nebula" cx="62%" cy="55%" r="48%">
+          <stop offset="0%"   stop-color="rgba(80,50,140,0.22)"/>
+          <stop offset="100%" stop-color="rgba(80,50,140,0)"/>
+        </radialGradient>
+        <radialGradient id="cn-nebula2" cx="28%" cy="70%" r="38%">
+          <stop offset="0%"   stop-color="rgba(30,80,120,0.16)"/>
+          <stop offset="100%" stop-color="rgba(30,80,120,0)"/>
+        </radialGradient>
+      </defs>
+
+      <rect width="300" height="420" fill="url(#cn-bg)" rx="18"/>
+      <rect width="300" height="420" fill="url(#cn-nebula)" rx="18"/>
+      <rect width="300" height="420" fill="url(#cn-nebula2)" rx="18"/>
+
+      <g id="cn-field" opacity="0">${bgField}</g>
+      <g id="cn-lines">${linesSVG}</g>
+      ${starsSVG}
+
+      <text id="cn-label" x="150" y="366"
+        text-anchor="middle"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="11" font-weight="300" letter-spacing="5"
+        fill="rgba(255,218,80,0.80)" opacity="0">COMPLETE</text>
+      <text id="cn-sub" x="150" y="384"
+        text-anchor="middle"
+        font-family="system-ui,-apple-system,sans-serif"
+        font-size="8" font-weight="300" letter-spacing="2.5"
+        fill="rgba(255,255,255,0.32)" opacity="0">ALL PLANTS COLLECTED</text>
+    `;
+
+    this._fieldEl  = this.svg.getElementById('cn-field');
+    this._starEls  = this._stars.map((_, i) => this.svg.getElementById(`cn-s${i}`));
+    this._lineEls  = this._edges.map((_, i) => this.svg.getElementById(`cn-l${i}`));
+    this._labelEl  = this.svg.getElementById('cn-label');
+    this._subEl    = this.svg.getElementById('cn-sub');
+
+    // Pre-compute and store line lengths for dashoffset animation
+    this._lineLens = this._edges.map(([a, b]) => {
+      const dx = this._stars[b][0] - this._stars[a][0];
+      const dy = this._stars[b][1] - this._stars[a][1];
+      return Math.sqrt(dx * dx + dy * dy);
+    });
+    this._lineEls.forEach((el, i) => {
+      const len = this._lineLens[i].toFixed(1);
+      el.setAttribute('stroke-dasharray',  len);
+      el.setAttribute('stroke-dashoffset', len);
+    });
+  }
+
+  _ramp(v, a, b) { return Math.min(1, Math.max(0, (v - a) / (b - a))); }
+
+  _animateStarIn(i) {
+    const el         = this._starEls[i];
+    const brightness = this._stars[i][3];
+    const dur = 700, t0 = performance.now();
+    const tick = (now) => {
+      const t = Math.min(1, (now - t0) / dur);
+      // Ease-out with a subtle overshoot pop
+      const e = t < 0.72
+        ? 1 - Math.pow(1 - t / 0.72, 2.8)
+        : 1 + 0.08 * Math.sin((t - 0.72) * Math.PI / 0.28);
+      el.setAttribute('opacity', Math.min(1, e * brightness).toFixed(3));
+      if (t < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }
+
+  _animateLineIn(i) {
+    const el  = this._lineEls[i];
+    const len = this._lineLens[i];
+    const dur = 650, t0 = performance.now();
+    const tick = (now) => {
+      const t = Math.min(1, (now - t0) / dur);
+      const e = 1 - Math.pow(1 - t, 2.2);
+      el.setAttribute('stroke-dashoffset', (len * (1 - e)).toFixed(1));
+      el.setAttribute('opacity', Math.min(0.9, e * 1.1).toFixed(3));
+      if (t < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }
+
+  _startTwinkle() {
+    if (this._twinkleRAF) return;
+    const tick = (now) => {
+      this._twinkleRAF = requestAnimationFrame(tick);
+      const t = now / 1000;
+      this._stars.forEach(([,, , brightness], i) => {
+        if (!this._triggered.has(`s${i}`)) return;
+        // Each star gets a unique phase via golden ratio
+        const wave = 0.5 + 0.5 * Math.sin(t * 0.7 + i * 2.618);
+        this._starEls[i].setAttribute('opacity',
+          (brightness * (0.68 + 0.32 * wave)).toFixed(3));
+      });
+    };
+    this._twinkleRAF = requestAnimationFrame(tick);
+  }
+
+  _stopTwinkle() {
+    if (this._twinkleRAF) { cancelAnimationFrame(this._twinkleRAF); this._twinkleRAF = null; }
+  }
+
+  setProgress(p) {
+    const r = this._ramp.bind(this);
+
+    if (p < 0.01) {
+      this._stopTwinkle();
+      this._triggered.clear();
+      this._fieldEl.setAttribute('opacity', '0');
+      this._starEls.forEach(el => el.setAttribute('opacity', '0'));
+      this._lineEls.forEach((el, i) => {
+        el.setAttribute('stroke-dashoffset', this._lineLens[i].toFixed(1));
+        el.setAttribute('opacity', '0');
+      });
+      this._labelEl.setAttribute('opacity', '0');
+      this._subEl.setAttribute('opacity', '0');
+      return;
+    }
+
+    // Background star field
+    this._fieldEl.setAttribute('opacity', r(p, 0, 0.08).toFixed(2));
+
+    // Center star first (0.05), then ring stars burst in quickly (0.08 → 0.38)
+    const starThresholds = [
+      0.05,                                         // 0  center
+      ...Array.from({length:8}, (_,i) => 0.08 + i * 0.038), // 1–8  ring
+      0.44, 0.48,                                   // 9–10 stem
+      0.50, 0.52,                                   // 11–12 leaves
+    ];
+    starThresholds.forEach((thresh, i) => {
+      if (p >= thresh && !this._triggered.has(`s${i}`)) {
+        this._triggered.add(`s${i}`);
+        this._animateStarIn(i);
+        this._startTwinkle();
+      }
+    });
+
+    // Spokes radiate outward (edges 0–7) from p=0.38 → 0.62
+    for (let i = 0; i < 8; i++) {
+      const thresh = 0.38 + (i / 7) * 0.24;
+      if (p >= thresh && !this._triggered.has(`l${i}`)) {
+        this._triggered.add(`l${i}`);
+        this._animateLineIn(i);
+      }
+    }
+
+    // Ring closes around the flower head (edges 8–15), going clockwise p=0.60 → 0.84
+    for (let i = 8; i < 16; i++) {
+      const thresh = 0.60 + ((i - 8) / 7) * 0.24;
+      if (p >= thresh && !this._triggered.has(`l${i}`)) {
+        this._triggered.add(`l${i}`);
+        this._animateLineIn(i);
+      }
+    }
+
+    // Stem drops (edges 16–17), p=0.82 → 0.88
+    if (p >= 0.82 && !this._triggered.has('l16')) { this._triggered.add('l16'); this._animateLineIn(16); }
+    if (p >= 0.87 && !this._triggered.has('l17')) { this._triggered.add('l17'); this._animateLineIn(17); }
+
+    // Leaves branch off (edges 18–19), p=0.90 → 0.93
+    if (p >= 0.90 && !this._triggered.has('l18')) { this._triggered.add('l18'); this._animateLineIn(18); }
+    if (p >= 0.93 && !this._triggered.has('l19')) { this._triggered.add('l19'); this._animateLineIn(19); }
+
+    // Labels
+    this._labelEl.setAttribute('opacity', r(p, 0.94, 0.99).toFixed(2));
+    this._subEl.setAttribute('opacity',   r(p, 0.96, 1.00).toFixed(2));
+  }
+
+  show() { this.svg.style.display = ''; }
+  hide() {
+    this.svg.style.display = 'none';
+    this._stopTwinkle();
+    this._triggered.clear();
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
    DISPATCHER
    ══════════════════════════════════════════════════════════ */
 export class PlantSVGRenderer {
@@ -663,11 +942,12 @@ export class PlantSVGRenderer {
     const wasHidden = this.svg.style.display === 'none';
     if (wasHidden) this.svg.style.display = 'block';
     switch (category) {
-      case 'Flowers':    this._renderer = new FlowerSVGRenderer(this.svg);    break;
-      case 'Trees':      this._renderer = new TreeSVGRenderer(this.svg);      break;
-      case 'Succulents': this._renderer = new SucculentSVGRenderer(this.svg); break;
-      case 'Herbs':      this._renderer = new HerbSVGRenderer(this.svg);      break;
-      case 'Exotic':     this._renderer = new ExoticSVGRenderer(this.svg);    break;
+      case 'Flowers':    this._renderer = new FlowerSVGRenderer(this.svg);      break;
+      case 'Trees':      this._renderer = new TreeSVGRenderer(this.svg);        break;
+      case 'Succulents': this._renderer = new SucculentSVGRenderer(this.svg);   break;
+      case 'Herbs':      this._renderer = new HerbSVGRenderer(this.svg);        break;
+      case 'Exotic':     this._renderer = new ExoticSVGRenderer(this.svg);      break;
+      case 'Zen':        this._renderer = new ConstellationSVGRenderer(this.svg);  break;
       default:           this._renderer = new FlowerSVGRenderer(this.svg);
     }
     if (wasHidden) this.svg.style.display = 'none';

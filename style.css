@@ -458,47 +458,12 @@ body::before {
 
 /* Uncommon (Bud) - Leafy Corner */
 .rarity-uncommon .rarity-overlay {
-  background: none;
-  border: none;
-  inset: 8px;
+  display: none;
 }
 
-.rarity-uncommon .rarity-overlay::before,
-.rarity-uncommon .rarity-overlay::after {
-  content: '\273F';
-  position: absolute;
-  width: 18px;
-  height: 18px;
-  display: grid;
-  place-items: center;
-  font-size: 14px;
-  line-height: 1;
-  color: rgba(153, 209, 143, 0.9);
-  opacity: 0.75;
-  pointer-events: none;
-  text-shadow: 0 0 5px rgba(92, 156, 86, 0.35);
-}
-
-.rarity-uncommon .rarity-overlay::before {
-  top: 8px;
-  left: 8px;
-  transform: rotate(-18deg);
-}
-
-.rarity-uncommon .rarity-overlay::after {
-  bottom: 8px;
-  right: 8px;
-  transform: rotate(162deg);
-}
-
-/* Bloom Overlay - Floral Vignette */
+/* Bloom Overlay - removed circle halo */
 .rarity-epic .rarity-overlay {
-  background: none;
-  border: 4px solid rgba(233, 30, 99, 0.2);
-  border-radius: 50%;
-  box-shadow: 0 0 0 4px rgba(233, 30, 99, 0.1), inset 0 0 15px rgba(233, 30, 99, 0.3);
-  animation: bloomPulse 4s ease-in-out infinite alternate;
-  inset: 10px;
+  display: none;
 }
 
 .rarity-epic .rarity-overlay::before {
@@ -754,8 +719,15 @@ body::before {
 }
 
 .timer-display-card {
+  position: relative;
+  z-index: 1;
   text-align: center;
   padding: var(--space-xl);
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .timer-display {
@@ -800,7 +772,7 @@ body::before {
 
 .plan-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: var(--space-sm);
 }
 
@@ -1222,6 +1194,48 @@ body::before {
   letter-spacing: 1px;
 }
 
+/* Weekly focus card */
+.focus-card {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 20px;
+  margin-bottom: var(--space-md);
+  text-align: center;
+}
+
+.focus-item {
+  flex: 1;
+  padding: 4px 12px;
+}
+
+.focus-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  display: block;
+  margin-bottom: 5px;
+}
+
+.focus-value {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--accent);
+  line-height: 1.1;
+}
+
+.focus-value-water {
+  color: #4fc3f7;
+}
+
+.focus-divider {
+  width: 1px;
+  align-self: stretch;
+  background: rgba(255,255,255,0.1);
+  flex-shrink: 0;
+}
+
 .charts-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -1467,6 +1481,152 @@ body::before {
   font-size: var(--fs-sm);
   color: var(--accent-green);
   animation: fadeIn 0.3s ease;
+}
+
+/* ---- Vine Journal Timeline ---- */
+
+.vine-journal {
+  margin-top: 8px;
+}
+
+.vine-toggle-bar {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: rgba(76, 175, 80, 0.07);
+  border: 1px solid rgba(76, 175, 80, 0.25);
+  border-radius: 12px;
+  cursor: pointer;
+  padding: 10px 16px;
+  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.vine-toggle-bar:hover {
+  background: rgba(76, 175, 80, 0.13);
+  border-color: rgba(76, 175, 80, 0.45);
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.12);
+}
+
+.vine-toggle-bar:active {
+  background: rgba(76, 175, 80, 0.18);
+}
+
+.vine-twig {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(76, 175, 80, 0.35), transparent);
+}
+
+.vine-toggle-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.vine-toggle-leaf {
+  font-size: 22px;
+  transition: transform 0.4s ease;
+  display: block;
+  line-height: 1;
+}
+
+.vine-toggle-bar:hover .vine-toggle-leaf {
+  transform: scale(1.15);
+}
+
+.vine-toggle-bar[aria-expanded="true"] .vine-toggle-leaf {
+  transform: rotate(30deg) scale(1.1);
+}
+
+.vine-toggle-label {
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  white-space: nowrap;
+  font-family: var(--font-display);
+}
+
+/* Timeline container */
+.vine-timeline {
+  position: relative;
+  padding: 16px 0 8px 0;
+  animation: vineReveal 0.45s ease forwards;
+}
+
+.vine-timeline::before {
+  content: '';
+  position: absolute;
+  left: 15px;
+  top: 16px;
+  bottom: 8px;
+  width: 2px;
+  background: linear-gradient(to bottom,
+    rgba(76, 175, 80, 0.5),
+    rgba(76, 175, 80, 0.15) 80%,
+    transparent
+  );
+  border-radius: 2px;
+}
+
+@keyframes vineReveal {
+  from { opacity: 0; clip-path: inset(0 0 100% 0); }
+  to   { opacity: 1; clip-path: inset(0 0 0% 0); }
+}
+
+.vine-empty {
+  padding-left: 44px;
+}
+
+/* Each timeline entry */
+.vine-entry {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding-bottom: 20px;
+  opacity: 0;
+  animation: vineFadeIn 0.3s ease forwards;
+  animation-delay: calc(var(--vine-i, 0) * 55ms + 100ms);
+}
+
+@keyframes vineFadeIn {
+  from { opacity: 0; transform: translateX(-6px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.vine-dot {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  background: var(--bg-card, #1a2a1e);
+  border: 1px solid rgba(76, 175, 80, 0.25);
+  border-radius: 50%;
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.06);
+}
+
+.vine-entry-content {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
+}
+
+#past-entries-list {
+  margin-top: 4px;
 }
 
 .past-entries-list {
@@ -1725,25 +1885,57 @@ body::before {
 }
 
 .daily-checkin-locked {
-  opacity: 0.6;
-  filter: grayscale(0.8);
-  pointer-events: none;
   position: relative;
 }
 
-.daily-checkin-locked::after {
-  content: 'Ã¢Å“â€œ Complete';
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  background: var(--accent-green);
-  color: white;
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-size: 0.7rem;
-  font-weight: 700;
-  filter: none;
+/* Hide the editable content when locked */
+.daily-checkin-locked .checkin-content {
+  display: none;
 }
+
+/* Show the garden art when locked */
+.locked-garden-art {
+  display: none;
+  position: relative;
+  min-height: 110px;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, rgba(76,175,80,0.06), rgba(46,204,113,0.04));
+  border: 1px dashed rgba(76,175,80,0.25);
+  margin-top: var(--space-md);
+  overflow: hidden;
+}
+
+.daily-checkin-locked .locked-garden-art {
+  display: flex;
+}
+
+.garden-scatter {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.garden-scatter span {
+  position: absolute;
+  left: var(--gx);
+  top:  var(--gy);
+  font-size: 1.5rem;
+  transform: rotate(var(--gr));
+  opacity: 0.55;
+  user-select: none;
+}
+
+.garden-art-msg {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--accent-green);
+  letter-spacing: 0.5px;
+  z-index: 1;
+  margin: 0;
+}
+
 
 .daily-checkin-header {
   display: flex;
@@ -1761,6 +1953,9 @@ body::before {
   padding: 4px 10px;
   height: auto;
   opacity: 0.8;
+  pointer-events: auto;
+  position: relative;
+  z-index: 2;
 }
 
 .btn-edit-checkin:hover {
@@ -1894,12 +2089,141 @@ body::before {
   }
 }
 
-@media (max-width: 480px) {
-  .stats-row {
-    grid-template-columns: 1fr 1fr;
+/* ============================================================
+   BLOOM LOG — Mobile Layout
+   ============================================================ */
+@media (max-width: 600px) {
+  /* Page padding */
+  .analytics-page {
+    padding: 0;
   }
-  .plan-grid {
+
+  /* Header: title + subtitle full width, buttons below */
+  .analytics-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: var(--space-md);
+  }
+
+  .analytics-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .analytics-actions .btn {
+    font-size: 0.75rem;
+    padding: 6px 12px;
+  }
+
+  /* Stats: 3 compact cards in a row */
+  .stats-row {
     grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: var(--space-md);
+  }
+
+  .stat-card {
+    padding: 12px 6px;
+  }
+
+  .stat-card .stat-emoji {
+    font-size: 1.2rem;
+  }
+
+  .stat-card .stat-value {
+    font-size: 1.3rem;
+  }
+
+  .stat-card .stat-label {
+    font-size: 0.6rem;
+    line-height: 1.3;
+  }
+
+  /* Weekly focus: stack vertically */
+  .focus-card {
+    flex-direction: column;
+    gap: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .focus-card .focus-item {
+    padding: 16px 20px;
+    text-align: left;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .focus-card .focus-item:last-child {
+    border-bottom: none;
+  }
+
+  .focus-value {
+    font-size: 1.6rem;
+  }
+
+  .focus-divider {
+    display: none;
+  }
+
+  /* Chart cards: tighter padding */
+  .chart-card {
+    padding: 16px;
+  }
+
+  .chart-card h3 {
+    font-size: 0.95rem;
+    margin-bottom: 12px;
+  }
+
+  /* Weight input: stacked */
+  .weight-input-row {
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+
+  .weight-input-row input,
+  .weight-input-row .btn {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* Fast log: switch table to card stack */
+  .fast-log-row.header {
+    display: none;
+  }
+
+  .fast-log-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 12px;
+    padding: 12px;
+  }
+
+  .fast-log-date {
+    font-weight: 600;
+    font-size: 0.8rem;
+    width: 100%;
+  }
+
+  .fast-log-plan {
+    font-size: 0.78rem;
+  }
+
+  .fast-log-duration {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+  }
+
+  .fast-log-plant {
+    font-size: 0.78rem;
+  }
+
+  .fast-log-status {
+    margin-left: auto;
+    text-align: right;
+    font-size: 0.72rem;
   }
 }
 
@@ -2061,6 +2385,51 @@ body::before {
   gap: var(--space-lg);
 }
 
+.wellness-top-row {
+  display: flex;
+  gap: var(--space-md);
+  align-items: stretch;
+  margin-bottom: var(--space-sm);
+}
+
+.wellness-date-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  flex-shrink: 0;
+  min-width: 160px;
+}
+
+.wellness-date-flower {
+  font-size: 2.4rem;
+  line-height: 1;
+}
+
+.wellness-date-text {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-accent);
+  white-space: nowrap;
+}
+
+.wellness-date-sub {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.wellness-header-info {
+  flex: 1;
+}
+
+@media (max-width: 600px) {
+  .wellness-top-row {
+    flex-direction: column;
+  }
+}
+
 .metrics-history-list {
   display: flex;
   flex-direction: column;
@@ -2096,6 +2465,78 @@ body::before {
 
 .metric-entry-item strong {
   color: var(--text-accent);
+}
+
+/* Weight unit toggle */
+.weight-unit-toggle {
+  display: flex;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-sm);
+  padding: 2px;
+  gap: 2px;
+}
+
+.weight-unit-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: calc(var(--radius-sm) - 2px);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.weight-unit-btn.active {
+  background: var(--accent);
+  color: white;
+}
+
+/* Bloom Coach Card (Timer Tab) */
+.bloom-coach-card {
+  margin-top: var(--space-lg);
+  width: 100%;
+}
+
+.bloom-coach-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  margin-bottom: var(--space-md);
+  padding-bottom: var(--space-md);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.coach-bloom-icon {
+  font-size: 1.8rem;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-tertiary);
+  border-radius: 50%;
+  border: 2px solid var(--border-accent-soft);
+  flex-shrink: 0;
+}
+
+.bloom-coach-title {
+  font-family: var(--font-display);
+  font-size: var(--fs-lg);
+  margin-bottom: 2px;
+  color: var(--text-accent);
+}
+
+.bloom-coach-subtitle {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.stat-emoji {
+  font-size: 1.4rem;
+  margin-bottom: 4px;
 }
 
 /* AI Coach */
@@ -2277,11 +2718,55 @@ body::before {
 }
 
 .collection-grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+  margin-bottom: var(--space-xl);
+}
+
+/* Each species family group */
+.shelf-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.shelf-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  padding-left: 2px;
+  border-left: 2px solid rgba(76, 175, 80, 0.4);
+  padding-left: 8px;
+}
+
+.plant-shelf {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: var(--space-lg);
-  margin-bottom: var(--space-xl);
   align-items: center;
+}
+
+/* Option C — 3+2 wrap on mobile */
+@media (max-width: 600px) {
+  .collection-grid {
+    gap: var(--space-lg);
+  }
+
+  .plant-shelf {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .plant-shelf .botanical-card-container,
+  .plant-shelf .mastery-indicator-column {
+    width: calc(33.33% - 8px);
+    flex-shrink: 0;
+  }
 }
 
 .botanical-card-container {
@@ -2320,41 +2805,44 @@ body::before {
   overflow: hidden;
 }
 
-/* --- Specimen Number --- */
-.specimen-stamp-no {
-  position: absolute;
-  top: 6px;
-  right: 8px;
-  font-family: 'Outfit', sans-serif;
-  font-size: 0.6rem;
+/* --- Card Header Row (Specimen Card label + No. pill) --- */
+.card-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 8px 6px 12px;
+  position: relative;
+  z-index: 2;
+  flex-shrink: 0;
+}
+
+/* --- Specimen Header Label --- */
+.specimen-header {
+  font-size: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 2.2px;
   font-weight: 600;
-  letter-spacing: 1px;
-  z-index: 30;
-  padding: 2px 7px;
+  font-family: 'Inter', sans-serif;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* --- Specimen Number Pill --- */
+.specimen-stamp-no {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.55rem;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  display: block;
+  text-align: center;
+  width: fit-content;
+  margin: 0 auto 4px;
+  padding: 2px 8px;
   border-radius: 999px;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.65);
   background: rgba(10, 12, 12, 0.45);
   border: 1px solid rgba(255, 255, 255, 0.14);
-}
-
-/* --- Specimen Header Bar --- */
-.specimen-header {
-  text-align: center;
-  padding: 6px 10px;
-  font-size: 0.5rem;
-  text-transform: uppercase;
-  letter-spacing: 3px;
-  font-weight: 600;
-  font-family: 'Inter', sans-serif;
-  position: relative;
-  z-index: 2;
-  white-space: nowrap;
-}
-
-.botanical-card.style-specimen .card-front .specimen-header {
-  text-align: left;
-  padding: 6px 74px 6px 12px;
-  letter-spacing: 2.2px;
 }
 
 /* --- Image Area --- */
@@ -2412,72 +2900,16 @@ body::before {
    SPROUT (Common) Ã¢â‚¬â€ Clean, flat, organic dark greens.
    =================================================================== */
 .botanical-card.style-specimen.rarity-common .card-front {
-  background: linear-gradient(180deg, #1e2d24, #141e18);
-  border: 1.5px solid rgba(160, 191, 173, 0.2);
-  overflow: hidden;
-}
-.botanical-card.style-specimen.rarity-common .card-front::after {
-  content: '';
-  position: absolute;
-  bottom: -20px;
-  right: -20px;
-  width: 100px;
-  height: 100px;
-  background: radial-gradient(circle, rgba(160, 191, 173, 0.05) 0%, transparent 70%);
-  z-index: 1;
-}
-.botanical-card-container:hover .botanical-card.style-specimen.rarity-common:not(.card-undiscovered):not(.flipped) {
-  transform: translateY(-5px);
-}
-.botanical-card-container:hover .botanical-card.style-specimen.rarity-common .card-front {
-  box-shadow: 0 10px 25px rgba(0,0,0,0.4);
-  border-color: rgba(160, 191, 173, 0.35);
-}
-.botanical-card-container:hover .botanical-card.style-specimen.rarity-common.flipped {
-  transform: translateY(-5px) rotateY(180deg);
-}
-.botanical-card.style-specimen.rarity-common .specimen-header {
-  color: rgba(160, 191, 173, 0.5);
-  border-bottom: 1px solid rgba(160, 191, 173, 0.1);
-}
-.botanical-card.style-specimen.rarity-common .specimen-stamp-no {
-  color: rgba(160, 191, 173, 0.35);
-  background: rgba(18, 28, 22, 0.65);
-  border-color: rgba(160, 191, 173, 0.25);
-}
-.botanical-card.style-specimen.rarity-common img.card-art {
-  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
-}
-.botanical-card-container:hover .botanical-card.style-specimen.rarity-common img.card-art {
-  transform: scale(1.05);
-}
-.botanical-card.style-specimen.rarity-common .info {
-  border-top: 1px solid rgba(160, 191, 173, 0.1);
-  background: rgba(0,0,0,0.15);
-}
-.botanical-card.style-specimen.rarity-common .name {
-  color: #e8f5e9;
-}
-.botanical-card.style-specimen.rarity-common .rarity {
-  background: rgba(160, 191, 173, 0.15);
-  color: #a0bfad;
-  border: 1px solid rgba(160, 191, 173, 0.2);
-}
-
-/* ===================================================================
-   BUD (Uncommon) Ã¢â‚¬â€ Leaf pattern, organic borders
-   =================================================================== */
-.botanical-card.style-specimen.rarity-uncommon .card-front {
   background: linear-gradient(180deg, #152215, #0f1a12);
   border: 1.5px solid rgba(76,175,80,0.3);
   color: #e8f5e9;
   box-shadow: 0 4px 12px rgba(0,0,0,0.3), 0 0 8px rgba(76,175,80,0.05);
+  overflow: hidden;
 }
-/* Diagonal line texture */
-.botanical-card.style-specimen.rarity-uncommon .card-front::before {
+.botanical-card.style-specimen.rarity-common .card-front::before {
   content: '';
   position: absolute; inset: 0;
-  background: 
+  background:
     repeating-linear-gradient(
       45deg,
       transparent, transparent 15px,
@@ -2488,43 +2920,42 @@ body::before {
   pointer-events: none;
   z-index: 1;
 }
-/* Leaf corner ornaments */
-.botanical-card.style-specimen.rarity-uncommon .card-front::after {
+.botanical-card.style-specimen.rarity-common .card-front::after {
   content: none;
 }
-.botanical-card-container:hover .botanical-card.style-specimen.rarity-uncommon:not(.card-undiscovered):not(.flipped) {
+.botanical-card-container:hover .botanical-card.style-specimen.rarity-common:not(.card-undiscovered):not(.flipped) {
   transform: translateY(-5px);
 }
-.botanical-card-container:hover .botanical-card.style-specimen.rarity-uncommon .card-front {
+.botanical-card-container:hover .botanical-card.style-specimen.rarity-common .card-front {
   box-shadow: 0 12px 30px rgba(0,0,0,0.5), 0 0 12px rgba(76,175,80,0.1);
   border-color: rgba(76,175,80,0.5);
 }
-.botanical-card-container:hover .botanical-card.style-specimen.rarity-uncommon.flipped {
+.botanical-card-container:hover .botanical-card.style-specimen.rarity-common.flipped {
   transform: translateY(-5px) rotateY(180deg);
 }
-.botanical-card.style-specimen.rarity-uncommon .specimen-header {
+.botanical-card.style-specimen.rarity-common .specimen-header {
   color: rgba(76, 175, 80, 0.5);
   border-bottom: 1px solid rgba(76, 175, 80, 0.1);
 }
-.botanical-card.style-specimen.rarity-uncommon .specimen-stamp-no {
+.botanical-card.style-specimen.rarity-common .specimen-stamp-no {
   color: rgba(76, 175, 80, 0.35);
   background: rgba(13, 28, 16, 0.65);
   border-color: rgba(76, 175, 80, 0.3);
 }
-.botanical-card.style-specimen.rarity-uncommon img.card-art {
+.botanical-card.style-specimen.rarity-common img.card-art {
   filter: drop-shadow(0 4px 10px rgba(0,0,0,0.4)) drop-shadow(0 0 6px rgba(76,175,80,0.08));
 }
-.botanical-card-container:hover .botanical-card.style-specimen.rarity-uncommon img.card-art {
-  transform: scale(1.06);
+.botanical-card-container:hover .botanical-card.style-specimen.rarity-common img.card-art {
+  transform: scale(1.05);
 }
-.botanical-card.style-specimen.rarity-uncommon .info {
+.botanical-card.style-specimen.rarity-common .info {
   border-top: 1px solid rgba(76, 175, 80, 0.1);
   background: rgba(0,0,0,0.2);
 }
-.botanical-card.style-specimen.rarity-uncommon .name {
+.botanical-card.style-specimen.rarity-common .name {
   color: #e8f5e9;
 }
-.botanical-card.style-specimen.rarity-uncommon .rarity {
+.botanical-card.style-specimen.rarity-common .rarity {
   background: rgba(76, 175, 80, 0.2);
   color: #a5d6a7;
   border: 1px solid rgba(76, 175, 80, 0.3);
@@ -2532,84 +2963,132 @@ body::before {
 }
 
 /* ===================================================================
+   BUD (Uncommon) Ã¢â‚¬â€ Leaf pattern, organic borders
+   =================================================================== */
+.botanical-card.style-specimen.rarity-uncommon .card-front {
+  background: linear-gradient(180deg, #0d1a2e, #081422);
+  border: 1.5px solid rgba(100,181,246,0.3);
+  color: #e3f2fd;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3), 0 0 8px rgba(100,181,246,0.05);
+}
+.botanical-card.style-specimen.rarity-uncommon .card-front::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    repeating-linear-gradient(
+      45deg,
+      transparent, transparent 15px,
+      rgba(100,181,246,0.02) 15px, rgba(100,181,246,0.02) 16px
+    ),
+    radial-gradient(circle at 50% 50%, rgba(100,181,246,0.05), transparent 80%);
+  border-radius: 12px;
+  pointer-events: none;
+  z-index: 1;
+}
+.botanical-card.style-specimen.rarity-uncommon .card-front::after {
+  content: none;
+}
+.botanical-card-container:hover .botanical-card.style-specimen.rarity-uncommon:not(.card-undiscovered):not(.flipped) {
+  transform: translateY(-5px);
+}
+.botanical-card-container:hover .botanical-card.style-specimen.rarity-uncommon .card-front {
+  box-shadow: 0 12px 30px rgba(0,0,0,0.5), 0 0 12px rgba(100,181,246,0.12);
+  border-color: rgba(100,181,246,0.5);
+}
+.botanical-card-container:hover .botanical-card.style-specimen.rarity-uncommon.flipped {
+  transform: translateY(-5px) rotateY(180deg);
+}
+.botanical-card.style-specimen.rarity-uncommon .specimen-header {
+  color: rgba(100, 181, 246, 0.55);
+  border-bottom: 1px solid rgba(100, 181, 246, 0.1);
+}
+.botanical-card.style-specimen.rarity-uncommon .specimen-stamp-no {
+  color: rgba(100, 181, 246, 0.4);
+  background: rgba(8, 20, 34, 0.72);
+  border-color: rgba(100, 181, 246, 0.3);
+}
+.botanical-card.style-specimen.rarity-uncommon img.card-art {
+  filter: drop-shadow(0 4px 10px rgba(0,0,0,0.4)) drop-shadow(0 0 6px rgba(100,181,246,0.1));
+}
+.botanical-card-container:hover .botanical-card.style-specimen.rarity-uncommon img.card-art {
+  transform: scale(1.06);
+}
+.botanical-card.style-specimen.rarity-uncommon .info {
+  border-top: 1px solid rgba(100, 181, 246, 0.1);
+  background: rgba(0,0,0,0.2);
+}
+.botanical-card.style-specimen.rarity-uncommon .name {
+  color: #e3f2fd;
+}
+.botanical-card.style-specimen.rarity-uncommon .rarity {
+  background: rgba(100, 181, 246, 0.18);
+  color: #90caf9;
+  border: 1px solid rgba(100, 181, 246, 0.3);
+  box-shadow: 0 0 10px rgba(100, 181, 246, 0.1);
+}
+
+/* ===================================================================
    BLOOM (Rare/Epic) Ã¢â‚¬â€ Floral frame, purple/gold accents
    =================================================================== */
 .botanical-card.style-specimen.rarity-epic .card-front {
-  background: linear-gradient(180deg, #1a0a2e, #120825);
-  border-top: 2px solid rgba(186,104,200,0.5);
-  border-bottom: 2px solid rgba(186,104,200,0.5);
-  border-left: none;
-  border-right: none;
-  color: #e8d5f5;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  background: linear-gradient(180deg, #1e1040, #160c32);
+  border: 1.5px solid rgba(206,147,216,0.35);
+  color: #f3e5f5;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4), 0 0 8px rgba(206,147,216,0.06);
 }
-/* Holographic ambient glow */
 .botanical-card.style-specimen.rarity-epic .card-front::before {
   content: '';
   position: absolute; inset: 0;
   background:
-    url('assets/ui/rare-frame.svg') center/cover no-repeat,
-    radial-gradient(ellipse at 30% 20%, rgba(186,104,200,0.1), transparent 50%),
-    radial-gradient(ellipse at 70% 80%, rgba(63,81,181,0.1), transparent 50%);
-  -webkit-mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
-  mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
-  animation: rareHoloShift 6s ease-in-out infinite;
+    radial-gradient(ellipse at 30% 20%, rgba(206,147,216,0.08), transparent 55%),
+    radial-gradient(ellipse at 70% 80%, rgba(149,117,205,0.08), transparent 55%);
   border-radius: 12px;
   pointer-events: none;
-  z-index: 4;
+  z-index: 1;
 }
-@keyframes rareHoloShift {
-  0%, 100% { opacity: 0.5; }
-  50% { opacity: 1; }
-}
-/* Crystal symbol */
 .botanical-card.style-specimen.rarity-epic .card-front::after {
-  content: '\2726';
-  position: absolute; top: 10px; left: 12px;
-  font-size: 12px; color: rgba(186,104,200,0.45);
-  z-index: 6;
+  content: none;
 }
 .botanical-card-container:hover .botanical-card.style-specimen.rarity-epic:not(.card-undiscovered):not(.flipped) {
   transform: translateY(-6px) scale(1.01);
 }
 .botanical-card-container:hover .botanical-card.style-specimen.rarity-epic .card-front {
-  box-shadow: 0 15px 40px rgba(0,0,0,0.6), 0 0 25px rgba(186,104,200,0.15);
-  border-color: rgba(186,104,200,0.6);
+  box-shadow: 0 15px 40px rgba(0,0,0,0.6), 0 0 20px rgba(206,147,216,0.12);
+  border-color: rgba(206,147,216,0.55);
 }
 .botanical-card-container:hover .botanical-card.style-specimen.rarity-epic.flipped {
   transform: translateY(-6px) rotateY(180deg);
 }
 .botanical-card.style-specimen.rarity-epic .specimen-header {
-  color: rgba(186, 104, 200, 0.5);
-  border-bottom: 1px solid rgba(186, 104, 200, 0.15);
+  color: rgba(206, 147, 216, 0.55);
+  border-bottom: 1px solid rgba(206, 147, 216, 0.12);
 }
 .botanical-card.style-specimen.rarity-epic .specimen-stamp-no {
-  color: rgba(186, 104, 200, 0.35);
-  background: rgba(25, 12, 34, 0.72);
-  border-color: rgba(186, 104, 200, 0.34);
+  color: rgba(206, 147, 216, 0.4);
+  background: rgba(22, 12, 50, 0.72);
+  border-color: rgba(206, 147, 216, 0.3);
 }
 .botanical-card.style-specimen.rarity-epic img.card-art {
-  filter: drop-shadow(0 0 12px rgba(186,104,200,0.2)) drop-shadow(0 6px 12px rgba(0,0,0,0.5));
+  filter: drop-shadow(0 0 10px rgba(206,147,216,0.18)) drop-shadow(0 6px 12px rgba(0,0,0,0.5));
 }
 .botanical-card-container:hover .botanical-card.style-specimen.rarity-epic img.card-art {
   transform: scale(1.08);
-  filter: drop-shadow(0 0 18px rgba(186,104,200,0.35)) drop-shadow(0 8px 16px rgba(0,0,0,0.5));
+  filter: drop-shadow(0 0 16px rgba(206,147,216,0.3)) drop-shadow(0 8px 16px rgba(0,0,0,0.5));
 }
 .botanical-card.style-specimen.rarity-epic .info {
-  border-top: 1px solid rgba(186, 104, 200, 0.15);
+  border-top: 1px solid rgba(206, 147, 216, 0.12);
   background: rgba(0,0,0,0.25);
 }
 .botanical-card.style-specimen.rarity-epic .name {
-  color: #e1bee7;
+  color: #f3e5f5;
   font-weight: 700;
   letter-spacing: 0.5px;
 }
 .botanical-card.style-specimen.rarity-epic .rarity {
-  background: rgba(186, 104, 200, 0.25);
-  color: #e1bee7;
-  border: 1.5px solid rgba(186, 104, 200, 0.4);
-  box-shadow: 0 0 15px rgba(186, 104, 200, 0.2);
-  text-shadow: 0 0 5px rgba(255,255,255,0.3);
+  background: rgba(206, 147, 216, 0.2);
+  color: #ce93d8;
+  border: 1.5px solid rgba(206, 147, 216, 0.35);
+  box-shadow: 0 0 12px rgba(206, 147, 216, 0.15);
 }
 
 /* ===================================================================
@@ -2768,17 +3247,6 @@ body::before {
    =================================================================== */
 .botanical-card.style-specimen.rarity-common .card-back {
   transform: rotateY(180deg);
-  background: linear-gradient(180deg, #1e2d24, #141e18);
-  border: 1.5px solid rgba(160, 191, 173, 0.2);
-  color: #e8f5e9;
-  justify-content: flex-start;
-  align-items: center;
-  padding: 16px 14px;
-  text-align: center;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-}
-.botanical-card.style-specimen.rarity-uncommon .card-back {
-  transform: rotateY(180deg);
   background: linear-gradient(180deg, #152215, #0f1a12);
   border: 1.5px solid rgba(76,175,80,0.3);
   color: #e8f5e9;
@@ -2788,11 +3256,22 @@ body::before {
   text-align: center;
   box-shadow: 0 4px 12px rgba(0,0,0,0.3);
 }
+.botanical-card.style-specimen.rarity-uncommon .card-back {
+  transform: rotateY(180deg);
+  background: linear-gradient(180deg, #0d1a2e, #081422);
+  border: 1.5px solid rgba(100,181,246,0.3);
+  color: #e3f2fd;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 16px 14px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
 .botanical-card.style-specimen.rarity-epic .card-back {
   transform: rotateY(180deg);
-  background: linear-gradient(180deg, #1a0a2e, #120825);
-  border: 2px solid rgba(186,104,200,0.4);
-  color: #e8d5f5;
+  background: linear-gradient(180deg, #1e1040, #160c32);
+  border: 1.5px solid rgba(206,147,216,0.35);
+  color: #f3e5f5;
   justify-content: flex-start;
   align-items: center;
   padding: 16px 14px;
@@ -2912,44 +3391,57 @@ body::before {
   gap: 12px;
 }
 
-.journal-item {
+.journal-log-entry {
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid var(--border-subtle);
   border-radius: 12px;
-  padding: 12px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.journal-item:hover {
-  background: rgba(255, 255, 255, 0.06);
-}
-
-.journal-header {
+  padding: 14px 16px;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  gap: 8px;
 }
 
-.journal-details {
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  font-size: 0.9rem;
+.jlog-date {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+}
+
+.jlog-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.jlog-badge {
+  font-size: 0.75rem;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid var(--border-subtle);
+  border-radius: 20px;
+  padding: 2px 9px;
   color: var(--text-secondary);
 }
 
-.journal-meta-row {
-  display: flex;
-  gap: 15px;
-  margin-bottom: 10px;
-  font-size: 0.8rem;
+.jlog-badge-fast {
+  background: rgba(76, 175, 80, 0.12);
+  border-color: rgba(76, 175, 80, 0.3);
+  color: #a8d5ab;
 }
 
-.journal-meta-item {
-  display: flex;
-  align-items: center;
-  gap: 4px;
+.jlog-badge-water {
+  background: rgba(64, 156, 255, 0.1);
+  border-color: rgba(64, 156, 255, 0.25);
+  color: #90c4f9;
+}
+
+.jlog-text {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  white-space: pre-wrap;
+  margin: 0;
 }
 
 .avg-badge {
@@ -3006,6 +3498,7 @@ body::before {
   background: linear-gradient(90deg, rgba(33, 58, 40, 0.95) 0%, rgba(45, 82, 56, 0.9) 50%, rgba(33, 58, 40, 0.95) 100%);
   border: 1.5px solid rgba(159, 196, 125, 0.75);
   box-shadow: inset 0 0 0 1px rgba(231, 248, 205, 0.2), 0 0 10px rgba(159, 196, 125, 0.2);
+  white-space: nowrap;
 }
 
 .mastery-img-wrap {
@@ -3075,6 +3568,85 @@ body::before {
   color: var(--text-secondary);
   opacity: 0.85;
   margin-top: 4px;
+}
+
+/* ============================================================
+   FAST LOG
+   ============================================================ */
+
+.fast-log-card {
+  margin-top: var(--space-lg);
+}
+
+.fast-log-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: var(--space-sm);
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.fast-log-row {
+  display: grid;
+  grid-template-columns: 100px 60px 1fr 1fr 80px;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-tertiary);
+  font-size: 0.82rem;
+}
+
+.fast-log-row.header {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  background: transparent;
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.fast-log-date { color: var(--text-secondary); }
+.fast-log-plan { color: var(--text-accent); font-weight: 600; }
+.fast-log-duration { color: var(--text-primary); }
+.fast-log-plant { color: var(--text-secondary); }
+
+.fast-log-status {
+  text-align: right;
+  font-weight: 600;
+  font-size: 0.75rem;
+}
+.fast-log-status.complete { color: var(--accent-green); }
+.fast-log-status.early    { color: var(--text-muted); }
+
+.fast-log-empty {
+  text-align: center;
+  color: var(--text-muted);
+  padding: var(--space-lg);
+  font-size: 0.85rem;
+}
+
+/* ============================================================
+   TIMER VINE DECORATION
+   ============================================================ */
+
+/* Wrapper for timer card + arc overlay */
+.timer-card-wrap {
+  position: relative;
+  width: 100%;
+}
+
+/* Vine SVG: sits on top of the glass card (z-index: 2), pointer-events: none */
+.timer-vines-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+  overflow: visible;
 }
 
 /* ============================================================
@@ -3193,32 +3765,322 @@ body::before {
   --shadow-glow: 0 0 30px rgba(245, 158, 11, 0.2);
 }
 
+[data-theme="midnight"] {
+  --bg-primary: #02020c;
+  --bg-secondary: #060618;
+  --bg-tertiary: #0b0b28;
+  --bg-card: rgba(10, 10, 40, 0.6);
+  --bg-card-hover: rgba(14, 14, 55, 0.7);
+  --bg-glass: rgba(8, 8, 32, 0.45);
+  --text-primary: #e8eeff;
+  --text-secondary: #7a88cc;
+  --text-muted: #3a4888;
+  --text-accent: #90c0ff;
+  --accent: #4f8ef7;
+  --accent-green: #4f8ef7;
+  --accent-emerald: #7ab4ff;
+  --accent-lime: #b8d4ff;
+  --glow-green: 0 0 20px rgba(79, 142, 247, 0.4), 0 0 60px rgba(79, 142, 247, 0.1);
+  --glow-emerald: 0 0 20px rgba(122, 180, 255, 0.4);
+  --gradient-main: linear-gradient(135deg, #040410 0%, #080820 50%, #02020c 100%);
+  --gradient-card: linear-gradient(145deg, rgba(10, 10, 40, 0.5), rgba(4, 4, 20, 0.8));
+  --gradient-accent: linear-gradient(135deg, #4f8ef7, #2563eb);
+  --gradient-glow: linear-gradient(135deg, #4f8ef7, #90c0ff);
+  --gradient-primary: linear-gradient(135deg, #4f8ef7, #7ab4ff);
+  --border-subtle: 1px solid rgba(79, 142, 247, 0.15);
+  --border-accent: 1px solid rgba(79, 142, 247, 0.3);
+  --shadow-glow: 0 0 30px rgba(79, 142, 247, 0.2);
+}
+
+[data-theme="sakura"] {
+  --bg-primary: #0e0508;
+  --bg-secondary: #1c0b14;
+  --bg-tertiary: #2a1020;
+  --bg-card: rgba(44, 16, 32, 0.6);
+  --bg-card-hover: rgba(58, 22, 42, 0.7);
+  --bg-glass: rgba(36, 12, 26, 0.45);
+  --text-primary: #fff0f5;
+  --text-secondary: #e0a0be;
+  --text-muted: #9a5a78;
+  --text-accent: #ffc0d8;
+  --accent: #f9a8d4;
+  --accent-green: #f9a8d4;
+  --accent-emerald: #fbcfe8;
+  --accent-lime: #fce7f3;
+  --glow-green: 0 0 20px rgba(249, 168, 212, 0.4), 0 0 60px rgba(249, 168, 212, 0.1);
+  --glow-emerald: 0 0 20px rgba(251, 207, 232, 0.4);
+  --gradient-main: linear-gradient(135deg, #140610 0%, #200a18 50%, #0e0508 100%);
+  --gradient-card: linear-gradient(145deg, rgba(44, 16, 32, 0.5), rgba(22, 8, 16, 0.8));
+  --gradient-accent: linear-gradient(135deg, #f9a8d4, #ec4899);
+  --gradient-glow: linear-gradient(135deg, #f9a8d4, #ffc0d8);
+  --gradient-primary: linear-gradient(135deg, #f9a8d4, #fbcfe8);
+  --border-subtle: 1px solid rgba(249, 168, 212, 0.15);
+  --border-accent: 1px solid rgba(249, 168, 212, 0.3);
+  --shadow-glow: 0 0 30px rgba(249, 168, 212, 0.2);
+}
+
+[data-theme="slate"] {
+  --bg-primary: #06080f;
+  --bg-secondary: #0d1220;
+  --bg-tertiary: #141c30;
+  --bg-card: rgba(20, 28, 48, 0.6);
+  --bg-card-hover: rgba(26, 36, 62, 0.7);
+  --bg-glass: rgba(16, 22, 40, 0.45);
+  --text-primary: #e2e8f0;
+  --text-secondary: #94a3b8;
+  --text-muted: #475569;
+  --text-accent: #cbd5e1;
+  --accent: #64748b;
+  --accent-green: #64748b;
+  --accent-emerald: #94a3b8;
+  --accent-lime: #cbd5e1;
+  --glow-green: 0 0 20px rgba(100, 116, 139, 0.4), 0 0 60px rgba(100, 116, 139, 0.1);
+  --glow-emerald: 0 0 20px rgba(148, 163, 184, 0.4);
+  --gradient-main: linear-gradient(135deg, #080c18 0%, #0e1428 50%, #06080f 100%);
+  --gradient-card: linear-gradient(145deg, rgba(20, 28, 48, 0.5), rgba(10, 14, 24, 0.8));
+  --gradient-accent: linear-gradient(135deg, #64748b, #475569);
+  --gradient-glow: linear-gradient(135deg, #64748b, #cbd5e1);
+  --gradient-primary: linear-gradient(135deg, #64748b, #94a3b8);
+  --border-subtle: 1px solid rgba(100, 116, 139, 0.15);
+  --border-accent: 1px solid rgba(100, 116, 139, 0.3);
+  --shadow-glow: 0 0 30px rgba(100, 116, 139, 0.2);
+}
+
+[data-theme="volcano"] {
+  --bg-primary: #100400;
+  --bg-secondary: #200800;
+  --bg-tertiary: #300e02;
+  --bg-card: rgba(48, 14, 2, 0.6);
+  --bg-card-hover: rgba(64, 18, 2, 0.7);
+  --bg-glass: rgba(40, 10, 2, 0.45);
+  --text-primary: #fff3ee;
+  --text-secondary: #c4705a;
+  --text-muted: #7a3828;
+  --text-accent: #fb923c;
+  --accent: #ea580c;
+  --accent-green: #ea580c;
+  --accent-emerald: #fb923c;
+  --accent-lime: #fed7aa;
+  --glow-green: 0 0 20px rgba(234, 88, 12, 0.4), 0 0 60px rgba(234, 88, 12, 0.1);
+  --glow-emerald: 0 0 20px rgba(251, 146, 60, 0.4);
+  --gradient-main: linear-gradient(135deg, #180600 0%, #280a00 50%, #100400 100%);
+  --gradient-card: linear-gradient(145deg, rgba(48, 14, 2, 0.5), rgba(24, 6, 0, 0.8));
+  --gradient-accent: linear-gradient(135deg, #ea580c, #c2410c);
+  --gradient-glow: linear-gradient(135deg, #ea580c, #fb923c);
+  --gradient-primary: linear-gradient(135deg, #ea580c, #fb923c);
+  --border-subtle: 1px solid rgba(234, 88, 12, 0.15);
+  --border-accent: 1px solid rgba(234, 88, 12, 0.3);
+  --shadow-glow: 0 0 30px rgba(234, 88, 12, 0.2);
+}
+
+[data-theme="arctic"] {
+  --bg-primary: #030c12;
+  --bg-secondary: #061820;
+  --bg-tertiary: #0a2030;
+  --bg-card: rgba(10, 32, 48, 0.6);
+  --bg-card-hover: rgba(14, 42, 62, 0.7);
+  --bg-glass: rgba(8, 26, 40, 0.45);
+  --text-primary: #e0f8ff;
+  --text-secondary: #67d8f0;
+  --text-muted: #2a8aaa;
+  --text-accent: #a5f3fc;
+  --accent: #22d3ee;
+  --accent-green: #22d3ee;
+  --accent-emerald: #67e8f9;
+  --accent-lime: #a5f3fc;
+  --glow-green: 0 0 20px rgba(34, 211, 238, 0.4), 0 0 60px rgba(34, 211, 238, 0.1);
+  --glow-emerald: 0 0 20px rgba(103, 232, 249, 0.4);
+  --gradient-main: linear-gradient(135deg, #040e18 0%, #081c28 50%, #030c12 100%);
+  --gradient-card: linear-gradient(145deg, rgba(10, 32, 48, 0.5), rgba(4, 16, 24, 0.8));
+  --gradient-accent: linear-gradient(135deg, #22d3ee, #0891b2);
+  --gradient-glow: linear-gradient(135deg, #22d3ee, #a5f3fc);
+  --gradient-primary: linear-gradient(135deg, #22d3ee, #67e8f9);
+  --border-subtle: 1px solid rgba(34, 211, 238, 0.15);
+  --border-accent: 1px solid rgba(34, 211, 238, 0.3);
+  --shadow-glow: 0 0 30px rgba(34, 211, 238, 0.2);
+}
+
+[data-theme="sage"] {
+  --bg-primary: #080c08;
+  --bg-secondary: #111810;
+  --bg-tertiary: #1a2418;
+  --bg-card: rgba(26, 36, 24, 0.6);
+  --bg-card-hover: rgba(34, 48, 30, 0.7);
+  --bg-glass: rgba(20, 30, 18, 0.45);
+  --text-primary: #eaf0e8;
+  --text-secondary: #8caa88;
+  --text-muted: #4a6848;
+  --text-accent: #a8c5a0;
+  --accent: #6b9e60;
+  --accent-green: #6b9e60;
+  --accent-emerald: #84a878;
+  --accent-lime: #a8c5a0;
+  --glow-green: 0 0 20px rgba(107, 158, 96, 0.4), 0 0 60px rgba(107, 158, 96, 0.1);
+  --glow-emerald: 0 0 20px rgba(132, 168, 120, 0.4);
+  --gradient-main: linear-gradient(135deg, #0c120a 0%, #14200f 50%, #080c08 100%);
+  --gradient-card: linear-gradient(145deg, rgba(26, 36, 24, 0.5), rgba(12, 18, 10, 0.8));
+  --gradient-accent: linear-gradient(135deg, #6b9e60, #4a7040);
+  --gradient-glow: linear-gradient(135deg, #6b9e60, #a8c5a0);
+  --gradient-primary: linear-gradient(135deg, #6b9e60, #84a878);
+  --border-subtle: 1px solid rgba(107, 158, 96, 0.15);
+  --border-accent: 1px solid rgba(107, 158, 96, 0.3);
+  --shadow-glow: 0 0 30px rgba(107, 158, 96, 0.2);
+}
+
+[data-theme="crimson"] {
+  --bg-primary: #0d0404;
+  --bg-secondary: #1a0707;
+  --bg-tertiary: #260a0a;
+  --bg-card: rgba(38, 10, 10, 0.6);
+  --bg-card-hover: rgba(50, 14, 14, 0.7);
+  --bg-glass: rgba(30, 8, 8, 0.45);
+  --text-primary: #fde8e8;
+  --text-secondary: #c08080;
+  --text-muted: #7a4040;
+  --text-accent: #fca5a5;
+  --accent: #dc2626;
+  --accent-green: #dc2626;
+  --accent-emerald: #ef4444;
+  --accent-lime: #fca5a5;
+  --glow-green: 0 0 20px rgba(220, 38, 38, 0.4), 0 0 60px rgba(220, 38, 38, 0.1);
+  --glow-emerald: 0 0 20px rgba(239, 68, 68, 0.4);
+  --gradient-main: linear-gradient(135deg, #0d0404 0%, #1f0606 50%, #0d0404 100%);
+  --gradient-card: linear-gradient(145deg, rgba(38, 10, 10, 0.5), rgba(13, 4, 4, 0.8));
+  --gradient-accent: linear-gradient(135deg, #dc2626, #991b1b);
+  --gradient-glow: linear-gradient(135deg, #dc2626, #fca5a5);
+  --gradient-primary: linear-gradient(135deg, #dc2626, #ef4444);
+  --border-subtle: 1px solid rgba(220, 38, 38, 0.15);
+  --border-accent: 1px solid rgba(220, 38, 38, 0.3);
+  --shadow-glow: 0 0 30px rgba(220, 38, 38, 0.2);
+}
+
+[data-theme="citrus"] {
+  --bg-primary: #060a02;
+  --bg-secondary: #0d1404;
+  --bg-tertiary: #141f06;
+  --bg-card: rgba(20, 31, 6, 0.6);
+  --bg-card-hover: rgba(28, 42, 8, 0.7);
+  --bg-glass: rgba(14, 22, 4, 0.45);
+  --text-primary: #f0fad8;
+  --text-secondary: #92b050;
+  --text-muted: #506830;
+  --text-accent: #d9f99d;
+  --accent: #84cc16;
+  --accent-green: #84cc16;
+  --accent-emerald: #a3e635;
+  --accent-lime: #d9f99d;
+  --glow-green: 0 0 20px rgba(132, 204, 22, 0.4), 0 0 60px rgba(132, 204, 22, 0.1);
+  --glow-emerald: 0 0 20px rgba(163, 230, 53, 0.4);
+  --gradient-main: linear-gradient(135deg, #060a02 0%, #111c04 50%, #060a02 100%);
+  --gradient-card: linear-gradient(145deg, rgba(20, 31, 6, 0.5), rgba(6, 10, 2, 0.8));
+  --gradient-accent: linear-gradient(135deg, #84cc16, #4d7c0f);
+  --gradient-glow: linear-gradient(135deg, #84cc16, #d9f99d);
+  --gradient-primary: linear-gradient(135deg, #84cc16, #a3e635);
+  --border-subtle: 1px solid rgba(132, 204, 22, 0.15);
+  --border-accent: 1px solid rgba(132, 204, 22, 0.3);
+  --shadow-glow: 0 0 30px rgba(132, 204, 22, 0.2);
+}
+
+[data-theme="copper"] {
+  --bg-primary: #0a0602;
+  --bg-secondary: #180e04;
+  --bg-tertiary: #231406;
+  --bg-card: rgba(35, 20, 6, 0.6);
+  --bg-card-hover: rgba(46, 26, 8, 0.7);
+  --bg-glass: rgba(28, 16, 4, 0.45);
+  --text-primary: #fdf4e8;
+  --text-secondary: #c49050;
+  --text-muted: #7a5830;
+  --text-accent: #fde68a;
+  --accent: #b45309;
+  --accent-green: #b45309;
+  --accent-emerald: #d97706;
+  --accent-lime: #fde68a;
+  --glow-green: 0 0 20px rgba(180, 83, 9, 0.4), 0 0 60px rgba(180, 83, 9, 0.1);
+  --glow-emerald: 0 0 20px rgba(217, 119, 6, 0.4);
+  --gradient-main: linear-gradient(135deg, #0a0602 0%, #1c0e04 50%, #0a0602 100%);
+  --gradient-card: linear-gradient(145deg, rgba(35, 20, 6, 0.5), rgba(10, 6, 2, 0.8));
+  --gradient-accent: linear-gradient(135deg, #b45309, #78350f);
+  --gradient-glow: linear-gradient(135deg, #b45309, #fde68a);
+  --gradient-primary: linear-gradient(135deg, #b45309, #d97706);
+  --border-subtle: 1px solid rgba(180, 83, 9, 0.15);
+  --border-accent: 1px solid rgba(180, 83, 9, 0.3);
+  --shadow-glow: 0 0 30px rgba(180, 83, 9, 0.2);
+}
+
+[data-theme="indigo"] {
+  --bg-primary: #03020e;
+  --bg-secondary: #07051c;
+  --bg-tertiary: #0e0b2a;
+  --bg-card: rgba(14, 11, 42, 0.6);
+  --bg-card-hover: rgba(20, 16, 56, 0.7);
+  --bg-glass: rgba(10, 8, 32, 0.45);
+  --text-primary: #eeeeff;
+  --text-secondary: #8080cc;
+  --text-muted: #4a4888;
+  --text-accent: #c7d2fe;
+  --accent: #6366f1;
+  --accent-green: #6366f1;
+  --accent-emerald: #818cf8;
+  --accent-lime: #c7d2fe;
+  --glow-green: 0 0 20px rgba(99, 102, 241, 0.4), 0 0 60px rgba(99, 102, 241, 0.1);
+  --glow-emerald: 0 0 20px rgba(129, 140, 248, 0.4);
+  --gradient-main: linear-gradient(135deg, #03020e 0%, #0a0820 50%, #03020e 100%);
+  --gradient-card: linear-gradient(145deg, rgba(14, 11, 42, 0.5), rgba(3, 2, 14, 0.8));
+  --gradient-accent: linear-gradient(135deg, #6366f1, #4338ca);
+  --gradient-glow: linear-gradient(135deg, #6366f1, #c7d2fe);
+  --gradient-primary: linear-gradient(135deg, #6366f1, #818cf8);
+  --border-subtle: 1px solid rgba(99, 102, 241, 0.15);
+  --border-accent: 1px solid rgba(99, 102, 241, 0.3);
+  --shadow-glow: 0 0 30px rgba(99, 102, 241, 0.2);
+}
+
 /* ============================================================
    SIDEBAR PALETTE
    ============================================================ */
 .sidebar-palette {
-  padding: var(--space-sm) var(--space-md);
   border-top: var(--border-subtle);
 }
 
-.palette-label {
-  display: block;
-  font-size: 0.65rem;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
+.palette-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  padding: 10px var(--space-md);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.palette-caret {
+  width: 14px;
+  height: 14px;
+  margin-left: auto;
   color: var(--text-muted);
-  margin-bottom: 8px;
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+
+.palette-toggle.open .palette-caret {
+  transform: rotate(180deg);
 }
 
 .palette-swatches {
-  display: flex;
+  display: none;
+  grid-template-columns: repeat(5, 1fr);
   gap: 8px;
-  align-items: center;
+  padding: 6px var(--space-md) 14px;
+}
+
+.palette-swatches.open {
+  display: grid;
 }
 
 .palette-swatch {
-  width: 20px;
-  height: 20px;
+  width: 100%;
+  aspect-ratio: 1;
   border-radius: 50%;
   border: 2px solid transparent;
   cursor: pointer;
