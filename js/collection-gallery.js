@@ -341,7 +341,7 @@ export class CollectionGallery {
 
           masteryEl.innerHTML = `
             <div class="mastery-card-spruced">
-              <div class="mastery-garland" aria-hidden="true">&#x273F; &#x273D; Completed &#x273D; &#x273F;</div>
+              <div class="mastery-garland" aria-hidden="true">Completed</div>
               <div class="mastery-img-wrap">
                 <img src="${mImage}" class="mastery-realistic-img" alt="${baseName} photo">
               </div>

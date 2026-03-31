@@ -15,6 +15,12 @@ export class AnalyticsDashboard {
     this.store = store;
     this.charts = {};
     this.weightUnit = 'lbs';
+    this.weightTimeframe = '1m';
+    this.gardenTimeframe = '1m';
+    this.wellbeingTimeframe = '1w';
+    this.weightOffsetDays = 0;
+    this.gardenOffsetDays = 0;
+    this.wellbeingOffsetDays = 0;
   }
 
   setWeightUnit(unit) {
@@ -22,11 +28,113 @@ export class AnalyticsDashboard {
     this.updateWeightChart();
   }
 
+  setWeightTimeframe(timeframe) {
+    this.weightTimeframe = timeframe;
+    this.weightOffsetDays = 0;
+    this.updateWeightChart();
+    this.updateWeightNav();
+  }
+
+  setGardenTimeframe(timeframe) {
+    this.gardenTimeframe = timeframe;
+    this.gardenOffsetDays = 0;
+    this.renderFastLog();
+    this.updateGardenNav();
+  }
+
+  setWellbeingTimeframe(timeframe) {
+    this.wellbeingTimeframe = timeframe;
+    this.wellbeingOffsetDays = 0;
+    this.updateWellbeingChart();
+    this.updateWellbeingNav();
+  }
+
+  getDaysForTimeframe(tf) {
+    if (tf === '1d') return 1;
+    if (tf === '1w') return 7;
+    if (tf === '1m') return 30;
+    if (tf === '3m') return 90;
+    if (tf === '6m') return 180;
+    if (tf === '1y') return 365;
+    return 0;
+  }
+
+  stepWeightTimeframe(direction) {
+    if (this.weightTimeframe === 'all') return;
+    const days = this.getDaysForTimeframe(this.weightTimeframe);
+    this.weightOffsetDays += (direction === 'prev' ? days : -days);
+    if (this.weightOffsetDays < 0) this.weightOffsetDays = 0;
+    this.updateWeightChart();
+    this.updateWeightNav();
+  }
+
+  stepGardenTimeframe(direction) {
+    if (this.gardenTimeframe === 'all') return;
+    const days = this.getDaysForTimeframe(this.gardenTimeframe);
+    this.gardenOffsetDays += (direction === 'prev' ? days : -days);
+    if (this.gardenOffsetDays < 0) this.gardenOffsetDays = 0;
+    this.renderFastLog();
+    this.updateGardenNav();
+  }
+
+  stepWellbeingTimeframe(direction) {
+    if (this.wellbeingTimeframe === 'all') return;
+    const days = this.getDaysForTimeframe(this.wellbeingTimeframe);
+    this.wellbeingOffsetDays += (direction === 'prev' ? days : -days);
+    if (this.wellbeingOffsetDays < 0) this.wellbeingOffsetDays = 0;
+    this.updateWellbeingChart();
+    this.updateWellbeingNav();
+  }
+  
+  updateWeightNav() {
+    const prevBtn = document.querySelector('.weight-nav-prev');
+    const nextBtn = document.querySelector('.weight-nav-next');
+    if (!prevBtn || !nextBtn) return;
+    
+    if (this.weightTimeframe === 'all') {
+      prevBtn.disabled = true;
+      nextBtn.disabled = true;
+    } else {
+      prevBtn.disabled = false;
+      nextBtn.disabled = this.weightOffsetDays <= 0;
+    }
+  }
+
+  updateGardenNav() {
+    const prevBtn = document.querySelector('.garden-nav-prev');
+    const nextBtn = document.querySelector('.garden-nav-next');
+    if (!prevBtn || !nextBtn) return;
+    
+    if (this.gardenTimeframe === 'all') {
+      prevBtn.disabled = true;
+      nextBtn.disabled = true;
+    } else {
+      prevBtn.disabled = false;
+      nextBtn.disabled = this.gardenOffsetDays <= 0;
+    }
+  }
+
+  updateWellbeingNav() {
+    const prevBtn = document.querySelector('.wellbeing-nav-prev');
+    const nextBtn = document.querySelector('.wellbeing-nav-next');
+    if (!prevBtn || !nextBtn) return;
+    
+    if (this.wellbeingTimeframe === 'all') {
+      prevBtn.disabled = true;
+      nextBtn.disabled = true;
+    } else {
+      prevBtn.disabled = false;
+      nextBtn.disabled = this.wellbeingOffsetDays <= 0;
+    }
+  }
+
   init() {
     this.createWeightChart();
+    this.updateWeightNav();
     this.createWellbeingChart();
     this.updateStats();
     this.renderFastLog();
+    this.updateGardenNav();
     this.bindEvents();
   }
 
@@ -67,7 +175,22 @@ export class AnalyticsDashboard {
     const container = document.getElementById('fast-log-list');
     if (!container) return;
 
-    const fasts = [...this.store.state.fasts].reverse(); // newest first
+    let fasts = [...this.store.state.fasts];
+
+    if (this.gardenTimeframe && this.gardenTimeframe !== 'all' && fasts.length > 0) {
+      const msPerDay = 24 * 60 * 60 * 1000;
+      const days = this.getDaysForTimeframe(this.gardenTimeframe) || 30;
+      const maxTime = Math.max(...fasts.map(f => f.endTime || 0), Date.now());
+      const windowEnd = maxTime - (this.gardenOffsetDays * msPerDay);
+      const windowStart = windowEnd - (days * msPerDay);
+      
+      fasts = fasts.filter(f => {
+        const t = f.endTime || maxTime;
+        return t >= windowStart && t <= windowEnd;
+      });
+    }
+
+    fasts = fasts.reverse(); // newest first
 
     if (fasts.length === 0) {
       container.innerHTML = '<div class="fast-log-empty">No fasts recorded yet. Plant your first seed!</div>';
@@ -80,34 +203,43 @@ export class AnalyticsDashboard {
       return m > 0 ? `${h}h ${m}m` : `${h}h`;
     };
 
-    const header = `
-      <div class="fast-log-row header">
-        <span class="fast-log-date">Date</span>
-        <span class="fast-log-plan">Plan</span>
-        <span class="fast-log-duration">Duration / Goal</span>
-        <span class="fast-log-plant">Plant</span>
-        <span class="fast-log-status">Status</span>
-      </div>`;
-
     const rows = fasts.map(f => {
-      const date = f.endTime ? new Date(f.endTime).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—';
+      const dateObj = new Date(f.endTime);
+      const dateStrForWater = dateObj.toDateString();
+      const date = f.endTime ? dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
       const plan = f.planName || '—';
       const actual = fmt(f.actualMs || 0);
       const goal   = fmt(f.goalMs   || 0);
-      const plant  = f.success && f.plantType ? `${f.plantType.emoji || ''} ${f.plantType.name}` : '—';
+      const plant  = f.success && f.plantType ? `${f.plantType.emoji || ''} ${f.plantType.name}` : '';
       const statusClass = f.success ? 'complete' : 'early';
       const statusLabel = f.success ? '✓ Complete' : 'Ended early';
+
+      let waterCount = 0;
+      if (dateStrForWater === this.store.state.water.date) {
+        waterCount = this.store.state.water.today;
+      } else {
+        const hEntry = (this.store.state.water.history || []).find(h => h.date === dateStrForWater);
+        if (hEntry) waterCount = hEntry.glasses;
+      }
+
+      const metaParts = [
+        `<span class="fast-log-plan">${plan}</span>`,
+        `<span class="fast-log-duration">${actual} / ${goal}</span>`,
+        waterCount > 0 ? `<span class="fast-log-water">${waterCount} 💧</span>` : '',
+        plant ? `<span class="fast-log-plant">${plant}</span>` : '',
+      ].filter(Boolean).join('<span class="fast-log-sep">·</span>');
+
       return `
         <div class="fast-log-row">
-          <span class="fast-log-date">${date}</span>
-          <span class="fast-log-plan">${plan}</span>
-          <span class="fast-log-duration">${actual} / ${goal}</span>
-          <span class="fast-log-plant">${plant}</span>
-          <span class="fast-log-status ${statusClass}">${statusLabel}</span>
+          <div class="fast-log-top">
+            <span class="fast-log-date">${date}</span>
+            <span class="fast-log-status ${statusClass}">${statusLabel}</span>
+          </div>
+          <div class="fast-log-meta">${metaParts}</div>
         </div>`;
     }).join('');
 
-    container.innerHTML = header + rows;
+    container.innerHTML = rows;
   }
 
   // ---- Stats Summary ----
@@ -120,6 +252,12 @@ export class AnalyticsDashboard {
 
     const avgHoursEl = document.getElementById('stat-avg-hours');
     const completionEl = document.getElementById('stat-completion');
+    const totalPlantsEl = document.getElementById('stat-total-plants');
+
+    if (totalPlantsEl) {
+      const successfulFasts = this.store.state.fasts.filter(f => f.success);
+      totalPlantsEl.textContent = successfulFasts.length;
+    }
 
     if (completed.length > 0) {
       const avgMs = completed.reduce((sum, f) => sum + (f.actualMs || 0), 0) / completed.length;
@@ -308,12 +446,27 @@ export class AnalyticsDashboard {
   }
 
   getWeightData() {
-    const weights = this.store.state.weight.slice(-14);
+    let weights = this.store.state.weight;
+
+    if (this.weightTimeframe !== 'all' && weights.length > 0) {
+      const msPerDay = 24 * 60 * 60 * 1000;
+      const days = this.getDaysForTimeframe(this.weightTimeframe) || 30;
+      const maxTime = Math.max(...weights.map(w => w.timestamp || 0), Date.now());
+      const windowEnd = maxTime - (this.weightOffsetDays * msPerDay);
+      const windowStart = windowEnd - (days * msPerDay);
+      
+      weights = weights.filter(w => {
+        const t = w.timestamp || maxTime;
+        return t >= windowStart && t <= windowEnd;
+      });
+    }
+
     const convert = v => this.weightUnit === 'kg' ? Math.round(v / 2.20462 * 10) / 10 : v;
     return {
       labels: weights.map(w => {
         const d = new Date(w.timestamp || Date.now());
-        return `${d.getMonth() + 1}/${d.getDate()}`;
+        const yy = d.getFullYear().toString().slice(-2);
+        return `${d.getMonth() + 1}/${d.getDate()}/${yy}`;
       }),
       values: weights.map(w => convert(w.value))
     };
@@ -332,13 +485,13 @@ export class AnalyticsDashboard {
       data: {
         labels: ['Mood', 'Sleep', 'Energy'],
         datasets: [{
-          label: 'This Week',
+          label: data.currentLabel,
           data: data.current,
           borderColor: '#2ecc71',
           backgroundColor: 'rgba(46, 204, 113, 0.2)',
           pointBackgroundColor: '#66ffaa'
         }, {
-          label: 'Last Week',
+          label: data.previousLabel,
           data: data.previous,
           borderColor: '#9b59b6',
           backgroundColor: 'rgba(155, 89, 182, 0.1)',
@@ -365,28 +518,66 @@ export class AnalyticsDashboard {
     if (!this.charts.wellbeing) return;
     const data = this.getWellbeingData();
     this.charts.wellbeing.data.datasets[0].data = data.current;
+    this.charts.wellbeing.data.datasets[0].label = data.currentLabel;
     this.charts.wellbeing.data.datasets[1].data = data.previous;
+    this.charts.wellbeing.data.datasets[1].label = data.previousLabel;
     this.charts.wellbeing.update();
+    
+    const badge = document.getElementById('wellbeing-avg-badge');
+    if (badge) badge.textContent = `Avg: ${data.overallAvg}`;
   }
 
   getWellbeingData() {
     const metrics = this.store.state.metrics;
-    const now = Date.now();
-    const weekMs = 7 * 24 * 60 * 60 * 1000;
+    const msPerDay = 24 * 60 * 60 * 1000;
+    const days = this.getDaysForTimeframe(this.wellbeingTimeframe) || 7;
+    
+    let maxTime = Date.now();
+    if (metrics.length > 0) {
+      maxTime = Math.max(...metrics.map(m => m.timestamp || 0), Date.now());
+    }
 
-    const thisWeek = metrics.filter(m => (m.timestamp || now) > now - weekMs);
-    const lastWeek = metrics.filter(m => {
-      const t = m.timestamp || now;
-      return t > now - weekMs * 2 && t <= now - weekMs;
+    const windowEnd = maxTime - (this.wellbeingOffsetDays * msPerDay);
+    const windowStart = windowEnd - (days * msPerDay);
+    const prevWindowStart = windowStart - (days * msPerDay);
+
+    const currentPeriod = metrics.filter(m => {
+      const t = m.timestamp || maxTime;
+      return t > windowStart && t <= windowEnd;
+    });
+
+    const previousPeriod = metrics.filter(m => {
+      const t = m.timestamp || maxTime;
+      return t > prevWindowStart && t <= windowStart;
     });
 
     const avg = (arr, key) => arr.length > 0
       ? Math.round(arr.reduce((s, m) => s + m[key], 0) / arr.length * 10) / 10
       : 5;
 
+    // Generate dynamic labels
+    const periodNames = { '1d': 'Day', '1w': 'Week', '1m': 'Month', '1y': 'Year' };
+    const periodName = periodNames[this.wellbeingTimeframe] || 'Week';
+    
+    const offsetUnits = this.wellbeingOffsetDays / days;
+    const currentLabel = offsetUnits === 0 ? `This ${periodName}` : `${offsetUnits} ${periodName}s Ago`;
+    const previousLabel = offsetUnits === 0 ? `Last ${periodName}` : `${offsetUnits + 1} ${periodName}s Ago`;
+
+    const currentData = [avg(currentPeriod, 'mood'), avg(currentPeriod, 'sleep'), avg(currentPeriod, 'energy')];
+    const previousData = [avg(previousPeriod, 'mood'), avg(previousPeriod, 'sleep'), avg(previousPeriod, 'energy')];
+
+    // Calculate total average for badge
+    let overallAvg = '--';
+    if (currentPeriod.length > 0) {
+      overallAvg = Math.round((currentData[0] + currentData[1] + currentData[2]) / 3 * 10) / 10;
+    }
+
     return {
-      current: [avg(thisWeek, 'mood'), avg(thisWeek, 'sleep'), avg(thisWeek, 'energy')],
-      previous: [avg(lastWeek, 'mood'), avg(lastWeek, 'sleep'), avg(lastWeek, 'energy')]
+      current: currentData,
+      previous: previousData,
+      currentLabel,
+      previousLabel,
+      overallAvg
     };
   }
 }

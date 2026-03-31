@@ -492,11 +492,13 @@ export class PlantRenderer {
     // Draw background gradient
     this.drawBackground(w, h);
 
+    // Nothing to show until a fast is active
+    if (!this.plant) return;
+
     // Draw soil
     this.drawSoil(w, h);
 
-    if (!this.plant || this.progress < 0.01) {
-      // Draw seed
+    if (this.progress < 0.01) {
       this.drawSeed(w, h);
       return;
     }
@@ -521,7 +523,7 @@ export class PlantRenderer {
     ctx.restore();
 
     // Draw particles
-    this.updateAndDrawParticles(w, h);
+    this.updateAndDrawParticles();
 
     // Draw rarity glow for rare+ plants
     if (this.progress > 0.8 && (this.plant.rarity === 'rare' || this.plant.rarity === 'legendary')) {
@@ -1134,7 +1136,7 @@ export class PlantRenderer {
     });
   }
 
-  updateAndDrawParticles(w, h) {
+  updateAndDrawParticles() {
     const { ctx } = this;
     this.particles = this.particles.filter(p => {
       p.x += p.vx;

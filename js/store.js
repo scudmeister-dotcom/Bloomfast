@@ -38,6 +38,9 @@ const defaultState = {
   journal: [], // [{ timestamp, date, text, metrics: { mood, sleep, energy }, fastSeconds }]
   lastJournalSaveDate: null,
 
+  // Archived journal — entries older than 90 days are compressed into monthly summaries
+  journalArchive: [], // [{ monthKey: '2025-03', label: 'March 2025', entryCount, avgMood, avgSleep, avgEnergy, totalFastHours, highlights: [string] }]
+
   // Metrics (mood, sleep, energy)
   metrics: [], // [{ timestamp, mood, sleep, energy }]
   lastMetricsSaveDate: null, // "Mon Mar 15 2026"
@@ -75,7 +78,13 @@ const defaultState = {
   inventory: {
     water: 5,
     fertilizer: 2
-  }
+  },
+
+  // Water display unit preference
+  waterUnit: 'floz', // 'floz' | 'ml'
+
+  // Bloom Coach — tracks recently shown message titles to avoid repeats
+  coachSeenTitles: [] // last 60 titles shown
 };
 
 class Store {
@@ -115,6 +124,9 @@ class Store {
 
     // Weekly reset
     this.checkWeeklyReset();
+
+    // Archive journal entries older than 90 days
+    this.pruneJournal();
   }
 
   checkWeeklyReset() {
@@ -128,6 +140,55 @@ class Store {
       });
     }
     this.state.lastWeeklyReset = startOfThisWeek;
+    this.save();
+  }
+
+  pruneJournal() {
+    const cutoffMs = 90 * 24 * 60 * 60 * 1000;
+    const cutoff = Date.now() - cutoffMs;
+    const toArchive = this.state.journal.filter(j => j.timestamp < cutoff);
+    if (toArchive.length === 0) return;
+
+    this.state.journal = this.state.journal.filter(j => j.timestamp >= cutoff);
+
+    // Group old entries by year-month
+    const byMonth = {};
+    toArchive.forEach(j => {
+      const d = new Date(j.timestamp);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+      if (!byMonth[key]) byMonth[key] = [];
+      byMonth[key].push(j);
+    });
+
+    for (const [key, entries] of Object.entries(byMonth)) {
+      const withMetrics = entries.filter(e => e.metrics);
+      const avg = field => withMetrics.length
+        ? (withMetrics.reduce((s, e) => s + (e.metrics[field] || 0), 0) / withMetrics.length).toFixed(1)
+        : null;
+
+      const totalFastHours = (entries.reduce((s, e) => s + (e.fastSeconds || 0), 0) / 3600).toFixed(1);
+      const highlights = entries
+        .filter(e => e.text?.trim().length > 0)
+        .slice(0, 3)
+        .map(e => e.text.trim().slice(0, 80) + (e.text.trim().length > 80 ? '…' : ''));
+
+      const [year, month] = key.split('-');
+      const label = new Date(parseInt(year), parseInt(month) - 1, 1)
+        .toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+      const summary = {
+        monthKey: key, label,
+        entryCount: entries.length,
+        avgMood: avg('mood'), avgSleep: avg('sleep'), avgEnergy: avg('energy'),
+        totalFastHours, highlights
+      };
+
+      const idx = this.state.journalArchive.findIndex(a => a.monthKey === key);
+      if (idx >= 0) this.state.journalArchive[idx] = summary;
+      else this.state.journalArchive.push(summary);
+    }
+
+    this.state.journalArchive.sort((a, b) => b.monthKey.localeCompare(a.monthKey));
     this.save();
   }
 
@@ -233,6 +294,10 @@ class Store {
     this.state.streakCount = 0;
     this.state.garden.plants = [];
     this.state.weeklyLog = [];
+    this.state.weight = [];
+    this.state.metrics = [];
+    this.state.journal = [];
+    this.state.journalArchive = [];
     this.state.lastMetricsSaveDate = null;
     this.state.lastJournalSaveDate = null;
     this.save();
@@ -345,11 +410,24 @@ class Store {
 
   logWeight(value, timestamp = Date.now()) {
     const entry = { timestamp, value };
-    // Check if we already have a weight for this date to avoid duplicates in the chart
     const dateStr = new Date(timestamp).toDateString();
     this.state.weight = this.state.weight.filter(w => new Date(w.timestamp).toDateString() !== dateStr);
     this.state.weight.push(entry);
     this.state.weight.sort((a, b) => a.timestamp - b.timestamp);
+    this.state.lastWeightSaveDate = dateStr;
+    this.save();
+  }
+
+  getTodayWeight() {
+    const today = new Date().toDateString();
+    if (this.state.lastWeightSaveDate === today) {
+      return this.state.weight.find(w => new Date(w.timestamp).toDateString() === today) || null;
+    }
+    return null;
+  }
+
+  setWaterUnit(unit) {
+    this.state.waterUnit = unit;
     this.save();
   }
 
@@ -361,16 +439,29 @@ class Store {
   }
 
   injectMockData() {
-    const now = Date.now();
     const dayMs = 24 * 60 * 60 * 1000;
     
+    // Find base time to append data sequentially forward
+    let latestFastTime = this.state.fasts.length > 0 
+      ? Math.max(...this.state.fasts.map(f => f.endTime)) 
+      : Date.now() - 30 * dayMs;
+      
+    let latestWeightTime = this.state.weight.length > 0 
+      ? Math.max(...this.state.weight.map(w => w.timestamp)) 
+      : Date.now() - 30 * dayMs;
+      
+    let latestMetricsTime = this.state.metrics.length > 0
+      ? Math.max(...this.state.metrics.map(m => m.timestamp))
+      : Date.now() - 7 * dayMs;
+
     // 1. Add some past fasts (pick unique plants)
     const usedIds = new Set();
     this.state.garden.plants.forEach(p => { if (p.type?.id) usedIds.add(p.type.id); });
     this.state.fasts.filter(f => f.completed && f.plantType?.id).forEach(f => usedIds.add(f.plantType.id));
 
+    // Append 10 fasts over next 30 days
     for (let i = 1; i <= 10; i++) {
-      const endTime = now - (i * dayMs);
+      const endTime = latestFastTime + (i * 3 * dayMs); // spread over ~30 days
       const startTime = endTime - (16 * 60 * 60 * 1000); // 16h fast
       const planName = '16:8';
       const available = PLANT_SPECIES.filter(p => !usedIds.has(p.id));
@@ -389,7 +480,7 @@ class Store {
       });
 
       this.state.garden.plants.push({
-        id: 'mock_' + i,
+        id: 'mock_' + Date.now().toString(36) + i,
         type: plantType,
         x: 100 + Math.random() * 600,
         y: 100 + Math.random() * 400,
@@ -398,19 +489,25 @@ class Store {
       });
     }
 
-    // 2. Add some weight trend
-    let startWeight = 185;
-    for (let i = 30; i >= 0; i--) {
-      this.state.weight.push({
-        timestamp: now - (i * dayMs),
-        value: startWeight - (30 - i) * 0.2 + (Math.random() * 0.5)
-      });
+    // 2. Add some weight trend (use logWeight to prevent same-date duplicates forever)
+    let startWeight = this.state.weight.length > 0 
+      ? this.state.weight[this.state.weight.length - 1].value 
+      : 185;
+
+    for (let i = 1; i <= 30; i++) {
+      this.logWeight(
+        startWeight - i * 0.2 + (Math.random() * 0.5),
+        latestWeightTime + (i * dayMs)
+      );
     }
 
     // 3. Add some metrics
-    for (let i = 7; i >= 0; i--) {
+    for (let i = 1; i <= 7; i++) {
+      const mTime = latestMetricsTime + (i * dayMs);
+      const todayStr = new Date(mTime).toDateString();
+      this.state.metrics = this.state.metrics.filter(m => new Date(m.timestamp).toDateString() !== todayStr);
       this.state.metrics.push({
-        timestamp: now - (i * dayMs),
+        timestamp: mTime,
         mood: 6 + Math.floor(Math.random() * 4),
         sleep: 5 + Math.floor(Math.random() * 5),
         energy: 4 + Math.floor(Math.random() * 6)
