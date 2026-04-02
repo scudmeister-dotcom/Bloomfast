@@ -227,12 +227,37 @@ export class CollectionGallery {
       
       const el = document.createElement('div');
       el.className = 'botanical-card-container';
+      el.dataset.plantId = plant.id;
 
       if (isEarned) {
         const dateStr = new Date(stats.firstEarned.endTime).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
         const hours = Math.floor((stats.firstEarned.actualMs || 0) / 3600000);
         const mins = Math.floor(((stats.firstEarned.actualMs || 0) % 3600000) / 60000);
         const durationStr = `${hours}h ${mins}m`;
+
+        // Look up reflection data (journal + metrics) from the day this plant was earned
+        const fastDateStr = stats.firstEarned.endTime
+          ? new Date(stats.firstEarned.endTime).toDateString()
+          : null;
+        const journalEntry = fastDateStr
+          ? (this.store.state.journal || []).find(j => new Date(j.timestamp).toDateString() === fastDateStr)
+          : null;
+        const metricsEntry = fastDateStr
+          ? (this.store.state.metrics || []).find(m => new Date(m.timestamp).toDateString() === fastDateStr)
+          : null;
+
+        // Scores on the front, journal link on the back
+        const frontScoresHtml = metricsEntry
+          ? `<div class="card-front-scores">
+               <span title="Mood">😌 ${metricsEntry.mood}</span>
+               <span title="Energy">⚡ ${metricsEntry.energy}</span>
+               <span title="Sleep">🌙 ${metricsEntry.sleep}</span>
+             </div>`
+          : '';
+
+        const backLinkHtml = journalEntry
+          ? `<button class="card-reflection-link" data-date="${fastDateStr}">View journal entry →</button>`
+          : '';
 
         // Legend-only extras
         const isLegendary = plant.rarity === 'legendary';
@@ -272,6 +297,7 @@ export class CollectionGallery {
                 <div class="name">${plant.name}</div>
                 <div class="rarity">${rarityDisplay[plant.rarity]}</div>
               </div>
+              ${frontScoresHtml}
             </div>
             <div class="card-face card-back" style="border-color:${rarityColor[plant.rarity]}">
               <div class="specimen-header">Specimen Record</div>
@@ -282,6 +308,7 @@ export class CollectionGallery {
                 <div class="card-stat">Duration: <strong>${durationStr}</strong></div>
               </div>
               <div class="card-fact">${plant.funFact}</div>
+              ${backLinkHtml}
             </div>
           </div>
         `;
@@ -307,9 +334,18 @@ export class CollectionGallery {
 
       const cardInner = el.querySelector('.botanical-card');
       if (isEarned && cardInner) {
-        el.addEventListener('click', () => {
+        el.addEventListener('click', (e) => {
+          // Don't flip if the journal link was clicked
+          if (e.target.closest('.card-reflection-link')) return;
           cardInner.classList.toggle('flipped');
           if (this.flipSound) this.flipSound();
+        });
+
+        el.querySelector('.card-reflection-link')?.addEventListener('click', (e) => {
+          e.stopPropagation();
+          window.dispatchEvent(new CustomEvent('bloom:go-to-journal', {
+            detail: { date: e.target.dataset.date }
+          }));
         });
       }
 

@@ -17,8 +17,69 @@ import { buildCoachPool } from './js/coach-messages.js';
 let timer, plantRenderer, plantSVG, collectionGallery, analytics, social, notifications;
 let selectedPlan = null;
 
+// ---- Plant Stage Display (sprite-sheet prototype) ----
+// Each stage: progress threshold, image scale, CSS filter, stage label
+// Replace imageSrc per species with real growth-stage images when ready.
+const PLANT_STAGE_DATA = {
+  sunflower: {
+    stages: [
+      { maxProgress: 0.08, imageSrc: 'assets/stages/sunflower_1.png', label: 'Germinating...' },
+      { maxProgress: 0.20, imageSrc: 'assets/stages/sunflower_2.png', label: 'Sprouting...' },
+      { maxProgress: 0.35, imageSrc: 'assets/stages/sunflower_3.png', label: 'Seedling' },
+      { maxProgress: 0.55, imageSrc: 'assets/stages/sunflower_4.png', label: 'Growing...' },
+      { maxProgress: 0.72, imageSrc: 'assets/stages/sunflower_5.png', label: 'Budding...' },
+      { maxProgress: 0.90, imageSrc: 'assets/stages/sunflower_6.png', label: 'Almost there...' },
+      { maxProgress: 1.00, imageSrc: 'assets/stages/sunflower_7.png', label: 'In Full Bloom 🌻' },
+    ]
+  }
+};
+
+const STAGE_BASE_IDS = new Set(Object.keys(PLANT_STAGE_DATA));
+
+function getPlantBaseId(plantType) {
+  return plantType?.id?.replace(/_(sprout|bud|bloom|radiant)$/i, '') || '';
+}
+
+function showStageDisplay(plantType) {
+  const baseId = getPlantBaseId(plantType);
+  if (!STAGE_BASE_IDS.has(baseId)) return false;
+
+  const el = document.getElementById('plant-stage-display');
+  if (!el) return false;
+
+  el.style.display = '';
+  updateStageDisplay(0, plantType);
+  return true;
+}
+
+function hideStageDisplay() {
+  const el = document.getElementById('plant-stage-display');
+  if (el) el.style.display = 'none';
+}
+
+function updateStageDisplay(progress, plantType) {
+  const baseId = getPlantBaseId(plantType);
+  const data   = PLANT_STAGE_DATA[baseId];
+  if (!data) return;
+
+  const stage = data.stages.find(s => progress <= s.maxProgress) || data.stages[data.stages.length - 1];
+  const img   = document.getElementById('stage-plant-img');
+  if (img && img.src !== stage.imageSrc) {
+    img.src = new URL(stage.imageSrc, window.location.href).href;
+  }
+
+  const label = document.getElementById('growth-stage-label');
+  if (label) label.textContent = stage.label;
+}
+
 // ---- Plant SVG Helpers ----
-function showPlantSVG(category, progress) {
+function showPlantSVG(category, progress, plantType) {
+  const usedStage = plantType && showStageDisplay(plantType);
+  if (usedStage) {
+    document.getElementById('plant-canvas').style.display = 'none';
+    plantSVG.hide();
+    return;
+  }
   document.getElementById('plant-canvas').style.display = 'none';
   // show() BEFORE setCategory() — renderers call getTotalLength() in _build(),
   // which returns 0 on display:none elements, causing strokes to stay fully visible.
@@ -28,6 +89,7 @@ function showPlantSVG(category, progress) {
 }
 
 function hidePlantSVG() {
+  hideStageDisplay();
   plantSVG.hide();
   document.getElementById('plant-canvas').style.display = '';
 }
@@ -80,10 +142,36 @@ function init() {
   timer.onTick = onTimerTick;
   timer.onComplete = onFastComplete;
 
+  // Navigate to journal entry from card back link
+  window.addEventListener('bloom:go-to-journal', (e) => {
+    const targetDate = e.detail?.date ? new Date(e.detail.date) : new Date();
+    // Calculate how many weeks back this date is
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    const currentSunday = new Date(now);
+    currentSunday.setDate(now.getDate() - now.getDay());
+    targetDate.setHours(0, 0, 0, 0);
+    const targetSunday = new Date(targetDate);
+    targetSunday.setDate(targetDate.getDate() - targetDate.getDay());
+    journalWeekOffset = Math.max(0, Math.round((currentSunday - targetSunday) / (7 * 24 * 60 * 60 * 1000)));
+    switchTab('wellness');
+    setTimeout(() => {
+      // Open journal history if collapsed and scroll to it
+      const list = document.getElementById('past-entries-list');
+      const btn = document.getElementById('btn-toggle-journal-history');
+      if (list?.hasAttribute('hidden')) {
+        list.removeAttribute('hidden');
+        btn?.setAttribute('aria-expanded', 'true');
+      }
+      renderPastEntries();
+      document.getElementById('past-entries-list')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+  });
+
   // Resume active fast if any
   if (timer.resume()) {
     showActiveFastUI();
-    showPlantSVG(store.state.activeFast.plantType.category, timer.progress);
+    showPlantSVG(store.state.activeFast.plantType.category, timer.progress, store.state.activeFast.plantType);
     plantRenderer.startAnimation();
   } else {
     plantRenderer.startAnimation();
@@ -142,6 +230,10 @@ function bindNavigation() {
 }
 
 function switchTab(tabName) {
+  // Stop any pulsing card highlight when leaving the garden tab
+  document.querySelectorAll('.botanical-card-container.card-highlight')
+    .forEach(el => el.classList.remove('card-highlight'));
+
   // Deactivate all
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
@@ -177,6 +269,11 @@ function switchTab(tabName) {
     updateWellnessUI();
     refreshAllSliderFills();
     generateCoachingInsights();
+    if (!analytics) {
+      analytics = new AnalyticsDashboard(store);
+      analytics.bindEvents();
+    }
+    analytics.initWellbeingChart();
   }
 
   if (tabName === 'social') {
@@ -224,7 +321,7 @@ function bindTimerControls() {
         if (!success) {
           logAndResetWater(false);
           showIdleTimerUI();
-          showToast('Fast ended early. 🌸');
+          showReflectionPrompt();
         } else {
           onFastComplete({ plant });
         }
@@ -283,6 +380,38 @@ function bindTimerControls() {
   }
   document.getElementById('btn-debug-zen')?.addEventListener('click', () => startPreview('Zen'));
   document.getElementById('btn-debug-coach')?.addEventListener('click', () => generateCoachingInsights(true));
+
+  // Stage display preview
+  const stagePreviewBtn    = document.getElementById('btn-debug-stage-preview');
+  const stagePreviewPanel  = document.getElementById('stage-preview-controls');
+  const stagePreviewSlider = document.getElementById('stage-preview-slider');
+  const stagePreviewPct    = document.getElementById('stage-preview-pct');
+
+  const sunflowerType = PLANT_SPECIES.find(p => p.id === 'sunflower_sprout');
+
+  stagePreviewBtn?.addEventListener('click', () => {
+    const isOpen = stagePreviewPanel.style.display !== 'none';
+    if (isOpen) {
+      stagePreviewPanel.style.display = 'none';
+      hidePlantSVG();
+      stagePreviewBtn.textContent = '🌻 Preview Growth';
+    } else {
+      stagePreviewPanel.style.display = '';
+      document.getElementById('plant-canvas').style.display = 'none';
+      plantSVG.hide();
+      showStageDisplay(sunflowerType);
+      updateStageDisplay(0, sunflowerType);
+      stagePreviewSlider.value = 0;
+      stagePreviewPct.textContent = '0%';
+      stagePreviewBtn.textContent = '✕ Close Preview';
+    }
+  });
+
+  stagePreviewSlider?.addEventListener('input', () => {
+    const progress = stagePreviewSlider.value / 100;
+    stagePreviewPct.textContent = `${stagePreviewSlider.value}%`;
+    updateStageDisplay(progress, sunflowerType);
+  });
 }
 
 function startFast() {
@@ -323,7 +452,7 @@ function startFast() {
   console.log('[Bloomfast] Plant selected:', plantType?.name ?? 'Zen Garden (all collected)', '| Category:', plantType?.category ?? 'Zen');
 
   // Show SVG growth animation — Zen Garden if all plants collected
-  showPlantSVG(plantType?.category ?? 'Zen', 0);
+  showPlantSVG(plantType?.category ?? 'Zen', 0, plantType);
 
   // Update UI — hide species info, show mystery
   showActiveFastUI();
@@ -476,8 +605,13 @@ function onTimerTick(t) {
   document.getElementById('growth-stage-label').textContent = getSeasonMessage(t.progress);
   updateSeasonBackground(t.progress, t.activeFast?.plantType?.category);
 
-  // Update plant SVG
-  plantSVG.setProgress(Math.min(1, t.progress));
+  // Update plant growth display
+  const activePlantType = store.state.activeFast?.plantType;
+  if (activePlantType && STAGE_BASE_IDS.has(getPlantBaseId(activePlantType))) {
+    updateStageDisplay(Math.min(1, t.progress), activePlantType);
+  } else {
+    plantSVG.setProgress(Math.min(1, t.progress));
+  }
   updateTimerDecoration(t.progress);
 
   // Update body milestones
@@ -583,15 +717,81 @@ function showPlantRevealModal(plantType, funFact, waterCount) {
       <p style="color: var(--text-secondary); font-size: var(--fs-sm); margin-top: var(--space-md);">
         This ${plantType?.name || 'plant'} has been added to your Botanical Collection! 🪴
       </p>
-      <button class="btn btn-primary" id="btn-close-reveal">View My Collection</button>
+      <div class="reflection-bonus-hint">
+        ✨ Reflecting adds your mood, energy & journal entry to the back of this card.
+      </div>
+      <div class="reveal-action-row">
+        <button class="btn btn-outline" id="btn-close-reveal" data-plant-id="${plantType?.id || ''}">View Collection</button>
+        <button class="btn btn-primary" id="btn-reveal-reflect">🌿 Reflect in Inner Garden</button>
+      </div>
     </div>
   `;
 
   modalOverlay.classList.remove('hidden');
 
-  document.getElementById('btn-close-reveal')?.addEventListener('click', () => {
+  document.getElementById('btn-close-reveal')?.addEventListener('click', (e) => {
     modalOverlay.classList.add('hidden');
+    const plantId = e.currentTarget.dataset.plantId;
     switchTab('garden');
+    if (plantId) {
+      setTimeout(() => {
+        const card = document.querySelector(`.botanical-card-container[data-plant-id="${plantId}"]`);
+        if (card) {
+          card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          setTimeout(() => {
+            card.classList.add('card-highlight');
+
+            const stopPulse = () => {
+              card.classList.remove('card-highlight');
+              document.removeEventListener('click', stopPulse);
+            };
+
+            // Stop on any click anywhere (including the card itself)
+            document.addEventListener('click', stopPulse);
+          }, 400);
+        }
+      }, 150);
+    }
+  });
+
+  document.getElementById('btn-reveal-reflect')?.addEventListener('click', () => {
+    modalOverlay.classList.add('hidden');
+    switchTab('wellness');
+  });
+}
+
+function showReflectionPrompt() {
+  const modalOverlay = document.getElementById('modal-overlay');
+  const modalContent = document.getElementById('modal-content');
+  if (!modalOverlay || !modalContent) return;
+
+  modalContent.innerHTML = `
+    <div class="plant-reveal">
+      <div class="plant-reveal-emoji">🌿</div>
+      <div class="plant-reveal-name">Fast Complete</div>
+      <p style="color: var(--text-secondary); font-size: var(--fs-sm); margin: var(--space-md) 0;">
+        Take a moment to reflect in your Inner Garden — it only takes a minute.
+      </p>
+      <div class="reflection-bonus-hint">
+        ✨ Reflecting adds your mood, energy & journal to the back of your specimen cards — making each one uniquely yours.
+      </div>
+      <p style="color: var(--text-muted); font-size: 0.72rem; margin-top: var(--space-sm);">No pressure — you can always skip.</p>
+      <div class="reveal-action-row">
+        <button class="btn btn-outline" id="btn-reflect-skip">Skip</button>
+        <button class="btn btn-primary" id="btn-reflect-yes">🌿 Reflect in Inner Garden</button>
+      </div>
+    </div>
+  `;
+
+  modalOverlay.classList.remove('hidden');
+
+  document.getElementById('btn-reflect-skip')?.addEventListener('click', () => {
+    modalOverlay.classList.add('hidden');
+  });
+
+  document.getElementById('btn-reflect-yes')?.addEventListener('click', () => {
+    modalOverlay.classList.add('hidden');
+    switchTab('wellness');
   });
 }
 
@@ -849,28 +1049,31 @@ function bindWellnessTab() {
     const savedName = store.state.profile?.name || '';
     nameInput.value = savedName;
 
+    const card = document.querySelector('.profile-name-card');
     const setEditMode = () => {
       nameInput.readOnly = false;
       nameInput.classList.remove('is-locked');
-      nameBtn.textContent = 'Save';
-      nameBtn.classList.remove('btn-secondary');
+      nameBtn.innerHTML = 'Save';
+      nameBtn.classList.remove('btn-outline', 'btn-edit-checkin');
       nameBtn.classList.add('btn-primary');
+      card?.classList.remove('profile-name-locked');
       nameInput.focus();
       nameInput.select();
     };
     const setSavedMode = () => {
       nameInput.readOnly = true;
       nameInput.classList.add('is-locked');
-      nameBtn.textContent = 'Edit';
+      nameBtn.innerHTML = '✏️ Edit';
       nameBtn.classList.remove('btn-primary');
-      nameBtn.classList.add('btn-secondary');
+      nameBtn.classList.add('btn-outline', 'btn-edit-checkin');
+      card?.classList.add('profile-name-locked');
     };
 
     // Start in saved mode if a name already exists
     if (savedName) setSavedMode(); else setEditMode();
 
     nameBtn.addEventListener('click', () => {
-      if (nameBtn.textContent === 'Edit') {
+      if (nameBtn.classList.contains('btn-outline')) {
         setEditMode();
       } else {
         const val = nameInput.value.trim();

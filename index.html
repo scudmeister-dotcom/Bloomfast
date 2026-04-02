@@ -33,13 +33,13 @@
         <li>
           <button class="nav-btn" data-tab="analytics" id="nav-analytics">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 6v6l4 2"/><path d="M16 2l4 4-4 4"/></svg>
-            <span>Bloom Log</span>
+            <span>Growth Record</span>
           </button>
         </li>
         <li>
           <button class="nav-btn" data-tab="wellness" id="nav-wellness">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
-            <span>Wellness</span>
+            <span>Inner Garden</span>
           </button>
         </li>
 
@@ -102,9 +102,19 @@
               xmlns="http://www.w3.org/2000/svg"
               style="display:none; width:100%; max-width:500px; height:auto;"
             ></svg>
+
+            <!-- Sprite Stage Display (prototype) -->
+            <div id="plant-stage-display" style="display:none">
+              <div class="stage-float-wrap">
+                <div class="stage-sway-wrap">
+                  <img id="stage-plant-img" class="stage-plant-img" src="" alt="Growing plant">
+                </div>
+              </div>
+              <div class="stage-ground"></div>
+            </div>
+
             <div id="plant-species-label" class="plant-species-label"></div>
             <div id="growth-stage-label" class="growth-stage-label">Plant a seed to begin</div>
-
           </div>
 
           <!-- Timer Controls -->
@@ -277,6 +287,11 @@
                 <button id="btn-debug-sub-1h" class="btn btn-sm btn-outline">－1 Hour</button>
                 <button id="btn-debug-fast-forward" class="btn btn-sm btn-outline" style="border-color: #ff9800; color: #ff9800;">⏩ Fast Forward (99%)</button>
                 <button id="btn-debug-zen" class="btn btn-sm btn-outline" style="border-color: #ffe566; color: #ffe566;">✦ Preview Constellation</button>
+                <button id="btn-debug-stage-preview" class="btn btn-sm btn-outline" style="border-color: #66ffaa; color: #66ffaa;">🌻 Preview Growth</button>
+              </div>
+              <div id="stage-preview-controls" style="display:none; margin-top: 12px;">
+                <label style="font-size:0.75rem; color: var(--text-muted);">Progress: <span id="stage-preview-pct">0%</span></label>
+                <input type="range" id="stage-preview-slider" min="0" max="100" value="0" style="width:100%; margin-top:4px; accent-color: #66ffaa;">
               </div>
             </div>
 
@@ -366,7 +381,7 @@
           <div class="analytics-header">
             <div>
               <h2 class="page-title" style="display: flex; align-items: center; gap: 8px;">
-                <img src="/assets/ui/logo.png" alt="Bloomfast" class="heading-logo-img" /> Bloom Log
+                <img src="/assets/ui/logo.png" alt="Bloomfast" class="heading-logo-img" /> Growth Record
               </h2>
               <p style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 2px;">Your fasting journey through the seasons</p>
             </div>
@@ -384,19 +399,31 @@
               <div class="stat-label">Seeds Planted</div>
             </div>
             <div class="stat-card glass-card">
-              <div class="stat-emoji">⏱️</div>
-              <div class="stat-value" id="stat-avg-hours">0h</div>
-              <div class="stat-label">Avg Duration</div>
+              <div class="stat-emoji">💐</div>
+              <div class="stat-value" id="stat-total-plants">0</div>
+              <div class="stat-label">Total Blooms</div>
             </div>
             <div class="stat-card glass-card">
               <div class="stat-emoji">🌸</div>
               <div class="stat-value" id="stat-completion">0%</div>
               <div class="stat-label">Bloom Rate</div>
+              <div class="stat-timeframe-btns" id="bloom-rate-tf-btns">
+                <button class="stat-tf-btn stat-tf-btn--bloom active" data-tf="1w">W</button>
+                <button class="stat-tf-btn stat-tf-btn--bloom" data-tf="1m">M</button>
+                <button class="stat-tf-btn stat-tf-btn--bloom" data-tf="1y">Y</button>
+                <button class="stat-tf-btn stat-tf-btn--bloom" data-tf="all">All</button>
+              </div>
             </div>
             <div class="stat-card glass-card">
-              <div class="stat-emoji">💐</div>
-              <div class="stat-value" id="stat-total-plants">0</div>
-              <div class="stat-label">Total Blooms</div>
+              <div class="stat-emoji">⏱️</div>
+              <div class="stat-value" id="stat-avg-hours">0h</div>
+              <div class="stat-label">Avg Duration</div>
+              <div class="stat-timeframe-btns">
+                <button class="stat-tf-btn active" data-tf="1w">W</button>
+                <button class="stat-tf-btn" data-tf="1m">M</button>
+                <button class="stat-tf-btn" data-tf="1y">Y</button>
+                <button class="stat-tf-btn" data-tf="all">All</button>
+              </div>
             </div>
           </div>
 
@@ -496,7 +523,7 @@
               </div>
             </div>
             <div class="wellness-header-info">
-              <h2>Daily Wellness Ritual</h2>
+              <h2>Inner Garden</h2>
               <p style="color: var(--text-secondary);">Reflect on your body and mind. Resets each morning.</p>
               <div id="checkin-overall-progress" style="margin-top: 8px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
@@ -581,7 +608,10 @@
             <div class="daily-checkin-header">
               <div style="display: flex; align-items: center; gap: 12px;">
                 <div class="checkin-step-indicator">2</div>
-                <h3>Mindfulness Journal</h3>
+                <div>
+                  <h3>Mindfulness Journal</h3>
+                  <p class="journal-subheader">What are you nurturing? What are you letting go? What are you becoming?</p>
+                </div>
               </div>
               <button id="btn-edit-journal" class="btn btn-outline btn-edit-checkin hidden">✏️ Edit</button>
             </div>
@@ -601,8 +631,7 @@
             </div>
             <!-- Shown when editing -->
             <div class="checkin-content">
-              <p class="section-desc">Capture your thoughts, cravings, or victories for today.</p>
-              <textarea id="journal-entry" class="journal-textarea" placeholder="How are you feeling today? Any cravings? Victories?"></textarea>
+              <textarea id="journal-entry" class="journal-textarea" placeholder="Start with one word. See where it goes. This is your space."></textarea>
               <button id="btn-save-journal" class="btn btn-primary" style="width: 100%; margin-top: var(--space-md);">Save Journal Entry</button>
             </div>
             <span id="journal-saved-msg" class="saved-msg hidden" style="position: absolute; bottom: 20px; right: 20px;">✓ Saved</span>
@@ -626,14 +655,10 @@
 
           <div class="chart-card glass-card" style="margin-bottom: var(--space-lg);">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: var(--space-md);">
-              <div>
-                <h3 style="margin: 0;">📈 Well-being Trends</h3>
-                <div id="wellbeing-avg-badge" class="avg-badge" style="display: inline-block; background: var(--accent); color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; margin-top: 4px;">Avg: --</div>
-              </div>
+              <h3 style="margin: 0;">📈 Well-being Trends</h3>
               <div class="timeframe-toggle-wrap" style="display: flex; align-items: center; gap: 8px; height: fit-content;">
                 <button class="timeframe-nav-btn wellbeing-nav-prev" title="Previous Range">❮</button>
                 <div class="weight-unit-toggle wellbeing-timeframe-toggle" style="height: fit-content;">
-                  <button class="wellbeing-timeframe-btn" data-timeframe="1d">1D</button>
                   <button class="wellbeing-timeframe-btn active" data-timeframe="1w">1W</button>
                   <button class="wellbeing-timeframe-btn" data-timeframe="1m">1M</button>
                   <button class="wellbeing-timeframe-btn" data-timeframe="1y">1Y</button>
@@ -642,6 +667,7 @@
               </div>
             </div>
             <canvas id="chart-wellbeing"></canvas>
+            <div id="wellbeing-stats-row" class="wellbeing-stats-row"></div>
           </div>
 
           <!-- Past Metrics -->

@@ -18,6 +18,8 @@ export class AnalyticsDashboard {
     this.weightTimeframe = '1m';
     this.gardenTimeframe = '1m';
     this.wellbeingTimeframe = '1w';
+    this.avgDurationTimeframe = '1w';
+    this.bloomRateTimeframe = '1w';
     this.weightOffsetDays = 0;
     this.gardenOffsetDays = 0;
     this.wellbeingOffsetDays = 0;
@@ -131,16 +133,25 @@ export class AnalyticsDashboard {
   init() {
     this.createWeightChart();
     this.updateWeightNav();
-    this.createWellbeingChart();
     this.updateStats();
     this.renderFastLog();
     this.updateGardenNav();
     this.bindEvents();
   }
 
+  // Called when the wellness tab becomes visible so the canvas has real dimensions
+  initWellbeingChart() {
+    if (!this.charts.wellbeing) {
+      this.createWellbeingChart();
+      this.renderWellbeingStats(this.getWellbeingData());
+    } else {
+      this.charts.wellbeing.resize();
+      this.updateWellbeingChart();
+    }
+  }
+
   refresh() {
     this.updateWeightChart();
-    this.updateWellbeingChart();
     this.updateStats();
     this.renderFastLog();
   }
@@ -162,6 +173,26 @@ export class AnalyticsDashboard {
         }));
       };
     }
+
+    // Avg Duration timeframe toggle
+    document.querySelectorAll('.stat-tf-btn:not(.stat-tf-btn--bloom)').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.stat-tf-btn:not(.stat-tf-btn--bloom)').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        this.avgDurationTimeframe = btn.dataset.tf;
+        this.updateStats();
+      });
+    });
+
+    // Bloom Rate timeframe toggle
+    document.querySelectorAll('.stat-tf-btn--bloom').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.stat-tf-btn--bloom').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        this.bloomRateTimeframe = btn.dataset.tf;
+        this.updateStats();
+      });
+    });
   }
 
   destroy() {
@@ -210,7 +241,6 @@ export class AnalyticsDashboard {
       const plan = f.planName || '—';
       const actual = fmt(f.actualMs || 0);
       const goal   = fmt(f.goalMs   || 0);
-      const plant  = f.success && f.plantType ? `${f.plantType.emoji || ''} ${f.plantType.name}` : '';
       const statusClass = f.success ? 'complete' : 'early';
       const statusLabel = f.success ? '✓ Complete' : 'Ended early';
 
@@ -226,8 +256,14 @@ export class AnalyticsDashboard {
         `<span class="fast-log-plan">${plan}</span>`,
         `<span class="fast-log-duration">${actual} / ${goal}</span>`,
         waterCount > 0 ? `<span class="fast-log-water">${waterCount} 💧</span>` : '',
-        plant ? `<span class="fast-log-plant">${plant}</span>` : '',
       ].filter(Boolean).join('<span class="fast-log-sep">·</span>');
+
+      const rewardHtml = (f.success && f.plantType)
+        ? `<div class="fast-log-reward">
+            <img src="${f.plantType.image}" class="fast-log-reward-img" alt="${f.plantType.name}">
+            <span class="fast-log-reward-name">${f.plantType.name}</span>
+          </div>`
+        : '';
 
       return `
         <div class="fast-log-row">
@@ -236,6 +272,7 @@ export class AnalyticsDashboard {
             <span class="fast-log-status ${statusClass}">${statusLabel}</span>
           </div>
           <div class="fast-log-meta">${metaParts}</div>
+          ${rewardHtml}
         </div>`;
     }).join('');
 
@@ -245,30 +282,50 @@ export class AnalyticsDashboard {
   // ---- Stats Summary ----
 
   updateStats() {
-    const completed = this.store.state.fasts.filter(f => f.completed);
+    const allFasts = this.store.state.fasts;
 
+    // Seeds Planted: every fast attempt, all time
     const totalFastsEl = document.getElementById('stat-total-fasts');
-    if (totalFastsEl) totalFastsEl.textContent = completed.length;
+    if (totalFastsEl) totalFastsEl.textContent = allFasts.length;
 
-    const avgHoursEl = document.getElementById('stat-avg-hours');
+    // Bloom Rate: % of successful fasts, filtered by selected timeframe
     const completionEl = document.getElementById('stat-completion');
-    const totalPlantsEl = document.getElementById('stat-total-plants');
-
-    if (totalPlantsEl) {
-      const successfulFasts = this.store.state.fasts.filter(f => f.success);
-      totalPlantsEl.textContent = successfulFasts.length;
+    if (completionEl) {
+      let fastsForRate = allFasts;
+      if (this.bloomRateTimeframe !== 'all') {
+        const cutoff = Date.now() - this.getDaysForTimeframe(this.bloomRateTimeframe) * 24 * 60 * 60 * 1000;
+        fastsForRate = allFasts.filter(f => (f.endTime || 0) >= cutoff);
+      }
+      const successCount = fastsForRate.filter(f => f.success).length;
+      const rate = fastsForRate.length > 0 ? Math.round((successCount / fastsForRate.length) * 100) : 0;
+      completionEl.textContent = rate + '%';
     }
 
-    if (completed.length > 0) {
-      const avgMs = completed.reduce((sum, f) => sum + (f.actualMs || 0), 0) / completed.length;
-      const avgH = Math.round(avgMs / 3600000);
-      if (avgHoursEl) avgHoursEl.textContent = avgH + 'h';
+    // Total Blooms: all plants collected (including starter), all time
+    const totalPlantsEl = document.getElementById('stat-total-plants');
+    if (totalPlantsEl) totalPlantsEl.textContent = this.store.state.garden.plants.length;
 
-      const rate = Math.round((completed.length / (this.store.state.fasts.length || 1)) * 100);
-      if (completionEl) completionEl.textContent = rate + '%';
-    } else {
-      if (avgHoursEl) avgHoursEl.textContent = '0h';
-      if (completionEl) completionEl.textContent = '0%';
+    // Avg Duration: only fasts >= 1 hour, filtered by selected timeframe
+    const avgHoursEl = document.getElementById('stat-avg-hours');
+    if (avgHoursEl) {
+      const msPerDay = 24 * 60 * 60 * 1000;
+      const ONE_HOUR = 3600000;
+      let fastsForAvg = allFasts.filter(f => (f.actualMs || 0) >= ONE_HOUR);
+
+      if (this.avgDurationTimeframe !== 'all' && fastsForAvg.length > 0) {
+        const days = this.getDaysForTimeframe(this.avgDurationTimeframe);
+        const cutoff = Date.now() - days * msPerDay;
+        fastsForAvg = fastsForAvg.filter(f => (f.endTime || 0) >= cutoff);
+      }
+
+      if (fastsForAvg.length > 0) {
+        const avgMs = fastsForAvg.reduce((sum, f) => sum + f.actualMs, 0) / fastsForAvg.length;
+        const h = Math.floor(avgMs / ONE_HOUR);
+        const m = Math.floor((avgMs % ONE_HOUR) / 60000);
+        avgHoursEl.textContent = m > 0 ? `${h}h ${m}m` : `${h}h`;
+      } else {
+        avgHoursEl.textContent = '—';
+      }
     }
 
     // Weekly Focus
@@ -522,9 +579,29 @@ export class AnalyticsDashboard {
     this.charts.wellbeing.data.datasets[1].data = data.previous;
     this.charts.wellbeing.data.datasets[1].label = data.previousLabel;
     this.charts.wellbeing.update();
-    
-    const badge = document.getElementById('wellbeing-avg-badge');
-    if (badge) badge.textContent = `Avg: ${data.overallAvg}`;
+    this.renderWellbeingStats(data);
+  }
+
+  renderWellbeingStats(data) {
+    const row = document.getElementById('wellbeing-stats-row');
+    if (!row) return;
+
+    row.innerHTML = data.perMetric.map(m => {
+      const delta = Math.round((m.current - m.previous) * 10) / 10;
+      const sign = delta > 0 ? '+' : '';
+      const arrow = delta > 0 ? '↑' : delta < 0 ? '↓' : '→';
+      const deltaClass = delta > 0 ? 'wb-delta-up' : delta < 0 ? 'wb-delta-down' : 'wb-delta-flat';
+      const deltaHtml = m.hasPrev
+        ? `<span class="wb-delta ${deltaClass}">${sign}${delta} ${arrow}</span>`
+        : '';
+
+      return `
+        <div class="wb-stat">
+          <div class="wb-stat-label">${m.label}</div>
+          <div class="wb-stat-value">${m.current}</div>
+          ${deltaHtml}
+        </div>`;
+    }).join('');
   }
 
   getWellbeingData() {
@@ -555,29 +632,38 @@ export class AnalyticsDashboard {
       ? Math.round(arr.reduce((s, m) => s + m[key], 0) / arr.length * 10) / 10
       : 5;
 
-    // Generate dynamic labels
-    const periodNames = { '1d': 'Day', '1w': 'Week', '1m': 'Month', '1y': 'Year' };
-    const periodName = periodNames[this.wellbeingTimeframe] || 'Week';
-    
-    const offsetUnits = this.wellbeingOffsetDays / days;
-    const currentLabel = offsetUnits === 0 ? `This ${periodName}` : `${offsetUnits} ${periodName}s Ago`;
-    const previousLabel = offsetUnits === 0 ? `Last ${periodName}` : `${offsetUnits + 1} ${periodName}s Ago`;
+    // Generate human-readable date range labels
+    const fmtDate = (ts, tf) => {
+      const d = new Date(ts);
+      if (tf === '1w') return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      if (tf === '1m') return d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+      if (tf === '1y') return d.toLocaleDateString('en-US', { year: 'numeric' });
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    };
 
-    const currentData = [avg(currentPeriod, 'mood'), avg(currentPeriod, 'sleep'), avg(currentPeriod, 'energy')];
-    const previousData = [avg(previousPeriod, 'mood'), avg(previousPeriod, 'sleep'), avg(previousPeriod, 'energy')];
+    const rangeLabel = (start, end, tf) => {
+      if (tf === '1m') return fmtDate(end, tf);
+      if (tf === '1y') return fmtDate(end, tf);
+      return `${fmtDate(start + msPerDay, tf)} – ${fmtDate(end, tf)}`;
+    };
 
-    // Calculate total average for badge
-    let overallAvg = '--';
-    if (currentPeriod.length > 0) {
-      overallAvg = Math.round((currentData[0] + currentData[1] + currentData[2]) / 3 * 10) / 10;
-    }
+    const currentLabel = rangeLabel(windowStart, windowEnd, this.wellbeingTimeframe);
+    const previousLabel = rangeLabel(prevWindowStart, windowStart, this.wellbeingTimeframe);
+
+    const metrics_keys = ['mood', 'sleep', 'energy'];
+    const currentAvgs = metrics_keys.map(k => avg(currentPeriod, k));
+    const previousAvgs = metrics_keys.map(k => avg(previousPeriod, k));
 
     return {
-      current: currentData,
-      previous: previousData,
+      current: currentAvgs,
+      previous: previousAvgs,
       currentLabel,
       previousLabel,
-      overallAvg
+      perMetric: [
+        { label: 'Mood',   current: currentAvgs[0], previous: previousAvgs[0], hasPrev: previousPeriod.length > 0 },
+        { label: 'Sleep',  current: currentAvgs[1], previous: previousAvgs[1], hasPrev: previousPeriod.length > 0 },
+        { label: 'Energy', current: currentAvgs[2], previous: previousAvgs[2], hasPrev: previousPeriod.length > 0 },
+      ]
     };
   }
 }

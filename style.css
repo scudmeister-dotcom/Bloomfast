@@ -1249,6 +1249,37 @@ body::before {
   letter-spacing: 1px;
 }
 
+.stat-timeframe-btns {
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+  margin-top: 6px;
+}
+
+.stat-tf-btn {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 0.65rem;
+  font-family: var(--font-ui);
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.stat-tf-btn:hover {
+  background: var(--surface-hover);
+  color: var(--text-primary);
+}
+
+.stat-tf-btn.active {
+  background: var(--accent-green);
+  border-color: var(--accent-green);
+  color: #fff;
+}
+
 /* Weekly focus card */
 .focus-card {
   display: flex;
@@ -1589,6 +1620,14 @@ body::before {
 }
 
 /* Journal */
+.journal-subheader {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin: 2px 0 0;
+  font-style: italic;
+  line-height: 1.4;
+}
+
 .journal-textarea {
   width: 100%;
   min-height: 150px;
@@ -1848,6 +1887,12 @@ body::before {
 
 .profile-name-input:focus {
   border-bottom: 2px solid var(--accent-green);
+}
+
+/* --- Profile name card --- */
+.profile-name-card.profile-name-locked {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: transparent;
 }
 
 /* --- Profile name field (settings card) --- */
@@ -2863,6 +2908,149 @@ body::before {
   margin-bottom: var(--space-sm);
 }
 
+/* Reflection bonus hint in modals */
+.reflection-bonus-hint {
+  background: rgba(76, 175, 80, 0.1);
+  border: 1px solid rgba(76, 175, 80, 0.25);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 0.78rem;
+  color: var(--accent-green);
+  margin: var(--space-sm) 0;
+  line-height: 1.5;
+}
+
+/* New card highlight on collection scroll */
+@keyframes light-sweep {
+  0%   { background-position: -150% center; }
+  100% { background-position: 250% center; }
+}
+
+.botanical-card-container.card-highlight {
+  position: relative;
+  border-radius: 12px;
+}
+
+.botanical-card-container.card-highlight::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  background: linear-gradient(
+    105deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.45) 50%,
+    transparent 70%
+  );
+  background-size: 200% 100%;
+  animation: light-sweep 1.6s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 20;
+}
+
+/* ---- Plant Stage Display ---- */
+#plant-stage-display {
+  width: 100%;
+  max-width: 500px;
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding-bottom: 20px;
+  border-radius: var(--radius-xl);
+  background: radial-gradient(ellipse at 50% 100%, rgba(20, 50, 30, 0.8), var(--bg-primary));
+  box-shadow: var(--shadow-lg), inset 0 0 60px rgba(76, 175, 80, 0.05);
+}
+
+.stage-float-wrap {
+  animation: stage-float 3.2s ease-in-out infinite;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  flex: 1;
+}
+
+.stage-sway-wrap {
+  animation: stage-sway 4.5s ease-in-out infinite;
+  transform-origin: bottom center;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.stage-plant-img {
+  max-width: 240px;
+  max-height: 240px;
+  width: 100%;
+  object-fit: contain;
+  transform-origin: bottom center;
+  transition: transform 1.8s cubic-bezier(0.34, 1.4, 0.64, 1),
+              filter 1.6s ease;
+  display: block;
+}
+
+.stage-ground {
+  width: 160px;
+  height: 18px;
+  background: radial-gradient(ellipse at center, rgba(76,130,50,0.35) 0%, transparent 75%);
+  border-radius: 50%;
+  margin-top: 4px;
+  flex-shrink: 0;
+}
+
+@keyframes stage-float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-10px); }
+}
+
+@keyframes stage-sway {
+  0%, 100% { transform: rotate(0deg); }
+  25%       { transform: rotate(1.8deg); }
+  75%       { transform: rotate(-1.8deg); }
+}
+
+/* Scores on card front */
+.card-front-scores {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+.card-reflection-link {
+  background: none;
+  border: none;
+  color: var(--accent-green);
+  font-size: 0.65rem;
+  cursor: pointer;
+  padding: 2px 0;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  font-family: var(--font-ui);
+  text-align: center;
+}
+
+.card-reflection-link:hover {
+  opacity: 0.8;
+}
+
+.reveal-action-row {
+  display: flex;
+  gap: var(--space-sm);
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: var(--space-md);
+}
+
+.reveal-action-row .btn {
+  flex: 1;
+  min-width: 130px;
+}
+
 .plant-reveal-water {
   font-size: var(--fs-sm);
   color: #4fc3f7;
@@ -3681,6 +3869,50 @@ body::before {
   box-shadow: 0 4px 10px rgba(76, 175, 80, 0.3);
 }
 
+.wellbeing-stats-row {
+  display: flex;
+  justify-content: space-around;
+  margin-top: var(--space-md);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--border-color);
+}
+
+.wb-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.wb-stat-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+}
+
+.wb-stat-value {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.wb-stat-max {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-family: var(--font-ui);
+}
+
+.wb-delta {
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.wb-delta-up   { color: #2ecc71; }
+.wb-delta-down { color: #e74c3c; }
+.wb-delta-flat { color: var(--text-muted); }
+
 /* ---- Journal Archive ---- */
 .jarchive-section {
   margin-top: var(--space-lg);
@@ -3919,8 +4151,31 @@ body::before {
 .fast-log-date     { font-weight: 600; font-size: 0.85rem; color: var(--text-primary); }
 .fast-log-plan     { color: var(--text-accent); font-weight: 600; }
 .fast-log-duration { color: var(--text-primary); }
-.fast-log-plant    { color: var(--text-secondary); }
 .fast-log-water    { color: #0ea5e9; }
+
+.fast-log-reward {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  padding: 4px 8px;
+  background: rgba(76, 175, 80, 0.08);
+  border: 1px solid rgba(76, 175, 80, 0.2);
+  border-radius: 6px;
+  width: fit-content;
+}
+
+.fast-log-reward-img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.fast-log-reward-name {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--accent-green);
+}
 
 .fast-log-sep {
   color: var(--text-muted);
