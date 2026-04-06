@@ -732,21 +732,320 @@ body::before {
 }
 
 .plant-area {
-  position: relative;
   display: none;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  gap: var(--space-sm);
+  width: 100%;
 }
 
-#plant-canvas {
+.garden-scene {
+  position: relative;
   width: 100%;
-  max-width: 500px;
-  height: auto;
-  aspect-ratio: 1;
+  max-width: 700px;
+  aspect-ratio: 16 / 10;
   border-radius: var(--radius-xl);
-  background: radial-gradient(ellipse at 50% 100%, rgba(20, 50, 30, 0.8), var(--bg-primary));
-  box-shadow: var(--shadow-lg), inset 0 0 60px rgba(76, 175, 80, 0.05);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+}
+
+.garden-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  image-rendering: pixelated;
+  display: block;
+}
+
+/* ---- Day/Night overlay ---- */
+.garden-day-night {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  transition: background 4s ease;
+}
+
+/* ---- Light rays ---- */
+.garden-light-rays {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+  background: linear-gradient(
+    120deg,
+    transparent 20%,
+    rgba(255, 240, 180, 0.07) 35%,
+    rgba(255, 240, 180, 0.13) 42%,
+    rgba(255, 240, 180, 0.07) 50%,
+    transparent 65%
+  );
+  background-size: 300% 100%;
+  animation: light-rays-sweep 14s ease-in-out infinite;
+}
+
+@keyframes light-rays-sweep {
+  0%   { background-position: 120% 0; opacity: 0.6; }
+  30%  { opacity: 1; }
+  70%  { opacity: 0.7; }
+  100% { background-position: -60% 0; opacity: 0.6; }
+}
+
+/* ---- Fireflies ---- */
+.garden-fireflies {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 4;
+}
+
+/* Hard 3×3 pixel square — no border-radius, no glow */
+.firefly {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  background: #aaff66;
+  image-rendering: pixelated;
+  /* Float uses step() for discrete pixel jumps */
+  animation: firefly-float var(--ff-dur, 6s) steps(6, end) infinite var(--ff-delay, 0s),
+             firefly-blink var(--ff-blink, 2.5s) steps(2, end) infinite var(--ff-delay, 0s);
+}
+
+@keyframes firefly-float {
+  0%   { transform: translate(0px, 0px); }
+  25%  { transform: translate(var(--ff-x1, 12px), var(--ff-y1, -18px)); }
+  50%  { transform: translate(var(--ff-x2, -8px), var(--ff-y2, -30px)); }
+  75%  { transform: translate(var(--ff-x3, 16px), var(--ff-y3, -14px)); }
+  100% { transform: translate(0px, 0px); }
+}
+
+@keyframes firefly-blink {
+  0%, 49% { opacity: 0; }
+  50%, 100% { opacity: 1; }
+}
+
+/* ---- Shared effect layer (weather canvas, fog, clouds, particles, vignette) ---- */
+.garden-effect-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* ---- Fog — repeating pixel dither pattern ---- */
+.garden-fog {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 6;
+}
+
+/* Each layer is a tiling 4×4 dot grid — classic pixel dither */
+.fog-layer {
+  position: absolute;
+  inset: 0;
+  /* 4×4 tile: one 2×2 dot in the top-left gives a 50% checker */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4'%3E%3Crect x='0' y='0' width='2' height='2' fill='rgba(210,225,235,0.22)'/%3E%3C/svg%3E");
+  background-size: 4px 4px;
+  image-rendering: pixelated;
+  animation: fog-drift linear infinite;
+}
+
+.fog-layer-1 {
+  animation-duration: 20s;
+  opacity: 1;
+}
+
+.fog-layer-2 {
+  /* offset tile by half — creates interleaved dither on second layer */
+  background-position: 2px 2px;
+  animation-duration: 35s;
+  animation-direction: reverse;
+  opacity: 0.6;
+  top: 25%;
+}
+
+@keyframes fog-drift {
+  from { background-position: 0 0; }
+  to   { background-position: 200px 0; }
+}
+
+/* ---- Clouds — pixel art box-shadow sprites ---- */
+.garden-clouds {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 7;
+}
+
+/* Wrapper that animates left-to-right; inner .pixel-cloud holds the sprite */
+.pixel-cloud-wrap {
+  position: absolute;
+  left: -20%;
+  animation: cloud-drift linear infinite;
+  image-rendering: pixelated;
+}
+
+.pixel-cloud {
+  /* dimensions set by JS based on sprite px size */
+  image-rendering: pixelated;
+}
+
+@keyframes cloud-drift {
+  from { left: -20%; }
+  to   { left: 110%; }
+}
+
+/* ---- Particles container ---- */
+.garden-particles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 8;
+  overflow: hidden;
+}
+
+/* Falling leaves — pixel art via box-shadow (set by JS), no anti-alias */
+.falling-leaf {
+  position: absolute;
+  top: -8px;
+  image-rendering: pixelated;
+  animation: leaf-fall linear infinite;
+  will-change: transform;
+}
+
+@keyframes leaf-fall {
+  0%   { transform: translateY(0)    rotate(0deg);             opacity: 0; }
+  8%   { opacity: 1; }
+  88%  { opacity: 1; }
+  100% { transform: translateY(110vh) rotate(var(--leaf-spin, 360deg)); opacity: 0; }
+}
+
+/* Pollen — flat 2-3px squares, no glow, no border-radius */
+.pollen-dot {
+  position: absolute;
+  background: #f0e060;
+  image-rendering: pixelated;
+  animation: pollen-float linear infinite;
+}
+
+@keyframes pollen-float {
+  0%   { transform: translate(0px,  0px);   opacity: 0; }
+  15%  { opacity: 0.9; }
+  50%  { transform: translate(8px,  -28px); opacity: 0.7; }
+  85%  { opacity: 0.9; }
+  100% { transform: translate(-6px, -56px); opacity: 0; }
+}
+
+/* Butterflies — pixel art via box-shadow (set by JS) */
+.butterfly {
+  position: absolute;
+  image-rendering: pixelated;
+  animation: butterfly-wander ease-in-out infinite;
+  will-change: transform;
+}
+
+@keyframes butterfly-wander {
+  0%   { transform: translate(0px, 0px) scaleX(1); }
+  25%  { transform: translate(var(--bf-x, 24px), calc(var(--bf-y, -12px) * 0.5)) scaleX(1); }
+  50%  { transform: translate(calc(var(--bf-x, 24px) * 1.6), var(--bf-y, -12px)) scaleX(-1); }
+  75%  { transform: translate(calc(var(--bf-x, 24px) * 0.8), calc(var(--bf-y, -12px) * 0.3)) scaleX(-1); }
+  100% { transform: translate(0px, 0px) scaleX(1); }
+}
+
+/* ---- Vignette (moonlight / candle / golden hour) ---- */
+.garden-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9;
+  image-rendering: pixelated;
+}
+
+/* ---- Wind sway — pixel steps (stepped easing) ---- */
+@keyframes wind-sway {
+  0%   { transform: rotate(0deg);    }
+  20%  { transform: rotate(1deg);    }
+  40%  { transform: rotate(0deg);    }
+  60%  { transform: rotate(-1deg);   }
+  80%  { transform: rotate(0deg);    }
+  100% { transform: rotate(0deg);    }
+}
+
+#plant-stage-canvas.wind-sway {
+  animation: wind-sway 3s steps(8, end) infinite;
+  transform-origin: bottom center;
+}
+
+
+/* ============================================================
+   Scene Workshop Debug Panel
+   ============================================================ */
+.scene-preset-btn {
+  background: none;
+  border: 1px solid #aa88ff66;
+  color: #cc99ff;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 0.68rem;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.scene-preset-btn:hover {
+  background: rgba(170, 136, 255, 0.15);
+  border-color: #aa88ffaa;
+}
+
+.scene-preset-btn.active {
+  background: rgba(170, 136, 255, 0.25);
+  border-color: #aa88ff;
+  color: #fff;
+}
+
+.scene-toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.68rem;
+  color: #ccc;
+  cursor: pointer;
+  padding: 3px 6px;
+  border-radius: 5px;
+  background: rgba(255,255,255,0.04);
+}
+
+.scene-toggle-row input[type="checkbox"] {
+  accent-color: #aa88ff;
+  width: 13px;
+  height: 13px;
+  cursor: pointer;
+}
+
+.garden-plant-wrap {
+  position: absolute;
+  bottom: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 42%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+}
+
+#plant-stage-video {
+  display: none; /* hidden — canvas renders the keyed frames */
+}
+
+#plant-stage-canvas {
+  width: 100%;
+  height: auto;
+  display: block;
+  image-rendering: pixelated;
 }
 
 .plant-species-label {
@@ -2948,78 +3247,6 @@ body::before {
   z-index: 20;
 }
 
-/* ---- Plant Stage Display ---- */
-#plant-stage-display {
-  width: 100%;
-  max-width: 500px;
-  aspect-ratio: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
-  padding-bottom: 20px;
-  border-radius: var(--radius-xl);
-  background: radial-gradient(ellipse at 50% 100%, rgba(20, 50, 30, 0.8), var(--bg-primary));
-  box-shadow: var(--shadow-lg), inset 0 0 60px rgba(76, 175, 80, 0.05);
-}
-
-.stage-float-wrap {
-  animation: stage-float 3.2s ease-in-out infinite;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  flex: 1;
-}
-
-.stage-sway-wrap {
-  animation: stage-sway 4.5s ease-in-out infinite;
-  transform-origin: bottom center;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-}
-
-.stage-plant-img {
-  max-width: 240px;
-  max-height: 240px;
-  width: 100%;
-  object-fit: contain;
-  transform-origin: bottom center;
-  transition: transform 1.8s cubic-bezier(0.34, 1.4, 0.64, 1),
-              filter 1.6s ease;
-  display: block;
-}
-
-.stage-ground {
-  width: 160px;
-  height: 18px;
-  background: radial-gradient(ellipse at center, rgba(76,130,50,0.35) 0%, transparent 75%);
-  border-radius: 50%;
-  margin-top: 4px;
-  flex-shrink: 0;
-}
-
-@keyframes stage-float {
-  0%, 100% { transform: translateY(0px); }
-  50%       { transform: translateY(-10px); }
-}
-
-@keyframes stage-sway {
-  0%, 100% { transform: rotate(0deg); }
-  25%       { transform: rotate(1.8deg); }
-  75%       { transform: rotate(-1.8deg); }
-}
-
-/* Scores on card front */
-.card-front-scores {
-  display: flex;
-  gap: 6px;
-  justify-content: center;
-  font-size: 0.68rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  margin-top: 4px;
-}
 
 .card-reflection-link {
   background: none;
@@ -3192,6 +3419,7 @@ body::before {
 .botanical-card-container {
   perspective: 1000px;
   height: 320px;
+  position: relative;
 }
 
 /* ===== Collector's Edition Card Design (TCG-Inspired) ===== */

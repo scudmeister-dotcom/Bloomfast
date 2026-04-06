@@ -94,27 +94,53 @@
       <!-- ============ TIMER TAB ============ -->
       <section id="tab-timer" class="tab-panel active">
         <div class="timer-page">
-          <!-- Plant Canvas Area -->
+          <!-- Garden Scene -->
           <div class="plant-area">
-            <canvas id="plant-canvas" width="500" height="500"></canvas>
-            <svg
-              id="plant-svg"
-              xmlns="http://www.w3.org/2000/svg"
-              style="display:none; width:100%; max-width:500px; height:auto;"
-            ></svg>
-
-            <!-- Sprite Stage Display (prototype) -->
-            <div id="plant-stage-display" style="display:none">
-              <div class="stage-float-wrap">
-                <div class="stage-sway-wrap">
-                  <img id="stage-plant-img" class="stage-plant-img" src="" alt="Growing plant">
-                </div>
+            <div class="garden-scene" id="garden-scene">
+              <img class="garden-bg" src="assets/backgrounds/garden.png" alt="Garden">
+<div class="garden-day-night" id="garden-day-night"></div>
+              <div class="garden-light-rays"></div>
+              <div class="garden-fireflies" id="garden-fireflies"></div>
+              <canvas id="garden-weather-canvas" class="garden-effect-layer" style="z-index:5;"></canvas>
+              <div class="garden-fog" id="garden-fog"></div>
+              <div class="garden-clouds" id="garden-clouds"></div>
+              <div class="garden-particles" id="garden-particles"></div>
+              <div class="garden-vignette" id="garden-vignette"></div>
+              <div class="garden-plant-wrap" id="garden-plant-wrap">
+                <video id="plant-stage-video" autoplay loop muted playsinline></video>
+                <canvas id="plant-stage-canvas"></canvas>
               </div>
-              <div class="stage-ground"></div>
             </div>
-
             <div id="plant-species-label" class="plant-species-label"></div>
             <div id="growth-stage-label" class="growth-stage-label">Plant a seed to begin</div>
+            <!-- Debug growth preview — shown only when preview is active -->
+            <div id="stage-preview-controls" style="display:none; width:100%; max-width:700px; padding: 10px 4px 0;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                <span id="stage-preview-label" style="font-size:0.75rem; color:#66ffaa; font-weight:600;">Stage 1 — Germinating...</span>
+                <span id="stage-preview-pct" style="font-size:0.75rem; color:var(--text-muted);">0%</span>
+              </div>
+              <div style="position:relative; height:18px; margin-bottom:2px;">
+                <div id="stage-preview-markers" style="position:absolute; inset:0;"></div>
+              </div>
+              <!-- Slider + step arrows -->
+              <div style="display:flex; align-items:center; gap:8px;">
+                <button id="stage-step-back" style="background:none; border:1px solid #66ffaa88; color:#66ffaa; border-radius:6px; width:32px; height:32px; font-size:1rem; cursor:pointer; flex-shrink:0;">◀</button>
+                <input type="range" id="stage-preview-slider" min="0" max="1000" value="0" style="flex:1; accent-color:#66ffaa;">
+                <button id="stage-step-fwd" style="background:none; border:1px solid #66ffaa88; color:#66ffaa; border-radius:6px; width:32px; height:32px; font-size:1rem; cursor:pointer; flex-shrink:0;">▶</button>
+              </div>
+              <!-- Jump-to-5s-before-transition buttons -->
+              <div style="font-size:0.65rem; color:var(--text-muted); margin: 6px 0 3px; text-transform:uppercase; letter-spacing:1px;">Jump to 5% before transition →</div>
+              <div id="stage-transition-btns" style="display:flex; gap:6px; flex-wrap:wrap;"></div>
+            </div>
+
+            <!-- Scene Workshop Debug Panel -->
+            <div id="scene-workshop" style="display:none; width:100%; max-width:700px; margin-top:10px; background:rgba(0,0,0,0.75); border:1px solid #66ffaa44; border-radius:10px; padding:12px 14px; box-sizing:border-box;">
+              <div style="font-size:0.65rem; color:#66ffaa; font-weight:700; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px;">Scene Presets</div>
+              <div id="scene-preset-btns" style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px;"></div>
+              <div style="font-size:0.65rem; color:#66ffaa; font-weight:700; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px;">Individual Effects</div>
+              <div id="scene-effect-toggles" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(140px,1fr)); gap:6px;"></div>
+            </div>
+            <button id="btn-scene-workshop" style="display:none; margin-top:8px; background:none; border:1px solid #aa88ff88; color:#aa88ff; border-radius:8px; padding:5px 14px; font-size:0.72rem; cursor:pointer; font-family:inherit;">🎨 Scene Workshop</button>
           </div>
 
           <!-- Timer Controls -->
@@ -122,7 +148,11 @@
             <div class="timer-card-wrap" id="timer-card-wrap">
               <!-- Glass card with timer content -->
               <div class="timer-display-card glass-card">
-                <div id="timer-display" class="timer-display">00:00:00</div>
+                <div style="display:flex; align-items:center; justify-content:center; gap:12px;">
+                  <button id="btn-debug-time-down" style="display:none; background:none; border:1px solid #ff9800aa; color:#ff9800; border-radius:8px; width:36px; height:36px; font-size:1.1rem; cursor:pointer;">▼</button>
+                  <div id="timer-display" class="timer-display">00:00:00</div>
+                  <button id="btn-debug-time-up" style="display:none; background:none; border:1px solid #ff9800aa; color:#ff9800; border-radius:8px; width:36px; height:36px; font-size:1.1rem; cursor:pointer;">▲</button>
+                </div>
                 <div id="timer-subtitle" class="timer-subtitle">Select a fasting plan to start</div>
                 <div id="timer-progress-bar" class="timer-progress-bar">
                   <div id="timer-progress-fill" class="timer-progress-fill" style="width:0%"></div>
@@ -288,10 +318,6 @@
                 <button id="btn-debug-fast-forward" class="btn btn-sm btn-outline" style="border-color: #ff9800; color: #ff9800;">⏩ Fast Forward (99%)</button>
                 <button id="btn-debug-zen" class="btn btn-sm btn-outline" style="border-color: #ffe566; color: #ffe566;">✦ Preview Constellation</button>
                 <button id="btn-debug-stage-preview" class="btn btn-sm btn-outline" style="border-color: #66ffaa; color: #66ffaa;">🌻 Preview Growth</button>
-              </div>
-              <div id="stage-preview-controls" style="display:none; margin-top: 12px;">
-                <label style="font-size:0.75rem; color: var(--text-muted);">Progress: <span id="stage-preview-pct">0%</span></label>
-                <input type="range" id="stage-preview-slider" min="0" max="100" value="0" style="width:100%; margin-top:4px; accent-color: #66ffaa;">
               </div>
             </div>
 

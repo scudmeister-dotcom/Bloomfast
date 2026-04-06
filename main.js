@@ -4,8 +4,7 @@
 
 import { store } from './js/store.js';
 import { FastingTimer, PLANS } from './js/timer.js';
-import { PlantRenderer, getRandomPlant, PLANT_SPECIES } from './js/plant.js';
-import { PlantSVGRenderer } from './js/plant-svg.js';
+import { getRandomPlant, PLANT_SPECIES } from './js/plant.js';
 import { CollectionGallery } from './js/collection-gallery.js';
 import { AnalyticsDashboard } from './js/analytics.js';
 import { showToast } from './js/social.js';
@@ -14,93 +13,715 @@ import { DECORATIONS_CATALOG } from './js/garden.js';
 import { buildCoachPool } from './js/coach-messages.js';
 
 // ---- Globals ----
-let timer, plantRenderer, plantSVG, collectionGallery, analytics, social, notifications;
+let timer, collectionGallery, analytics, social, notifications;
 let selectedPlan = null;
 
-// ---- Plant Stage Display (sprite-sheet prototype) ----
-// Each stage: progress threshold, image scale, CSS filter, stage label
-// Replace imageSrc per species with real growth-stage images when ready.
+// ---- Garden Scene / Plant Growth ----
 const PLANT_STAGE_DATA = {
   sunflower: {
     stages: [
-      { maxProgress: 0.08, imageSrc: 'assets/stages/sunflower_1.png', label: 'Germinating...' },
-      { maxProgress: 0.20, imageSrc: 'assets/stages/sunflower_2.png', label: 'Sprouting...' },
-      { maxProgress: 0.35, imageSrc: 'assets/stages/sunflower_3.png', label: 'Seedling' },
-      { maxProgress: 0.55, imageSrc: 'assets/stages/sunflower_4.png', label: 'Growing...' },
-      { maxProgress: 0.72, imageSrc: 'assets/stages/sunflower_5.png', label: 'Budding...' },
-      { maxProgress: 0.90, imageSrc: 'assets/stages/sunflower_6.png', label: 'Almost there...' },
-      { maxProgress: 1.00, imageSrc: 'assets/stages/sunflower_7.png', label: 'In Full Bloom 🌻' },
+      { maxProgress: 0.08, videoSrc: 'assets/stages/sunflower_1.mp4', scale: 0.25, label: 'Germinating...' },
+      { maxProgress: 0.20, videoSrc: 'assets/stages/sunflower_2.mp4', scale: 0.50, label: 'Sprouting...' },
+      { maxProgress: 0.35, videoSrc: 'assets/stages/sunflower_3.mp4', scale: 0.70, label: 'Seedling' },
+      { maxProgress: 0.55, videoSrc: 'assets/stages/sunflower_4.mp4', scale: 0.80, label: 'Growing...' },
+      { maxProgress: 0.72, videoSrc: 'assets/stages/sunflower_5.mp4', scale: 0.88, label: 'Budding...' },
+      { maxProgress: 0.90, videoSrc: 'assets/stages/sunflower_6.mp4', scale: 0.94, label: 'Almost there...' },
+      { maxProgress: 1.00, videoSrc: 'assets/stages/sunflower_7.mp4', scale: 1.00, label: 'In Full Bloom 🌻' },
     ]
   }
 };
-
-const STAGE_BASE_IDS = new Set(Object.keys(PLANT_STAGE_DATA));
 
 function getPlantBaseId(plantType) {
   return plantType?.id?.replace(/_(sprout|bud|bloom|radiant)$/i, '') || '';
 }
 
-function showStageDisplay(plantType) {
-  const baseId = getPlantBaseId(plantType);
-  if (!STAGE_BASE_IDS.has(baseId)) return false;
+let _currentStageIndex = -1;
+let _chromaRafId = null;
+let _debugPreviewOpen = false;
+let _applyPreviewProgress = null; // set by bindTimerControls once defined
 
-  const el = document.getElementById('plant-stage-display');
-  if (!el) return false;
+// Offscreen canvas used to chroma-key without affecting layout canvas dimensions
+const _offscreen = document.createElement('canvas');
+const _offCtx    = _offscreen.getContext('2d');
 
-  el.style.display = '';
-  updateStageDisplay(0, plantType);
-  return true;
+function startChromaKey(video, canvas) {
+  const ctx = canvas.getContext('2d');
+
+  function renderFrame() {
+    if (!video.src || video.paused || video.ended) {
+      _chromaRafId = requestAnimationFrame(renderFrame);
+      return;
+    }
+    const w = video.videoWidth || 720;
+    const h = video.videoHeight || 720;
+
+    // Draw + key on offscreen
+    if (_offscreen.width !== w) _offscreen.width = w;
+    if (_offscreen.height !== h) _offscreen.height = h;
+    _offCtx.clearRect(0, 0, w, h);
+    _offCtx.drawImage(video, 0, 0, w, h);
+    const imageData = _offCtx.getImageData(0, 0, w, h);
+    const d = imageData.data;
+    for (let i = 0; i < d.length; i += 4) {
+      const r = d[i], g = d[i+1], b = d[i+2];
+      const max = Math.max(r, g, b);
+      const min = Math.min(r, g, b);
+      const saturation = max === 0 ? 0 : (max - min) / max;
+      const brightness  = max / 255;
+      if (brightness > 0.72 && saturation < 0.18) d[i+3] = 0;
+    }
+    _offCtx.putImageData(imageData, 0, 0);
+
+    // Find the lowest row that has any visible pixel
+    let lowestRow = 0;
+    for (let y = h - 1; y >= 0; y--) {
+      let hasPixel = false;
+      for (let x = 0; x < w; x++) {
+        if (d[(y * w + x) * 4 + 3] > 20) { hasPixel = true; break; }
+      }
+      if (hasPixel) { lowestRow = y; break; }
+    }
+
+    // Scale + pin bottom anchor so all stages share the same ground point
+    const scale   = canvas._stageScale ?? 1;
+    const srcH    = lowestRow + 1;          // only the visible portion
+    const dstW    = Math.round(w * scale);
+    const dstH    = Math.round(srcH * scale);
+    canvas.width  = w;
+    canvas.height = h;
+    ctx.clearRect(0, 0, w, h);
+    // Draw scaled image anchored to bottom-center
+    const x = Math.round((w - dstW) / 2);
+    const y = h - dstH;
+    ctx.drawImage(_offscreen, 0, 0, w, srcH, x, y, dstW, dstH);
+    _chromaRafId = requestAnimationFrame(renderFrame);
+  }
+  if (_chromaRafId) cancelAnimationFrame(_chromaRafId);
+  _chromaRafId = requestAnimationFrame(renderFrame);
 }
 
-function hideStageDisplay() {
-  const el = document.getElementById('plant-stage-display');
-  if (el) el.style.display = 'none';
+function showGardenScene(plantType, progress = 0) {
+  const video  = document.getElementById('plant-stage-video');
+  const canvas = document.getElementById('plant-stage-canvas');
+  if (!video || !canvas) return;
+  _currentStageIndex = -1; // force first load
+  startChromaKey(video, canvas);
+  updateGardenScene(progress, plantType);
 }
 
-function updateStageDisplay(progress, plantType) {
+function hideGardenScene() {
+  const video = document.getElementById('plant-stage-video');
+  if (video) { video.pause(); video.src = ''; }
+  if (_chromaRafId) { cancelAnimationFrame(_chromaRafId); _chromaRafId = null; }
+  _currentStageIndex = -1;
+}
+
+function updateGardenScene(progress, plantType) {
   const baseId = getPlantBaseId(plantType);
   const data   = PLANT_STAGE_DATA[baseId];
-  if (!data) return;
+  const video  = document.getElementById('plant-stage-video');
+  if (!video) return;
 
-  const stage = data.stages.find(s => progress <= s.maxProgress) || data.stages[data.stages.length - 1];
-  const img   = document.getElementById('stage-plant-img');
-  if (img && img.src !== stage.imageSrc) {
-    img.src = new URL(stage.imageSrc, window.location.href).href;
+  if (data) {
+    const stageIdx = data.stages.findIndex(s => progress <= s.maxProgress);
+    const idx = stageIdx === -1 ? data.stages.length - 1 : stageIdx;
+    if (idx !== _currentStageIndex) {
+      _currentStageIndex = idx;
+      const stage = data.stages[idx];
+      video.src = stage.videoSrc;
+      video.load();
+      video.play().catch(err => console.warn('[Garden] video play failed:', err));
+      const canvas = document.getElementById('plant-stage-canvas');
+      if (canvas) canvas._stageScale = stage.scale ?? 1;
+    }
+    const label = document.getElementById('growth-stage-label');
+    if (label) label.textContent = data.stages[idx].label;
+  } else {
+    // No video data for this species yet — show garden with no plant video
+    if (_currentStageIndex !== -1) {
+      video.pause(); video.src = '';
+      _currentStageIndex = -1;
+    }
   }
-
-  const label = document.getElementById('growth-stage-label');
-  if (label) label.textContent = stage.label;
-}
-
-// ---- Plant SVG Helpers ----
-function showPlantSVG(category, progress, plantType) {
-  const usedStage = plantType && showStageDisplay(plantType);
-  if (usedStage) {
-    document.getElementById('plant-canvas').style.display = 'none';
-    plantSVG.hide();
-    return;
-  }
-  document.getElementById('plant-canvas').style.display = 'none';
-  // show() BEFORE setCategory() — renderers call getTotalLength() in _build(),
-  // which returns 0 on display:none elements, causing strokes to stay fully visible.
-  plantSVG.show();
-  plantSVG.setCategory(category);
-  plantSVG.setProgress(progress ?? 0);
-}
-
-function hidePlantSVG() {
-  hideStageDisplay();
-  plantSVG.hide();
-  document.getElementById('plant-canvas').style.display = '';
 }
 
 // ---- Initialize ----
+// ============================================================
+// Garden Scene Workshop — ambience effects + scene presets
+// ============================================================
+
+// Master flags — toggled by the workshop panel or scene presets
+const AMBIENCE_FLAGS = {
+  dayNightTint:  false,
+  fireflies:     false,
+  lightRays:     true,
+  rain:          false,
+  snow:          false,
+  fog:           false,
+  clouds:        false,
+  leaves:        false,
+  pollen:        false,
+  butterflies:   false,
+  moonlight:     false,
+  candleFlicker: false,
+  goldenHour:    false,
+  windSway:      false,
+};
+
+const EFFECT_LABELS = {
+  dayNightTint:  '🌓 Day/Night Tint',
+  fireflies:     '✨ Fireflies',
+  lightRays:     '🌤 Light Rays',
+  rain:          '🌧 Rain',
+  snow:          '❄️ Snow',
+  fog:           '🌫 Fog',
+  clouds:        '☁️ Clouds',
+  leaves:        '🍂 Falling Leaves',
+  pollen:        '🌿 Pollen Drift',
+  butterflies:   '🦋 Butterflies',
+  moonlight:     '🌕 Moonlight',
+  candleFlicker: '🕯 Candle Flicker',
+  goldenHour:    '🌅 Golden Hour',
+  windSway:      '🌬 Wind Sway',
+};
+
+const SCENE_PRESETS = {
+  clearDay:   { label: '☀️ Clear Day',      dayNightTint: false, fireflies: false, lightRays: true,  rain: false, snow: false, fog: false, clouds: false, leaves: false, pollen: true,  butterflies: true,  moonlight: false, candleFlicker: false, goldenHour: false, windSway: false },
+  goldenHour: { label: '🌅 Golden Hour',    dayNightTint: false, fireflies: false, lightRays: false, rain: false, snow: false, fog: false, clouds: true,  leaves: false, pollen: false, butterflies: false, moonlight: false, candleFlicker: false, goldenHour: true,  windSway: false },
+  night:      { label: '🌙 Night',          dayNightTint: true,  fireflies: true,  lightRays: false, rain: false, snow: false, fog: false, clouds: false, leaves: false, pollen: false, butterflies: false, moonlight: true,  candleFlicker: false, goldenHour: false, windSway: false },
+  cozyNight:  { label: '🕯 Cozy Night',     dayNightTint: true,  fireflies: true,  lightRays: false, rain: false, snow: false, fog: false, clouds: false, leaves: false, pollen: false, butterflies: false, moonlight: false, candleFlicker: true,  goldenHour: false, windSway: false },
+  rainy:      { label: '🌧 Rainy Day',      dayNightTint: false, fireflies: false, lightRays: false, rain: true,  snow: false, fog: true,  clouds: true,  leaves: false, pollen: false, butterflies: false, moonlight: false, candleFlicker: false, goldenHour: false, windSway: true  },
+  autumn:     { label: '🍂 Autumn',         dayNightTint: false, fireflies: false, lightRays: true,  rain: false, snow: false, fog: false, clouds: false, leaves: true,  pollen: false, butterflies: false, moonlight: false, candleFlicker: false, goldenHour: true,  windSway: true  },
+  winter:     { label: '❄️ Winter',         dayNightTint: false, fireflies: false, lightRays: false, rain: false, snow: true,  fog: true,  clouds: true,  leaves: false, pollen: false, butterflies: false, moonlight: false, candleFlicker: false, goldenHour: false, windSway: false },
+  misty:      { label: '🌫 Misty Morning',  dayNightTint: false, fireflies: false, lightRays: true,  rain: false, snow: false, fog: true,  clouds: false, leaves: false, pollen: true,  butterflies: false, moonlight: false, candleFlicker: false, goldenHour: false, windSway: false },
+};
+
+// Internal state for continuous effects
+let _weatherRaf = null;
+let _candleRaf  = null;
+let _weatherCtx = null;
+let _rainDrops  = [];
+let _snowFlakes = [];
+
+function initGardenAmbience() {
+  if (AMBIENCE_FLAGS.fireflies) spawnFireflies();
+  updateDayNight();
+  if (AMBIENCE_FLAGS.dayNightTint) setInterval(updateDayNight, 60 * 1000);
+  const rays = document.getElementById('garden-light-rays');
+  if (rays) rays.style.display = AMBIENCE_FLAGS.lightRays ? '' : 'none';
+}
+
+// Apply a full scene preset, then re-render all effects
+function applyScene(presetKey) {
+  const preset = SCENE_PRESETS[presetKey];
+  if (!preset) return;
+  Object.keys(AMBIENCE_FLAGS).forEach(k => {
+    if (k in preset) AMBIENCE_FLAGS[k] = preset[k];
+  });
+  applyAllEffects();
+  syncWorkshopToggles();
+}
+
+// Re-apply every effect based on current AMBIENCE_FLAGS
+function applyAllEffects() {
+  // Day/night tint + fireflies
+  updateDayNight();
+
+  // Light rays
+  const rays = document.getElementById('garden-light-rays');
+  if (rays) rays.style.display = AMBIENCE_FLAGS.lightRays ? '' : 'none';
+
+  // Weather canvas (rain / snow — mutually exclusive, rain wins)
+  stopWeather();
+  if (AMBIENCE_FLAGS.rain)       startRain();
+  else if (AMBIENCE_FLAGS.snow)  startSnow();
+
+  // Fog
+  applyFog(AMBIENCE_FLAGS.fog);
+
+  // Clouds
+  applyClouds(AMBIENCE_FLAGS.clouds);
+
+  // Particles
+  applyParticles();
+
+  // Vignette (moonlight / candle / golden hour — stackable)
+  applyVignette();
+
+  // Wind sway on plant canvas
+  const canvas = document.getElementById('plant-stage-canvas');
+  if (canvas) {
+    if (AMBIENCE_FLAGS.windSway) canvas.classList.add('wind-sway');
+    else canvas.classList.remove('wind-sway');
+  }
+}
+
+// ---- Day/Night ----
+function updateDayNight() {
+  const el = document.getElementById('garden-day-night');
+  const fireflies = document.getElementById('garden-fireflies');
+
+  if (!AMBIENCE_FLAGS.dayNightTint) {
+    if (el) el.style.background = 'transparent';
+    if (fireflies) fireflies.style.opacity = '0';
+    return;
+  }
+  if (!el) return;
+
+  const hour = new Date().getHours() + new Date().getMinutes() / 60;
+  let bg = 'transparent';
+  let showFireflies = false;
+
+  if (hour >= 5 && hour < 7) {
+    const t = (hour - 5) / 2;
+    bg = `rgba(255, 160, 80, ${0.35 - t * 0.25})`;
+  } else if (hour >= 7 && hour < 17) {
+    bg = 'transparent';
+  } else if (hour >= 17 && hour < 19.5) {
+    const t = (hour - 17) / 2.5;
+    bg = `rgba(220, 100, 30, ${t * 0.35})`;
+  } else if (hour >= 19.5 || hour < 5) {
+    bg = 'rgba(10, 20, 60, 0.52)';
+    showFireflies = AMBIENCE_FLAGS.fireflies;
+  }
+
+  el.style.background = bg;
+  if (fireflies) {
+    fireflies.style.opacity = showFireflies ? '1' : '0';
+    if (showFireflies && !fireflies.children.length) spawnFireflies();
+  }
+}
+
+// ============================================================
+// Pixel Art Sprite Helpers
+// ============================================================
+
+// Build a CSS box-shadow string from a 2D pixel grid.
+// The element itself must be PX × PX with transparent background;
+// every "on" cell becomes a shadow offset from (0,0).
+function pixelBoxShadow(sprite, px, color) {
+  const shadows = [];
+  sprite.forEach((row, ry) => {
+    row.forEach((on, rx) => {
+      if (on) shadows.push(`${rx * px}px ${ry * px}px 0 0 ${color}`);
+    });
+  });
+  return shadows.join(',');
+}
+
+// Create a positioned pixel-art div from a sprite grid.
+function createPixelEl(sprite, px, color, extraClass) {
+  const el = document.createElement('div');
+  el.className = extraClass || '';
+  el.style.cssText = `
+    position:absolute;
+    width:${px}px; height:${px}px;
+    background:transparent;
+    box-shadow:${pixelBoxShadow(sprite, px, color)};
+    image-rendering:pixelated;
+  `;
+  return el;
+}
+
+// Pixel art sprite definitions — each row is an array of 0/1
+const PX_SPRITES = {
+  // 14-wide × 6-tall classic 8-bit cloud
+  cloud: [
+    [0,0,1,1,1,0,0,0,0,0,0,0,0,0],
+    [0,1,1,1,1,1,0,0,1,1,1,0,0,0],
+    [1,1,1,1,1,1,1,1,1,1,1,1,0,0],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [0,1,1,1,1,1,1,1,1,1,1,1,1,0],
+    [0,0,1,1,1,1,1,1,1,1,1,1,0,0],
+  ],
+  // Smaller secondary cloud
+  cloudSm: [
+    [0,0,1,1,0,0,0,0,0,0],
+    [0,1,1,1,1,0,1,1,0,0],
+    [1,1,1,1,1,1,1,1,1,0],
+    [1,1,1,1,1,1,1,1,1,1],
+    [0,1,1,1,1,1,1,1,1,0],
+    [0,0,1,1,1,1,1,1,0,0],
+  ],
+  // 5×5 autumn leaf (right-leaning)
+  leafA: [
+    [0,0,1,1,0],
+    [0,1,1,1,1],
+    [1,1,1,1,0],
+    [0,1,1,0,0],
+    [0,0,1,0,0],
+  ],
+  // 4×5 leaf (left-leaning)
+  leafB: [
+    [0,1,1,0],
+    [1,1,1,1],
+    [0,1,1,1],
+    [0,0,1,1],
+    [0,0,1,0],
+  ],
+  // 7×5 pixel butterfly (top-down)
+  butterfly: [
+    [1,1,0,0,0,1,1],
+    [1,1,1,0,1,1,1],
+    [0,1,1,1,1,1,0],
+    [0,0,1,1,1,0,0],
+    [0,0,0,1,0,0,0],
+  ],
+};
+
+// Leaf color palettes (flat pixel art colors)
+const LEAF_COLORS  = ['#cc4400','#883300','#ddaa00','#995500'];
+const BUTTERFLY_COLORS = ['#f599c8','#88ddee','#f0cc66'];
+
+// ---- Fireflies — hard pixel squares, no glow ----
+function spawnFireflies() {
+  const container = document.getElementById('garden-fireflies');
+  if (!container) return;
+  container.innerHTML = '';
+  for (let i = 0; i < 12; i++) {
+    const ff = document.createElement('div');
+    ff.className = 'firefly';
+    ff.style.cssText = `
+      left: ${20 + Math.random() * 60}%;
+      top:  ${25 + Math.random() * 45}%;
+      --ff-dur:   ${5 + Math.random() * 5}s;
+      --ff-blink: ${2 + Math.random() * 2}s;
+      --ff-delay: ${-Math.random() * 6}s;
+      --ff-x1: ${(Math.random() - 0.5) * 30}px;
+      --ff-y1: ${-5 - Math.random() * 25}px;
+      --ff-x2: ${(Math.random() - 0.5) * 30}px;
+      --ff-y2: ${-10 - Math.random() * 30}px;
+      --ff-x3: ${(Math.random() - 0.5) * 30}px;
+      --ff-y3: ${-5 - Math.random() * 20}px;
+    `;
+    container.appendChild(ff);
+  }
+  container.style.opacity = '0';
+  container.style.transition = 'opacity 3s ease';
+}
+
+// ---- Rain / Snow (shared canvas — pixel block rendering) ----
+function getWeatherCanvas() {
+  const c = document.getElementById('garden-weather-canvas');
+  if (!c) return null;
+  const scene = document.getElementById('garden-scene');
+  if (scene) { c.width = scene.offsetWidth; c.height = scene.offsetHeight; }
+  return c;
+}
+
+function stopWeather() {
+  if (_weatherRaf) { cancelAnimationFrame(_weatherRaf); _weatherRaf = null; }
+  const c = document.getElementById('garden-weather-canvas');
+  if (c && _weatherCtx) _weatherCtx.clearRect(0, 0, c.width, c.height);
+  _rainDrops = []; _snowFlakes = [];
+}
+
+function startRain() {
+  const c = getWeatherCanvas();
+  if (!c) return;
+  _weatherCtx = c.getContext('2d');
+  _weatherCtx.imageSmoothingEnabled = false;
+  const PX = 2; // 2×2 pixel grid unit
+  // Three opacity tiers for depth — all flat (no per-drop random alpha)
+  const TIERS = [
+    { color: '#aed4f1', count: 25, speed: 6,  len: 5 },
+    { color: '#88b8d8', count: 25, speed: 9,  len: 7 },
+    { color: '#6699bb', count: 20, speed: 12, len: 9 },
+  ];
+  TIERS.forEach(t => {
+    for (let i = 0; i < t.count; i++) {
+      _rainDrops.push({
+        x: Math.floor(Math.random() * (c.width  / PX)) * PX,
+        y: Math.floor(Math.random() * (c.height / PX)) * PX,
+        len: t.len * PX,
+        speed: t.speed,
+        color: t.color
+      });
+    }
+  });
+
+  function tick() {
+    _weatherCtx.clearRect(0, 0, c.width, c.height);
+    _rainDrops.forEach(d => {
+      _weatherCtx.fillStyle = d.color;
+      // Draw as a column of PX-sized squares — no anti-aliasing
+      for (let j = 0; j < d.len; j += PX) {
+        _weatherCtx.fillRect(Math.round(d.x), Math.round(d.y + j), PX, PX);
+      }
+      d.y += d.speed;
+      d.x -= Math.floor(d.speed * 0.25); // slight diagonal angle
+      if (d.y > c.height) {
+        d.y = -d.len;
+        d.x = Math.floor(Math.random() * (c.width / PX)) * PX;
+      }
+      if (d.x < 0) d.x += c.width;
+    });
+    _weatherRaf = requestAnimationFrame(tick);
+  }
+  tick();
+}
+
+function startSnow() {
+  const c = getWeatherCanvas();
+  if (!c) return;
+  _weatherCtx = c.getContext('2d');
+  _weatherCtx.imageSmoothingEnabled = false;
+  // Two sizes: 2×2 and 3×3 pixel squares
+  const SIZES = [
+    { px: 2, count: 30, speed: 0.5, color: '#ffffff' },
+    { px: 3, count: 20, speed: 0.8, color: '#e8eef2' },
+    { px: 4, count: 10, speed: 1.1, color: '#d0dde6' },
+  ];
+  SIZES.forEach(s => {
+    for (let i = 0; i < s.count; i++) {
+      _snowFlakes.push({
+        x: Math.floor(Math.random() * (c.width  / s.px)) * s.px,
+        y: Math.floor(Math.random() * (c.height / s.px)) * s.px,
+        px: s.px,
+        speed: s.speed,
+        drift: (Math.random() > 0.5 ? 1 : -1) * s.px * 0.25,
+        driftTimer: 0,
+        driftPeriod: 60 + Math.floor(Math.random() * 80),
+        color: s.color
+      });
+    }
+  });
+
+  function tick() {
+    _weatherCtx.clearRect(0, 0, c.width, c.height);
+    _snowFlakes.forEach(f => {
+      _weatherCtx.fillStyle = f.color;
+      _weatherCtx.fillRect(Math.round(f.x), Math.round(f.y), f.px, f.px);
+      f.y += f.speed;
+      // Pixel-step drift — only move horizontally on certain frames
+      f.driftTimer++;
+      if (f.driftTimer >= f.driftPeriod) {
+        f.x += f.drift > 0 ? f.px : -f.px;
+        f.drift = -f.drift; // reverse drift direction
+        f.driftTimer = 0;
+      }
+      if (f.y > c.height) {
+        f.y = -f.px;
+        f.x = Math.floor(Math.random() * (c.width / f.px)) * f.px;
+      }
+    });
+    _weatherRaf = requestAnimationFrame(tick);
+  }
+  tick();
+}
+
+// ---- Fog — pixel dither pattern (repeating dot grid) ----
+function applyFog(on) {
+  const el = document.getElementById('garden-fog');
+  if (!el) return;
+  if (!on) { el.style.display = 'none'; return; }
+  el.style.display = '';
+  if (!el.children.length) {
+    // Two overlapping dither layers scrolling at different speeds
+    el.innerHTML = `<div class="fog-layer fog-layer-1"></div><div class="fog-layer fog-layer-2"></div>`;
+  }
+}
+
+// ---- Clouds — pixel art box-shadow sprites ----
+function applyClouds(on) {
+  const el = document.getElementById('garden-clouds');
+  if (!el) return;
+  el.innerHTML = '';
+  if (!on) { el.style.display = 'none'; return; }
+  el.style.display = '';
+
+  const configs = [
+    { sprite: 'cloud',   px: 8, color: '#d8e8f0', top: '4%',  opacity: 0.80, dur: '40s', delay: '0s'   },
+    { sprite: 'cloudSm', px: 6, color: '#ccdde8', top: '14%', opacity: 0.60, dur: '58s', delay: '-20s'  },
+    { sprite: 'cloud',   px: 6, color: '#e0edf5', top: '2%',  opacity: 0.50, dur: '50s', delay: '-32s'  },
+    { sprite: 'cloudSm', px: 5, color: '#c8d8e2', top: '20%', opacity: 0.45, dur: '65s', delay: '-12s'  },
+  ];
+
+  configs.forEach(cfg => {
+    const wrap = document.createElement('div');
+    wrap.className = 'pixel-cloud-wrap';
+    wrap.style.cssText = `top:${cfg.top}; opacity:${cfg.opacity}; animation-duration:${cfg.dur}; animation-delay:${cfg.delay};`;
+    const dot = createPixelEl(PX_SPRITES[cfg.sprite], cfg.px, cfg.color, 'pixel-cloud');
+    wrap.appendChild(dot);
+    el.appendChild(wrap);
+  });
+}
+
+// ---- Particles — pixel art leaves, pollen squares, butterfly sprites ----
+function applyParticles() {
+  const el = document.getElementById('garden-particles');
+  if (!el) return;
+  el.innerHTML = '';
+
+  if (AMBIENCE_FLAGS.leaves) {
+    for (let i = 0; i < 10; i++) {
+      const sprite = Math.random() > 0.5 ? PX_SPRITES.leafA : PX_SPRITES.leafB;
+      const color  = LEAF_COLORS[Math.floor(Math.random() * LEAF_COLORS.length)];
+      const px     = Math.random() > 0.5 ? 4 : 3;
+      const leaf   = createPixelEl(sprite, px, color, 'falling-leaf');
+      leaf.style.left         = `${5 + Math.random() * 88}%`;
+      leaf.style.animationDuration  = `${7 + Math.random() * 7}s`;
+      leaf.style.animationDelay     = `${-Math.random() * 12}s`;
+      leaf.style.setProperty('--leaf-spin', `${(Math.random() > 0.5 ? 1 : -1) * (180 + Math.random() * 360)}deg`);
+      el.appendChild(leaf);
+    }
+  }
+
+  if (AMBIENCE_FLAGS.pollen) {
+    for (let i = 0; i < 20; i++) {
+      const d = document.createElement('div');
+      d.className = 'pollen-dot';
+      // Alternate between 2px and 3px squares for size variety
+      const sz = Math.random() > 0.6 ? 3 : 2;
+      d.style.cssText = `
+        left:${Math.random() * 100}%;
+        top:${20 + Math.random() * 70}%;
+        width:${sz}px; height:${sz}px;
+        animation-duration:${7 + Math.random() * 9}s;
+        animation-delay:${-Math.random() * 10}s;
+      `;
+      el.appendChild(d);
+    }
+  }
+
+  if (AMBIENCE_FLAGS.butterflies) {
+    for (let i = 0; i < 3; i++) {
+      const color = BUTTERFLY_COLORS[i % BUTTERFLY_COLORS.length];
+      const bf    = createPixelEl(PX_SPRITES.butterfly, 4, color, 'butterfly');
+      bf.style.left             = `${15 + Math.random() * 60}%`;
+      bf.style.top              = `${15 + Math.random() * 45}%`;
+      bf.style.animationDuration      = `${9 + Math.random() * 6}s`;
+      bf.style.animationDelay         = `${-Math.random() * 8}s`;
+      bf.style.setProperty('--bf-x', `${(Math.random() - 0.5) * 80}px`);
+      bf.style.setProperty('--bf-y', `${(Math.random() - 0.5) * 40}px`);
+      el.appendChild(bf);
+    }
+  }
+}
+
+// ---- Vignette — pixel-palette flat color bands instead of smooth gradients ----
+function applyVignette() {
+  if (_candleRaf) { cancelAnimationFrame(_candleRaf); _candleRaf = null; }
+  const el = document.getElementById('garden-vignette');
+  if (!el) return;
+
+  // Build a multi-stop stepped gradient (no smooth transition = pixel palette feel)
+  const layers = [];
+
+  if (AMBIENCE_FLAGS.goldenHour) {
+    // Warm banded light from top-right — 4 discrete steps
+    layers.push(`linear-gradient(160deg,
+      #ff990066 0%, #ff990066 12%,
+      #ffaa2244 12%, #ffaa2244 26%,
+      #ffbb4422 26%, #ffbb4422 42%,
+      transparent 42%)`);
+  }
+  if (AMBIENCE_FLAGS.moonlight) {
+    // Cold top-right spot — 3 steps
+    layers.push(`radial-gradient(ellipse 38% 38% at 78% 4%,
+      #b8d0ff55 0%, #b8d0ff55 35%,
+      #b8d0ff22 35%, #b8d0ff22 65%,
+      transparent 65%)`);
+  }
+  if (AMBIENCE_FLAGS.candleFlicker) {
+    animateCandle(el, layers);
+    return;
+  }
+
+  el.style.background = layers.length ? layers.join(', ') : 'none';
+}
+
+// Candle: discrete amber steps that jump randomly (pixel art flicker)
+function animateCandle(el, baseLayers) {
+  const FLICKER_STATES = [
+    { h: '28%', alpha: '55' },
+    { h: '32%', alpha: '44' },
+    { h: '24%', alpha: '66' },
+    { h: '30%', alpha: '50' },
+    { h: '26%', alpha: '60' },
+  ];
+  let frameCount = 0;
+  function tick() {
+    frameCount++;
+    // Only update every 4–8 frames for a stepped flicker feel
+    if (frameCount % (4 + Math.floor(Math.random() * 5)) === 0) {
+      const s = FLICKER_STATES[Math.floor(Math.random() * FLICKER_STATES.length)];
+      const candleLayer = `radial-gradient(ellipse 52% ${s.h} at 50% 105%,
+        #ff8800${s.alpha} 0%, #ff8800${s.alpha} 30%,
+        #ff660022 30%, #ff660022 60%,
+        transparent 60%)`;
+      el.style.background = [...baseLayers, candleLayer].join(', ');
+    }
+    _candleRaf = requestAnimationFrame(tick);
+  }
+  tick();
+}
+
+// ============================================================
+// Scene Workshop Debug Panel
+// ============================================================
+
+function initSceneWorkshop() {
+  const workshopBtn = document.getElementById('btn-scene-workshop');
+  const workshopPanel = document.getElementById('scene-workshop');
+  const presetContainer = document.getElementById('scene-preset-btns');
+  const toggleContainer = document.getElementById('scene-effect-toggles');
+  if (!workshopBtn || !workshopPanel) return;
+
+  // Build preset buttons
+  Object.entries(SCENE_PRESETS).forEach(([key, preset]) => {
+    const btn = document.createElement('button');
+    btn.textContent = preset.label;
+    btn.className = 'scene-preset-btn';
+    btn.dataset.scene = key;
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.scene-preset-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      applyScene(key);
+    });
+    presetContainer.appendChild(btn);
+  });
+
+  // Build individual effect toggles
+  Object.entries(EFFECT_LABELS).forEach(([key, label]) => {
+    const wrap = document.createElement('label');
+    wrap.className = 'scene-toggle-row';
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.checked = AMBIENCE_FLAGS[key];
+    cb.dataset.effect = key;
+    cb.addEventListener('change', () => {
+      AMBIENCE_FLAGS[key] = cb.checked;
+      document.querySelectorAll('.scene-preset-btn').forEach(b => b.classList.remove('active'));
+      applyAllEffects();
+    });
+    wrap.appendChild(cb);
+    wrap.appendChild(document.createTextNode(' ' + label));
+    toggleContainer.appendChild(wrap);
+  });
+
+  // Toggle panel visibility
+  workshopBtn.addEventListener('click', () => {
+    const open = workshopPanel.style.display !== 'none';
+    workshopPanel.style.display = open ? 'none' : '';
+    workshopBtn.textContent = open ? '🎨 Scene Workshop' : '✕ Close Workshop';
+  });
+}
+
+function syncWorkshopToggles() {
+  document.querySelectorAll('[data-effect]').forEach(cb => {
+    cb.checked = !!AMBIENCE_FLAGS[cb.dataset.effect];
+  });
+}
+
 function init() {
   // Create managers
   timer = new FastingTimer(store);
-  plantRenderer = new PlantRenderer(document.getElementById('plant-canvas'));
-  plantSVG = new PlantSVGRenderer(document.getElementById('plant-svg'));
   notifications = new NotificationManager(store);
+
+  // Init garden ambience
+  initGardenAmbience();
+  initSceneWorkshop();
 
   // Bind navigation
   bindNavigation();
@@ -142,7 +763,6 @@ function init() {
   timer.onTick = onTimerTick;
   timer.onComplete = onFastComplete;
 
-  // Navigate to journal entry from card back link
   window.addEventListener('bloom:go-to-journal', (e) => {
     const targetDate = e.detail?.date ? new Date(e.detail.date) : new Date();
     // Calculate how many weeks back this date is
@@ -171,10 +791,8 @@ function init() {
   // Resume active fast if any
   if (timer.resume()) {
     showActiveFastUI();
-    showPlantSVG(store.state.activeFast.plantType.category, timer.progress, store.state.activeFast.plantType);
-    plantRenderer.startAnimation();
+    showGardenScene(store.state.activeFast.plantType, timer.progress);
   } else {
-    plantRenderer.startAnimation();
   }
 
     // social removed
@@ -315,9 +933,6 @@ function bindTimerControls() {
       customConfirm(title, msg, () => {
         const { success, plant } = store.completeFast();
         timer.stopTicking();
-        plantRenderer.setProgress(0);
-        plantRenderer.setPlant(null);
-
         if (!success) {
           logAndResetWater(false);
           showIdleTimerUI();
@@ -330,6 +945,28 @@ function bindTimerControls() {
   });
 
   // Debug Timer Controls
+  // Show timer arrows whenever debug panel is visible
+  const debugTimeUp   = document.getElementById('btn-debug-time-up');
+  const debugTimeDown = document.getElementById('btn-debug-time-down');
+  if (debugTimeUp)   debugTimeUp.style.display   = 'block';
+  if (debugTimeDown) debugTimeDown.style.display = 'block';
+
+  function adjustTimerByMinutes(minutes) {
+    if (!timer.isRunning) { showToast('Start a fast first!'); return; }
+    store.adjustActiveFast(minutes / 60);
+    if (_debugPreviewOpen && store.state.activeFast) {
+      const planHours = selectedPlan && PLANS[selectedPlan] ? PLANS[selectedPlan].fastHours : 16;
+      const elapsed   = Date.now() - store.state.activeFast.startTime;
+      const progress  = Math.min(1, elapsed / (planHours * 3600000));
+      applyPreviewProgress(progress);
+    } else {
+      onTimerTick(timer);
+    }
+  }
+
+  debugTimeUp?.addEventListener('click',   () => adjustTimerByMinutes(5 / 60));
+  debugTimeDown?.addEventListener('click', () => adjustTimerByMinutes(-5 / 60));
+
   document.getElementById('btn-debug-add-1h')?.addEventListener('click', () => {
     if (!timer.isRunning) {
       showToast('Start a fast first to adjust time!');
@@ -367,18 +1004,6 @@ function bindTimerControls() {
     if (timer.tickInterval) onTimerTick(timer);
   });
 
-  // Animation preview helpers (debug)
-  function startPreview(category) {
-    if (window._previewInterval) clearInterval(window._previewInterval);
-    showPlantSVG(category, 0);
-    let p = 0;
-    window._previewInterval = setInterval(() => {
-      p += 0.015;
-      plantSVG.setProgress(Math.min(1, p));
-      if (p >= 1) { clearInterval(window._previewInterval); window._previewInterval = null; }
-    }, 100);
-  }
-  document.getElementById('btn-debug-zen')?.addEventListener('click', () => startPreview('Zen'));
   document.getElementById('btn-debug-coach')?.addEventListener('click', () => generateCoachingInsights(true));
 
   // Stage display preview
@@ -386,31 +1011,131 @@ function bindTimerControls() {
   const stagePreviewPanel  = document.getElementById('stage-preview-controls');
   const stagePreviewSlider = document.getElementById('stage-preview-slider');
   const stagePreviewPct    = document.getElementById('stage-preview-pct');
+  const stagePreviewLabel  = document.getElementById('stage-preview-label');
+  const stageMarkers       = document.getElementById('stage-preview-markers');
+  const stageTransBtns     = document.getElementById('stage-transition-btns');
 
   const sunflowerType = PLANT_SPECIES.find(p => p.id === 'sunflower_sprout');
+  const sfData = PLANT_STAGE_DATA['sunflower'];
 
+  // ---- helpers ----
+  function getPlanHours() {
+    return (selectedPlan && PLANS[selectedPlan]) ? PLANS[selectedPlan].fastHours : 16;
+  }
+
+  function fmt(ms) {
+    const s = Math.floor(Math.abs(ms) / 1000);
+    const h = Math.floor(s / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    const sec = s % 60;
+    return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+  }
+
+  // Apply a progress value [0..1] → update garden, slider, and timer display together
+  // syncTimer: true when user is scrubbing (adjusts the real fast start time)
+  //            false when tick is driving (display only, real timer untouched)
+  function applyPreviewProgress(progress, syncTimer = true) {
+    progress = Math.min(1, Math.max(0, progress));
+
+    // Update slider position
+    stagePreviewSlider.value = Math.round(progress * 1000);
+
+    // Update stage label
+    const stageIdx = sfData.stages.findIndex(s => progress <= s.maxProgress);
+    const idx = stageIdx === -1 ? sfData.stages.length - 1 : stageIdx;
+    stagePreviewPct.textContent   = `${Math.round(progress * 100)}%`;
+    stagePreviewLabel.textContent = `Stage ${idx + 1} — ${sfData.stages[idx].label}`;
+
+    // Update garden animation
+    updateGardenScene(progress, sunflowerType);
+
+    // Update timer UI
+    const goalMs    = getPlanHours() * 3600 * 1000;
+    const elapsedMs = Math.round(progress * goalMs);
+    const remainMs  = Math.max(0, goalMs - elapsedMs);
+    document.getElementById('timer-display').textContent = fmt(elapsedMs);
+    document.getElementById('timer-progress-fill').style.width = `${progress * 100}%`;
+    document.getElementById('growth-stage-label').textContent  = getSeasonMessage(progress);
+    const subtitle = document.getElementById('timer-subtitle');
+    if (progress >= 1) {
+      subtitle.textContent  = 'Goal reached!';
+      subtitle.style.color  = 'var(--accent-green)';
+    } else {
+      subtitle.textContent = `${fmt(remainMs)} remaining`;
+      subtitle.style.color = '';
+    }
+
+    // Only sync the real fast timer when the user is scrubbing, not on every tick
+    if (syncTimer && timer.isRunning && store.state.activeFast) {
+      const currentElapsedMs = Date.now() - store.state.activeFast.startTime;
+      const diffHours = (elapsedMs - currentElapsedMs) / 3600000;
+      store.adjustActiveFast(diffHours);
+    }
+  }
+  // Expose to onTimerTick (which is top-level and can't close over this function)
+  _applyPreviewProgress = (p) => applyPreviewProgress(p, false);
+
+  function buildStageDebugUI() {
+    stageMarkers.innerHTML = '';
+    stageTransBtns.innerHTML = '';
+    sfData.stages.forEach((s, i) => {
+      // Pip marker at each threshold
+      const pip = document.createElement('div');
+      pip.style.cssText = `position:absolute; left:${s.maxProgress * 100}%; top:0; width:2px; height:100%; background:#66ffaa88; transform:translateX(-50%);`;
+      stageMarkers.appendChild(pip);
+
+      if (i === sfData.stages.length - 1) return;
+      // Jump to the exact start of the next stage
+      const jumpProg = s.maxProgress + 0.0001;
+      const btn = document.createElement('button');
+      btn.className = 'btn btn-sm btn-outline';
+      btn.style.cssText = 'border-color:#66ffaa55; color:#66ffaa; font-size:0.7rem; padding:2px 8px;';
+      btn.textContent = `S${i + 1}→S${i + 2}`;
+      btn.addEventListener('click', () => applyPreviewProgress(jumpProg));
+      stageTransBtns.appendChild(btn);
+    });
+  }
+
+  // Open / close
   stagePreviewBtn?.addEventListener('click', () => {
     const isOpen = stagePreviewPanel.style.display !== 'none';
+    const workshopBtnEl = document.getElementById('btn-scene-workshop');
     if (isOpen) {
+      _debugPreviewOpen = false;
       stagePreviewPanel.style.display = 'none';
-      hidePlantSVG();
+      if (workshopBtnEl) workshopBtnEl.style.display = 'none';
+      document.getElementById('scene-workshop').style.display = 'none';
+      hideGardenScene();
+      document.querySelector('.plant-area').style.display = 'none';
       stagePreviewBtn.textContent = '🌻 Preview Growth';
     } else {
+      _debugPreviewOpen = true;
+      buildStageDebugUI();
       stagePreviewPanel.style.display = '';
-      document.getElementById('plant-canvas').style.display = 'none';
-      plantSVG.hide();
-      showStageDisplay(sunflowerType);
-      updateStageDisplay(0, sunflowerType);
-      stagePreviewSlider.value = 0;
-      stagePreviewPct.textContent = '0%';
+      if (workshopBtnEl) workshopBtnEl.style.display = '';
+      document.querySelector('.plant-area').style.display = 'flex';
+      document.getElementById('timer-card-wrap')?.style.setProperty('display', 'block');
+      showGardenScene(sunflowerType, 0);
+      applyPreviewProgress(0);
       stagePreviewBtn.textContent = '✕ Close Preview';
     }
   });
 
+  // Slider → everything else
   stagePreviewSlider?.addEventListener('input', () => {
-    const progress = stagePreviewSlider.value / 100;
-    stagePreviewPct.textContent = `${stagePreviewSlider.value}%`;
-    updateStageDisplay(progress, sunflowerType);
+    applyPreviewProgress(stagePreviewSlider.value / 1000);
+  });
+
+  // Step arrows (5 seconds)
+  function getStepSize() {
+    return 5 / (getPlanHours() * 3600); // as progress fraction
+  }
+
+  document.getElementById('stage-step-back')?.addEventListener('click', () => {
+    applyPreviewProgress(stagePreviewSlider.value / 1000 - getStepSize());
+  });
+  document.getElementById('stage-step-fwd')?.addEventListener('click', () => {
+    applyPreviewProgress(stagePreviewSlider.value / 1000 + getStepSize());
   });
 }
 
@@ -451,8 +1176,7 @@ function startFast() {
   timer.start(selectedPlan, goalMs, plantType);
   console.log('[Bloomfast] Plant selected:', plantType?.name ?? 'Zen Garden (all collected)', '| Category:', plantType?.category ?? 'Zen');
 
-  // Show SVG growth animation — Zen Garden if all plants collected
-  showPlantSVG(plantType?.category ?? 'Zen', 0, plantType);
+  showGardenScene(plantType, 0);
 
   // Update UI — hide species info, show mystery
   showActiveFastUI();
@@ -511,7 +1235,7 @@ function showIdleTimerUI() {
   document.getElementById('growth-stage-label').textContent = 'Plant a seed to begin';
   document.getElementById('tab-timer').style.backgroundColor = '';
   document.querySelector('.plant-area').style.display = 'none';
-  hidePlantSVG();
+  hideGardenScene();
   updateTimerDecoration(0);
 }
 
@@ -587,6 +1311,11 @@ function updateSeasonBackground(progress, category) {
 let lastMilestoneHour = -1;
 
 function onTimerTick(t) {
+  if (_debugPreviewOpen) {
+    _applyPreviewProgress?.(Math.min(1, t.progress));
+    return;
+  }
+
   // Update timer display
   document.getElementById('timer-display').textContent = t.formatTimeElapsed();
   
@@ -605,12 +1334,10 @@ function onTimerTick(t) {
   document.getElementById('growth-stage-label').textContent = getSeasonMessage(t.progress);
   updateSeasonBackground(t.progress, t.activeFast?.plantType?.category);
 
-  // Update plant growth display
-  const activePlantType = store.state.activeFast?.plantType;
-  if (activePlantType && STAGE_BASE_IDS.has(getPlantBaseId(activePlantType))) {
-    updateStageDisplay(Math.min(1, t.progress), activePlantType);
-  } else {
-    plantSVG.setProgress(Math.min(1, t.progress));
+  // Update plant growth display (skip if debug preview is active)
+  if (!_debugPreviewActive) {
+    const activePlantType = store.state.activeFast?.plantType;
+    updateGardenScene(Math.min(1, t.progress), activePlantType);
   }
   updateTimerDecoration(t.progress);
 
@@ -665,7 +1392,6 @@ function onFastComplete(result) {
     showToast('🏆 Fast complete! Your streak grows stronger. Botanical Master!');
     setTimeout(() => {
       showIdleTimerUI();
-      hidePlantSVG();
     }, 2000);
   }
 
@@ -675,8 +1401,6 @@ function onFastComplete(result) {
     // Keep the Full Bloom visible for a moment, then reset
     setTimeout(() => {
       showIdleTimerUI();
-      plantRenderer.setProgress(0);
-      plantRenderer.setPlant(null);
     }, 5000);
   }
 
@@ -718,7 +1442,7 @@ function showPlantRevealModal(plantType, funFact, waterCount) {
         This ${plantType?.name || 'plant'} has been added to your Botanical Collection! 🪴
       </p>
       <div class="reflection-bonus-hint">
-        ✨ Reflecting adds your mood, energy & journal entry to the back of this card.
+        ✨ Fill out your Body Metrics or Mindfulness Journal today and a link will appear on the back of this card.
       </div>
       <div class="reveal-action-row">
         <button class="btn btn-outline" id="btn-close-reveal" data-plant-id="${plantType?.id || ''}">View Collection</button>
@@ -773,7 +1497,7 @@ function showReflectionPrompt() {
         Take a moment to reflect in your Inner Garden — it only takes a minute.
       </p>
       <div class="reflection-bonus-hint">
-        ✨ Reflecting adds your mood, energy & journal to the back of your specimen cards — making each one uniquely yours.
+        ✨ Fill out your Body Metrics or Mindfulness Journal today and a link will appear on the back of your specimen card.
       </div>
       <p style="color: var(--text-muted); font-size: 0.72rem; margin-top: var(--space-sm);">No pressure — you can always skip.</p>
       <div class="reveal-action-row">

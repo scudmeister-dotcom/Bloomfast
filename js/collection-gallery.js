@@ -235,7 +235,7 @@ export class CollectionGallery {
         const mins = Math.floor(((stats.firstEarned.actualMs || 0) % 3600000) / 60000);
         const durationStr = `${hours}h ${mins}m`;
 
-        // Look up reflection data (journal + metrics) from the day this plant was earned
+        // Look up data from the day this plant was earned
         const fastDateStr = stats.firstEarned.endTime
           ? new Date(stats.firstEarned.endTime).toDateString()
           : null;
@@ -246,18 +246,11 @@ export class CollectionGallery {
           ? (this.store.state.metrics || []).find(m => new Date(m.timestamp).toDateString() === fastDateStr)
           : null;
 
-        // Scores on the front, journal link on the back
-        const frontScoresHtml = metricsEntry
-          ? `<div class="card-front-scores">
-               <span title="Mood">😌 ${metricsEntry.mood}</span>
-               <span title="Energy">⚡ ${metricsEntry.energy}</span>
-               <span title="Sleep">🌙 ${metricsEntry.sleep}</span>
-             </div>`
-          : '';
-
-        const backLinkHtml = journalEntry
-          ? `<button class="card-reflection-link" data-date="${fastDateStr}">View journal entry →</button>`
-          : '';
+        // Back link: show if user filled out journal OR metrics on the day of the fast
+        let backLinkHtml = '';
+        if (fastDateStr && (journalEntry || metricsEntry)) {
+          backLinkHtml = `<button class="card-reflection-link" data-date="${fastDateStr}">View reflection →</button>`;
+        }
 
         // Legend-only extras
         const isLegendary = plant.rarity === 'legendary';
@@ -297,7 +290,6 @@ export class CollectionGallery {
                 <div class="name">${plant.name}</div>
                 <div class="rarity">${rarityDisplay[plant.rarity]}</div>
               </div>
-              ${frontScoresHtml}
             </div>
             <div class="card-face card-back" style="border-color:${rarityColor[plant.rarity]}">
               <div class="specimen-header">Specimen Record</div>
@@ -335,7 +327,6 @@ export class CollectionGallery {
       const cardInner = el.querySelector('.botanical-card');
       if (isEarned && cardInner) {
         el.addEventListener('click', (e) => {
-          // Don't flip if the journal link was clicked
           if (e.target.closest('.card-reflection-link')) return;
           cardInner.classList.toggle('flipped');
           if (this.flipSound) this.flipSound();
